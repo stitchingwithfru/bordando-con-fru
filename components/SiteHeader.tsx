@@ -8,7 +8,8 @@ export function SiteHeader() {
           <div className="brand-title serif">Bordando con Fru</div>
           <div className="brand-subtitle">Contenido y herramientas digitales para bordadoras</div>
         </div>
-        <nav className="nav">
+
+        <nav className="nav nav-desktop">
           <Link href="/">Inicio</Link>
           <details className="dropdown">
             <summary>Herramientas</summary>
@@ -24,6 +25,18 @@ export function SiteHeader() {
           <Link href="/faq">FAQ</Link>
           <Link href="/contacto">Contacto</Link>
         </nav>
+
+        <details className="mobile-nav">
+          <summary>Menú</summary>
+          <div className="mobile-nav-menu">
+            <Link href="/">Inicio</Link>
+            <div className="mobile-nav-section-title">Herramientas</div>
+            <Link href="/herramientas/seguimiento">Sistema de Seguimiento de Punto de Cruz</Link>
+            <Link href="/herramientas/inventario">Sistema de Inventario Profesional</Link>
+            <Link href="/faq">FAQ</Link>
+            <Link href="/contacto">Contacto</Link>
+          </div>
+        </details>
       </div>
     </header>
   );
