@@ -1,4 +1,4 @@
-import { Card, InfoBadge, PrimaryLink, SectionTitle } from "@/components/UI";
+import { Card, InfoBadge, PrimaryLink, SecondaryLink, SectionTitle } from "@/components/UI";
 
 export default function SeguimientoPage() {
   const versions = [
@@ -60,6 +60,22 @@ export default function SeguimientoPage() {
               </div>
             </Card>
           </div>
+        </div>
+      </section>
+
+
+
+      <section className="section section-soft">
+        <div className="container">
+          <Card>
+            <InfoBadge tone="sage">Vídeos</InfoBadge>
+            <h2 className="serif">Presentación y demo en YouTube</h2>
+            <p className="muted">Si quieres ver la herramienta en vídeo antes de hacer tu pedido, puedes abrir estos contenidos en YouTube en una ventana aparte.</p>
+            <div className="button-row" style={{ marginTop: 24 }}>
+              <SecondaryLink href="https://youtu.be/HrWpcgWmIWg" newTab>Vídeo de presentación</SecondaryLink>
+              <SecondaryLink href="https://youtu.be/dOApose0eC0" newTab>Vídeo de demo</SecondaryLink>
+            </div>
+          </Card>
         </div>
       </section>
 

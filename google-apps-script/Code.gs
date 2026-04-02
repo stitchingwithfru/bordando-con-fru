@@ -196,7 +196,7 @@ function paymentInstructionsHtml_(data) {
       "<p><strong>Importe:</strong> " + total + "</p>",
       "<p>Puedes completar el pago usando el código QR mostrado al finalizar el pedido en la web.</p>",
       "<p><strong>Si el QR no te funciona correctamente</strong>, realiza el pago a este email: <strong>frnt24@hotmail.com</strong>.</p>",
-      '<p>Indica el importe correspondiente y, en la nota, escribe tu nombre completo. Selecciona "Amigos y familiares" para completar el pago.</p>'
+      "<p>Indica el importe correspondiente y, en la nota, escribe tu nombre completo. Selecciona "Amigos y familiares" para completar el pago.</p>"
     ].join("");
   }
 

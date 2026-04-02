@@ -1,4 +1,4 @@
-import { Card, InfoBadge, PrimaryLink, SectionTitle } from "@/components/UI";
+import { Card, InfoBadge, PrimaryLink, SecondaryLink, SectionTitle } from "@/components/UI";
 
 export default function InventarioPage() {
   const items = [
@@ -56,6 +56,21 @@ export default function InventarioPage() {
               </div>
             </Card>
           </div>
+        </div>
+      </section>
+
+
+
+      <section className="section section-soft">
+        <div className="container">
+          <Card>
+            <InfoBadge tone="sage">Vídeos</InfoBadge>
+            <h2 className="serif">Presentación y demo en YouTube</h2>
+            <p className="muted">Si quieres ver cómo funciona el sistema antes de hacer tu pedido, puedes abrir este vídeo en YouTube en una ventana aparte.</p>
+            <div className="button-row" style={{ marginTop: 24 }}>
+              <SecondaryLink href="https://youtu.be/aILUk0xf-bY" newTab>Vídeo de presentación y demo</SecondaryLink>
+            </div>
+          </Card>
         </div>
       </section>
 
