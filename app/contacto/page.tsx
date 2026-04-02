@@ -131,7 +131,7 @@ export default function ContactPage() {
                     <button className="btn-secondary" type="button" onClick={resetForm}>Enviar otro mensaje</button>
                   </div>
                 ) : (
-                  <button className="btn-primary" disabled={isBusy || !ready} onClick={handleSubmit}>{isBusy ? "Enviando…" : "Enviar mensaje"}</button>
+                  <button className="btn-primary" disabled={isBusy} onClick={handleSubmit}>{isBusy ? "Enviando…" : "Enviar mensaje"}</button>
                 )}
 
                 {submitState.status !== "idle" ? (
