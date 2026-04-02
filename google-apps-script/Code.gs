@@ -185,6 +185,34 @@ function sendOwnerInventoryEmail_(ownerEmail, reference, data) {
   });
 }
 
+function paymentInstructionsHtml_(data) {
+  var method = String(data.paymentMethod || "").toLowerCase();
+  var total = escapeHtml_(String(data.total || "")) + " €";
+
+  if (method === "paypal") {
+    return [
+      "<p><strong>Datos de pago:</strong></p>",
+      "<p><strong>Método:</strong> PayPal</p>",
+      "<p><strong>Importe:</strong> " + total + "</p>",
+      "<p>Puedes completar el pago usando el código QR mostrado al finalizar el pedido en la web.</p>",
+      "<p><strong>Si el QR no te funciona correctamente</strong>, realiza el pago a este email: <strong>frnt24@hotmail.com</strong>.</p>",
+      '<p>Indica el importe correspondiente y, en la nota, escribe tu nombre completo. Selecciona "Amigos y familiares" para completar el pago.</p>'
+    ].join("");
+  }
+
+  if (method === "bizum") {
+    return [
+      "<p><strong>Datos de pago:</strong></p>",
+      "<p><strong>Método:</strong> Bizum</p>",
+      "<p><strong>Importe:</strong> " + total + "</p>",
+      "<p>Envía el pago al siguiente número: <strong>624009129</strong>.</p>",
+      "<p><strong>Concepto:</strong> tu nombre completo.</p>"
+    ].join("");
+  }
+
+  return "";
+}
+
 function sendUserOrderConfirmation_(email, reference, productName, data) {
   if (!email) return;
 
@@ -198,6 +226,7 @@ function sendUserOrderConfirmation_(email, reference, productName, data) {
       "<p><strong>Producto:</strong> " + escapeHtml_(productName) + "</p>",
       "<p><strong>Método de pago seleccionado:</strong> " + escapeHtml_(data.paymentMethod || "") + "</p>",
       "<p><strong>Importe total:</strong> " + escapeHtml_(String(data.total || "")) + " €</p>",
+      paymentInstructionsHtml_(data),
       "<p>Una vez comprobado el pago, recibirás la entrega correspondiente por correo electrónico.</p>",
       "<p>Gracias.</p>",
     ].join(""),

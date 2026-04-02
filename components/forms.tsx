@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import type { Dispatch, ReactNode, SetStateAction } from "react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 type ConfirmationState = {
   manual: boolean;
@@ -201,6 +201,22 @@ function PaymentInstructions({ paymentMethod, total, reference }: { paymentMetho
   );
 }
 
+function useScrollToPaymentOnSuccess(isLocked: boolean, reference?: string | null) {
+  const paymentRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!isLocked || !paymentRef.current) return;
+
+    const timer = window.setTimeout(() => {
+      paymentRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 120);
+
+    return () => window.clearTimeout(timer);
+  }, [isLocked, reference]);
+
+  return paymentRef;
+}
+
 export function TrackingOrderForm() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -243,6 +259,7 @@ export function TrackingOrderForm() {
   const ready = Boolean(name.trim() && email.trim() && paymentMethod && total > 0 && Object.values(confirmations).every(Boolean));
   const isLocked = submitState.status === "success";
   const isBusy = submitState.status === "submitting";
+  const paymentRef = useScrollToPaymentOnSuccess(isLocked, submitState.reference);
 
   const resetForm = () => {
     setName("");
@@ -351,7 +368,7 @@ export function TrackingOrderForm() {
             <SubmitFeedback state={submitState} />
           </div>
         </div>
-        {isLocked ? <PaymentInstructions paymentMethod={paymentMethod} total={total} reference={submitState.reference} /> : null}
+        {isLocked ? <div ref={paymentRef}><PaymentInstructions paymentMethod={paymentMethod} total={total} reference={submitState.reference} /></div> : null}
       </div>
     </div>
   );
@@ -395,6 +412,7 @@ export function InventoryOrderForm() {
   const ready = Boolean(name.trim() && email.trim() && paymentMethod && total > 0 && Object.values(confirmations).every(Boolean));
   const isLocked = submitState.status === "success";
   const isBusy = submitState.status === "submitting";
+  const paymentRef = useScrollToPaymentOnSuccess(isLocked, submitState.reference);
 
   const resetForm = () => {
     setName("");
@@ -517,7 +535,7 @@ export function InventoryOrderForm() {
             <SubmitFeedback state={submitState} />
           </div>
         </div>
-        {isLocked ? <PaymentInstructions paymentMethod={paymentMethod} total={total} reference={submitState.reference} /> : null}
+        {isLocked ? <div ref={paymentRef}><PaymentInstructions paymentMethod={paymentMethod} total={total} reference={submitState.reference} /></div> : null}
       </div>
     </div>
   );
