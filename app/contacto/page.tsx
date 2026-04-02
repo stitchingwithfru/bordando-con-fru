@@ -43,8 +43,24 @@ export default function ContactPage() {
   const [submitState, setSubmitState] = useState<SubmitState>({ status: "idle", message: "" });
 
   const ready = useMemo(() => Boolean(name.trim() && email.trim() && subject.trim() && message.trim() && privacyAccepted), [name, email, subject, message, privacyAccepted]);
+  const isLocked = submitState.status === "success";
+  const isBusy = submitState.status === "submitting";
+
+  const resetForm = () => {
+    setName("");
+    setEmail("");
+    setSubject("");
+    setMessage("");
+    setPrivacyAccepted(false);
+    setMarketingAccepted(false);
+    setSubmitState({ status: "idle", message: "" });
+  };
 
   const handleSubmit = async () => {
+    if (isLocked || isBusy) {
+      return;
+    }
+
     if (!name.trim() || !email.trim() || !subject.trim() || !message.trim()) {
       setSubmitState({ status: "error", message: "Completa nombre, correo electrónico, asunto y mensaje antes de enviar." });
       return;
@@ -85,10 +101,10 @@ export default function ContactPage() {
             <Card>
               <h2 className="serif">Escríbeme</h2>
               <div className="form-stack">
-                <div className="field"><label>Nombre</label><input className="input" placeholder="Tu nombre" value={name} onChange={(e) => setName(e.target.value)} /></div>
-                <div className="field"><label>Correo electrónico</label><input className="input" placeholder="tuemail@ejemplo.com" value={email} onChange={(e) => setEmail(e.target.value)} /></div>
-                <div className="field"><label>Asunto</label><input className="input" placeholder="Motivo de tu consulta" value={subject} onChange={(e) => setSubject(e.target.value)} /></div>
-                <div className="field"><label>Mensaje</label><textarea className="textarea" placeholder="Escribe aquí tu consulta" value={message} onChange={(e) => setMessage(e.target.value)} /></div>
+                <div className="field"><label>Nombre</label><input className="input" placeholder="Tu nombre" value={name} onChange={(e) => setName(e.target.value)} disabled={isLocked || isBusy} /></div>
+                <div className="field"><label>Correo electrónico</label><input className="input" placeholder="tuemail@ejemplo.com" value={email} onChange={(e) => setEmail(e.target.value)} disabled={isLocked || isBusy} /></div>
+                <div className="field"><label>Asunto</label><input className="input" placeholder="Motivo de tu consulta" value={subject} onChange={(e) => setSubject(e.target.value)} disabled={isLocked || isBusy} /></div>
+                <div className="field"><label>Mensaje</label><textarea className="textarea" placeholder="Escribe aquí tu consulta" value={message} onChange={(e) => setMessage(e.target.value)} disabled={isLocked || isBusy} /></div>
 
                 <div className="legal-box">
                   <p className="legal-text"><strong style={{ color: "var(--text)" }}>Información básica sobre protección de datos</strong></p>
@@ -101,16 +117,22 @@ export default function ContactPage() {
                 </div>
 
                 <label className="checkbox-row">
-                  <input type="checkbox" checked={privacyAccepted} onChange={(e) => setPrivacyAccepted(e.target.checked)} />
+                  <input type="checkbox" checked={privacyAccepted} onChange={(e) => setPrivacyAccepted(e.target.checked)} disabled={isLocked || isBusy} />
                   <span>He leído y acepto la <Link href="/politica-privacidad">Política de privacidad</Link>.</span>
                 </label>
 
                 <label className="checkbox-row">
-                  <input type="checkbox" checked={marketingAccepted} onChange={(e) => setMarketingAccepted(e.target.checked)} />
+                  <input type="checkbox" checked={marketingAccepted} onChange={(e) => setMarketingAccepted(e.target.checked)} disabled={isLocked || isBusy} />
                   <span>Quiero recibir por email novedades, actualizaciones y nuevos lanzamientos de Bordando con Fru.</span>
                 </label>
 
-                <button className="btn-primary" disabled={submitState.status === "submitting"} onClick={handleSubmit}>{submitState.status === "submitting" ? "Enviando…" : "Enviar mensaje"}</button>
+                {isLocked ? (
+                  <div className="button-row">
+                    <button className="btn-secondary" type="button" onClick={resetForm}>Enviar otro mensaje</button>
+                  </div>
+                ) : (
+                  <button className="btn-primary" disabled={isBusy || !ready} onClick={handleSubmit}>{isBusy ? "Enviando…" : "Enviar mensaje"}</button>
+                )}
 
                 {submitState.status !== "idle" ? (
                   <div className={submitState.status === "success" ? "feedback-box feedback-success" : submitState.status === "error" ? "feedback-box feedback-error" : "feedback-box"}>
