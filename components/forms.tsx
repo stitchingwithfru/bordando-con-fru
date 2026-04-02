@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 
 type ConfirmationState = {
@@ -9,17 +10,7 @@ type ConfirmationState = {
   waiver: boolean;
 };
 
-function Field({
-  label,
-  value,
-  onChange,
-  placeholder = "",
-}: {
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-  placeholder?: string;
-}) {
+function Field({ label, value, onChange, placeholder = "" }: { label: string; value: string; onChange: (v: string) => void; placeholder?: string; }) {
   return (
     <div className="field">
       <label>{label}</label>
@@ -28,19 +19,7 @@ function Field({
   );
 }
 
-function SelectField({
-  label,
-  value,
-  onChange,
-  options,
-  placeholder = "Selecciona una opción",
-}: {
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-  options: { value: string; label: string }[];
-  placeholder?: string;
-}) {
+function SelectField({ label, value, onChange, options, placeholder = "Selecciona una opción" }: { label: string; value: string; onChange: (v: string) => void; options: { value: string; label: string }[]; placeholder?: string; }) {
   return (
     <div className="field">
       <label>{label}</label>
@@ -54,17 +33,7 @@ function SelectField({
   );
 }
 
-function CheckRow({
-  checked,
-  onChange,
-  label,
-  disabled = false,
-}: {
-  checked: boolean;
-  onChange: (v: boolean) => void;
-  label: string;
-  disabled?: boolean;
-}) {
+function CheckRow({ checked, onChange, label, disabled = false }: { checked: boolean; onChange: (v: boolean) => void; label: React.ReactNode; disabled?: boolean; }) {
   return (
     <label className="checkbox-row" style={disabled ? { opacity: 0.5 } : undefined}>
       <input type="checkbox" checked={checked} disabled={disabled} onChange={(e) => onChange(e.target.checked)} />
@@ -73,19 +42,27 @@ function CheckRow({
   );
 }
 
-function Conditions({
-  value,
-  onChange,
-}: {
-  value: ConfirmationState;
-  onChange: React.Dispatch<React.SetStateAction<ConfirmationState>>;
-}) {
+function Conditions({ value, onChange }: { value: ConfirmationState; onChange: React.Dispatch<React.SetStateAction<ConfirmationState>>; }) {
   return (
     <div className="form-stack">
       <CheckRow checked={value.manual} onChange={(v) => onChange((p) => ({ ...p, manual: v }))} label="Entiendo que es un producto digital con entrega manual." />
-      <CheckRow checked={value.copy} onChange={(v) => onChange((p) => ({ ...p, copy: v }))} label="Entiendo que recibiré un enlace por email para realizar una copia del Sheet." />
-      <CheckRow checked={value.refunds} onChange={(v) => onChange((p) => ({ ...p, refunds: v }))} label="Entiendo que, una vez entregado el acceso al archivo, no se aceptan devoluciones." />
-      <CheckRow checked={value.waiver} onChange={(v) => onChange((p) => ({ ...p, waiver: v }))} label="Solicito la entrega inmediata del contenido digital y entiendo que pierdo mi derecho de desistimiento una vez realizada la entrega." />
+      <CheckRow checked={value.copy} onChange={(v) => onChange((p) => ({ ...p, copy: v }))} label="Entiendo que recibiré el contenido en el correo electrónico facilitado en el pedido." />
+      <CheckRow checked={value.refunds} onChange={(v) => onChange((p) => ({ ...p, refunds: v }))} label="Entiendo que, una vez entregado el acceso al contenido digital, no se aceptan devoluciones." />
+      <CheckRow checked={value.waiver} onChange={(v) => onChange((p) => ({ ...p, waiver: v }))} label={<>Solicito la entrega del contenido digital y acepto estas <Link href="/condiciones-compra">Condiciones de compra</Link>.</>} />
+    </div>
+  );
+}
+
+function OrderPrivacyNotice() {
+  return (
+    <div className="legal-box">
+      <p className="legal-text"><strong style={{ color: "var(--text)" }}>Información básica sobre protección de datos</strong></p>
+      <p className="legal-text">Responsable: <strong style={{ color: "var(--text)" }}>Bordando con Fru</strong>.</p>
+      <p className="legal-text">Finalidad: gestionar tu pedido, comunicarnos contigo y realizar la entrega del producto digital adquirido. Si lo autorizas expresamente, también podremos enviarte información sobre novedades y nuevos lanzamientos.</p>
+      <p className="legal-text">Legitimación: ejecución de la relación derivada del pedido y, en su caso, consentimiento.</p>
+      <p className="legal-text">Destinatarios: no cedemos tus datos a terceros.</p>
+      <p className="legal-text">Derechos: puedes acceder, rectificar o suprimir tus datos escribiendo a <a href="mailto:stitchingwithfru@gmail.com">stitchingwithfru@gmail.com</a>.</p>
+      <p className="legal-text">Más información en la <Link href="/politica-privacidad">Política de privacidad</Link>.</p>
     </div>
   );
 }
@@ -98,6 +75,7 @@ export function TrackingOrderForm() {
   const [currentVersion, setCurrentVersion] = useState("");
   const [upgradeVersion, setUpgradeVersion] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("");
+  const [marketingAccepted, setMarketingAccepted] = useState(false);
   const [confirmations, setConfirmations] = useState<ConfirmationState>({ manual: false, copy: false, refunds: false, waiver: false });
 
   const newOptions = [
@@ -155,6 +133,13 @@ export function TrackingOrderForm() {
           <div className="badge">Condiciones</div>
           <Conditions value={confirmations} onChange={setConfirmations} />
         </div>
+        <div className="card">
+          <div className="badge badge-sage">Privacidad</div>
+          <OrderPrivacyNotice />
+          <div style={{ marginTop: 16 }}>
+            <CheckRow checked={marketingAccepted} onChange={setMarketingAccepted} label="Quiero recibir por email novedades, actualizaciones y nuevos lanzamientos de Bordando con Fru." />
+          </div>
+        </div>
         <div className="status-box">
           <div className="badge badge-sage">Estado</div>
           <p className="muted">Pedido listo para enviar: <strong style={{ color: "var(--text)" }}>{ready ? "sí" : "todavía no"}</strong></p>
@@ -173,6 +158,7 @@ export function InventoryOrderForm() {
   const [owned, setOwned] = useState<string[]>([]);
   const [wanted, setWanted] = useState<string[]>([]);
   const [paymentMethod, setPaymentMethod] = useState("");
+  const [marketingAccepted, setMarketingAccepted] = useState(false);
   const [confirmations, setConfirmations] = useState<ConfirmationState>({ manual: false, copy: false, refunds: false, waiver: false });
 
   const complementOptions = [
@@ -240,6 +226,13 @@ export function InventoryOrderForm() {
         <div className="card">
           <div className="badge">Condiciones</div>
           <Conditions value={confirmations} onChange={setConfirmations} />
+        </div>
+        <div className="card">
+          <div className="badge badge-sage">Privacidad</div>
+          <OrderPrivacyNotice />
+          <div style={{ marginTop: 16 }}>
+            <CheckRow checked={marketingAccepted} onChange={setMarketingAccepted} label="Quiero recibir por email novedades, actualizaciones y nuevos lanzamientos de Bordando con Fru." />
+          </div>
         </div>
         <div className="status-box">
           <div className="badge badge-sage">Estado</div>
