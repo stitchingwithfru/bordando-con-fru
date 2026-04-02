@@ -41,20 +41,55 @@ type InventoryPayload = {
   total: number;
 };
 
-function Field({ label, value, onChange, placeholder = "" }: { label: string; value: string; onChange: (v: string) => void; placeholder?: string; }) {
+const PAYPAL_FALLBACK_EMAIL = "frnt24@hotmail.com";
+const BIZUM_PHONE = "624009129";
+const PAYPAL_IMAGE = "/payment/pago-paypal.png";
+const BIZUM_IMAGE = "/payment/pago-bizum.png";
+
+function formatEuro(amount: number) {
+  return `${amount.toFixed(2).replace(".", ",")} €`;
+}
+
+function Field({
+  label,
+  value,
+  onChange,
+  placeholder = "",
+  disabled = false,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  placeholder?: string;
+  disabled?: boolean;
+}) {
   return (
     <div className="field">
       <label>{label}</label>
-      <input className="input" value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} />
+      <input className="input" value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} disabled={disabled} />
     </div>
   );
 }
 
-function SelectField({ label, value, onChange, options, placeholder = "Selecciona una opción" }: { label: string; value: string; onChange: (v: string) => void; options: { value: string; label: string }[]; placeholder?: string; }) {
+function SelectField({
+  label,
+  value,
+  onChange,
+  options,
+  placeholder = "Selecciona una opción",
+  disabled = false,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  options: { value: string; label: string }[];
+  placeholder?: string;
+  disabled?: boolean;
+}) {
   return (
     <div className="field">
       <label>{label}</label>
-      <select className="select" value={value} onChange={(e) => onChange(e.target.value)}>
+      <select className="select" value={value} onChange={(e) => onChange(e.target.value)} disabled={disabled}>
         <option value="">{placeholder}</option>
         {options.map((option) => (
           <option key={option.value} value={option.value}>{option.label}</option>
@@ -73,13 +108,13 @@ function CheckRow({ checked, onChange, label, disabled = false }: { checked: boo
   );
 }
 
-function Conditions({ value, onChange }: { value: ConfirmationState; onChange: Dispatch<SetStateAction<ConfirmationState>>; }) {
+function Conditions({ value, onChange, disabled = false }: { value: ConfirmationState; onChange: Dispatch<SetStateAction<ConfirmationState>>; disabled?: boolean; }) {
   return (
     <div className="form-stack">
-      <CheckRow checked={value.manual} onChange={(v) => onChange((p) => ({ ...p, manual: v }))} label="Entiendo que es un producto digital con entrega manual." />
-      <CheckRow checked={value.copy} onChange={(v) => onChange((p) => ({ ...p, copy: v }))} label="Entiendo que recibiré el contenido en el correo electrónico facilitado en el pedido." />
-      <CheckRow checked={value.refunds} onChange={(v) => onChange((p) => ({ ...p, refunds: v }))} label="Entiendo que, una vez entregado el acceso al contenido digital, no se aceptan devoluciones." />
-      <CheckRow checked={value.waiver} onChange={(v) => onChange((p) => ({ ...p, waiver: v }))} label={<>Solicito la entrega del contenido digital y acepto estas <Link href="/condiciones-compra">Condiciones de compra</Link>.</>} />
+      <CheckRow checked={value.manual} disabled={disabled} onChange={(v) => onChange((p) => ({ ...p, manual: v }))} label="Entiendo que es un producto digital con entrega manual." />
+      <CheckRow checked={value.copy} disabled={disabled} onChange={(v) => onChange((p) => ({ ...p, copy: v }))} label="Entiendo que recibiré el contenido en el correo electrónico facilitado en el pedido." />
+      <CheckRow checked={value.refunds} disabled={disabled} onChange={(v) => onChange((p) => ({ ...p, refunds: v }))} label="Entiendo que, una vez entregado el acceso al contenido digital, no se aceptan devoluciones." />
+      <CheckRow checked={value.waiver} disabled={disabled} onChange={(v) => onChange((p) => ({ ...p, waiver: v }))} label={<>Solicito la entrega del contenido digital y acepto estas <Link href="/condiciones-compra">Condiciones de compra</Link>.</>} />
     </div>
   );
 }
@@ -128,6 +163,44 @@ function SubmitFeedback({ state }: { state: SubmitState }) {
   );
 }
 
+function PaymentInstructions({ paymentMethod, total, reference }: { paymentMethod: string; total: number; reference?: string | null; }) {
+  if (!paymentMethod) return null;
+
+  const isPaypal = paymentMethod === "paypal";
+
+  return (
+    <div className="card card-soft">
+      <div className="badge badge-soft">Datos de pago</div>
+      <h3 className="serif">Completa ahora el pago</h3>
+      <div className="list" style={{ marginBottom: 20 }}>
+        <p>• Método seleccionado: <strong style={{ color: "var(--text)" }}>{isPaypal ? "PayPal" : "Bizum"}</strong></p>
+        <p>• Importe total: <strong style={{ color: "var(--text)" }}>{formatEuro(total)}</strong></p>
+        {reference ? <p>• Referencia del pedido: <strong style={{ color: "var(--text)" }}>{reference}</strong></p> : null}
+      </div>
+
+      {isPaypal ? (
+        <div className="payment-stack">
+          <img src={PAYPAL_IMAGE} alt="Instrucciones de pago por PayPal" className="payment-image" />
+          <div className="status-box">
+            <p className="legal-text"><strong style={{ color: "var(--text)" }}>⚠️ Si el QR no te funciona correctamente</strong>, haz el envío del pago a este email: <strong style={{ color: "var(--text)" }}>{PAYPAL_FALLBACK_EMAIL}</strong>, y sigue los PASOS 2 y 3 de la imagen.</p>
+          </div>
+        </div>
+      ) : (
+        <div className="payment-stack">
+          <img src={BIZUM_IMAGE} alt="Instrucciones de pago por Bizum" className="payment-image" />
+          <div className="status-box">
+            <p className="legal-text">Número Bizum: <strong style={{ color: "var(--text)" }}>{BIZUM_PHONE}</strong></p>
+          </div>
+        </div>
+      )}
+
+      <div className="status-box" style={{ marginTop: 20 }}>
+        <p className="legal-text">Una vez comprobado el pago, recibirás la entrega correspondiente por correo electrónico.</p>
+      </div>
+    </div>
+  );
+}
+
 export function TrackingOrderForm() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -168,8 +241,25 @@ export function TrackingOrderForm() {
   }, [requestType, newVersion, safeUpgradeOptions, upgradeVersion]);
 
   const ready = Boolean(name.trim() && email.trim() && paymentMethod && total > 0 && Object.values(confirmations).every(Boolean));
+  const isLocked = submitState.status === "success";
+  const isBusy = submitState.status === "submitting";
+
+  const resetForm = () => {
+    setName("");
+    setEmail("");
+    setRequestType("");
+    setNewVersion("");
+    setCurrentVersion("");
+    setUpgradeVersion("");
+    setPaymentMethod("");
+    setMarketingAccepted(false);
+    setConfirmations({ manual: false, copy: false, refunds: false, waiver: false });
+    setSubmitState({ status: "idle", message: "" });
+  };
 
   const handleSubmit = async () => {
+    if (isLocked || isBusy) return;
+
     if (!name.trim() || !email.trim()) {
       setSubmitState({ status: "error", message: "Completa nombre y correo electrónico antes de enviar el pedido." });
       return;
@@ -202,7 +292,7 @@ export function TrackingOrderForm() {
       const result = await submitForm("tracking_order", payload);
       setSubmitState({
         status: "success",
-        message: "Tu pedido se ha enviado correctamente. Recibirás la gestión correspondiente por correo electrónico una vez revisado.",
+        message: "Tu pedido se ha enviado correctamente. A continuación tienes los datos de pago según el método elegido.",
         reference: result.reference ?? null,
       });
     } catch (error) {
@@ -217,44 +307,51 @@ export function TrackingOrderForm() {
     <div className="form-grid">
       <div className="card">
         <div className="form-stack">
-          <Field label="Nombre completo" value={name} onChange={setName} placeholder="Tu nombre" />
-          <Field label="Email de contacto" value={email} onChange={setEmail} placeholder="tuemail@ejemplo.com" />
-          <SelectField label="Tipo de pedido" value={requestType} onChange={(v) => { setRequestType(v); setNewVersion(""); setCurrentVersion(""); setUpgradeVersion(""); setSubmitState({ status: "idle", message: "" }); }} options={[{ value: "new", label: "Compra nueva" }, { value: "upgrade", label: "Ya adquirí el sistema y quiero una versión superior" }]} />
-          {requestType === "new" ? <SelectField label="¿Qué versión quieres adquirir?" value={newVersion} onChange={setNewVersion} options={newOptions.map((i) => ({ value: i.value, label: i.label }))} /> : null}
+          <Field label="Nombre completo" value={name} onChange={setName} placeholder="Tu nombre" disabled={isLocked || isBusy} />
+          <Field label="Email de contacto" value={email} onChange={setEmail} placeholder="tuemail@ejemplo.com" disabled={isLocked || isBusy} />
+          <SelectField label="Tipo de pedido" value={requestType} onChange={(v) => { setRequestType(v); setNewVersion(""); setCurrentVersion(""); setUpgradeVersion(""); setSubmitState({ status: "idle", message: "" }); }} options={[{ value: "new", label: "Compra nueva" }, { value: "upgrade", label: "Ya adquirí el sistema y quiero una versión superior" }]} disabled={isLocked || isBusy} />
+          {requestType === "new" ? <SelectField label="¿Qué versión quieres adquirir?" value={newVersion} onChange={setNewVersion} options={newOptions.map((i) => ({ value: i.value, label: i.label }))} disabled={isLocked || isBusy} /> : null}
           {requestType === "upgrade" ? (
             <>
-              <SelectField label="¿Qué versión tienes?" value={currentVersion} onChange={(v) => { setCurrentVersion(v); setUpgradeVersion(""); }} options={[{ value: "lite", label: "LITE" }, { value: "youtube-lite", label: "YOUTUBE LITE" }, { value: "pro", label: "PRO" }]} />
-              <SelectField label="¿Qué versión quieres adquirir?" value={upgradeVersion} onChange={setUpgradeVersion} options={safeUpgradeOptions.map((i) => ({ value: i.value, label: i.label }))} placeholder={currentVersion ? "Selecciona la mejora" : "Primero indica tu versión actual"} />
+              <SelectField label="¿Qué versión tienes?" value={currentVersion} onChange={(v) => { setCurrentVersion(v); setUpgradeVersion(""); }} options={[{ value: "lite", label: "LITE" }, { value: "youtube-lite", label: "YOUTUBE LITE" }, { value: "pro", label: "PRO" }]} disabled={isLocked || isBusy} />
+              <SelectField label="¿Qué versión quieres adquirir?" value={upgradeVersion} onChange={setUpgradeVersion} options={safeUpgradeOptions.map((i) => ({ value: i.value, label: i.label }))} placeholder={currentVersion ? "Selecciona la mejora" : "Primero indica tu versión actual"} disabled={isLocked || isBusy} />
             </>
           ) : null}
-          <SelectField label="Método de pago" value={paymentMethod} onChange={setPaymentMethod} options={[{ value: "bizum", label: "Bizum (España)" }, { value: "paypal", label: "PayPal (Internacional / Alternativa)" }]} />
+          <SelectField label="Método de pago" value={paymentMethod} onChange={setPaymentMethod} options={[{ value: "bizum", label: "Bizum (España)" }, { value: "paypal", label: "PayPal (Internacional / Alternativa)" }]} disabled={isLocked || isBusy} />
         </div>
       </div>
       <div className="form-stack">
         <div className="card">
           <div className="badge badge-soft">Resumen automático</div>
           <h3 className="serif">Importe total del pedido</h3>
-          <p className="total-amount serif">{total.toFixed(2).replace(".", ",")} €</p>
+          <p className="total-amount serif">{formatEuro(total)}</p>
         </div>
         <div className="card">
           <div className="badge">Condiciones</div>
-          <Conditions value={confirmations} onChange={setConfirmations} />
+          <Conditions value={confirmations} onChange={setConfirmations} disabled={isLocked || isBusy} />
         </div>
         <div className="card">
           <div className="badge badge-sage">Privacidad</div>
           <OrderPrivacyNotice />
           <div style={{ marginTop: 16 }}>
-            <CheckRow checked={marketingAccepted} onChange={setMarketingAccepted} label="Quiero recibir por email novedades, actualizaciones y nuevos lanzamientos de Bordando con Fru." />
+            <CheckRow checked={marketingAccepted} disabled={isLocked || isBusy} onChange={setMarketingAccepted} label="Quiero recibir por email novedades, actualizaciones y nuevos lanzamientos de Bordando con Fru." />
           </div>
         </div>
         <div className="status-box">
           <div className="badge badge-sage">Estado</div>
           <p className="muted">Pedido listo para enviar: <strong style={{ color: "var(--text)" }}>{ready ? "sí" : "todavía no"}</strong></p>
-          <button className="btn-primary" disabled={submitState.status === "submitting"} onClick={handleSubmit}>{submitState.status === "submitting" ? "Enviando…" : "Enviar pedido"}</button>
+          {isLocked ? (
+            <div className="button-row">
+              <button className="btn-secondary" type="button" onClick={resetForm}>Enviar otro pedido</button>
+            </div>
+          ) : (
+            <button className="btn-primary" disabled={isBusy} onClick={handleSubmit}>{isBusy ? "Enviando…" : "Enviar pedido"}</button>
+          )}
           <div style={{ marginTop: 16 }}>
             <SubmitFeedback state={submitState} />
           </div>
         </div>
+        {isLocked ? <PaymentInstructions paymentMethod={paymentMethod} total={total} reference={submitState.reference} /> : null}
       </div>
     </div>
   );
@@ -296,8 +393,25 @@ export function InventoryOrderForm() {
   }, [requestType, newMode, wanted]);
 
   const ready = Boolean(name.trim() && email.trim() && paymentMethod && total > 0 && Object.values(confirmations).every(Boolean));
+  const isLocked = submitState.status === "success";
+  const isBusy = submitState.status === "submitting";
+
+  const resetForm = () => {
+    setName("");
+    setEmail("");
+    setRequestType("");
+    setNewMode("");
+    setOwned([]);
+    setWanted([]);
+    setPaymentMethod("");
+    setMarketingAccepted(false);
+    setConfirmations({ manual: false, copy: false, refunds: false, waiver: false });
+    setSubmitState({ status: "idle", message: "" });
+  };
 
   const handleSubmit = async () => {
+    if (isLocked || isBusy) return;
+
     if (!name.trim() || !email.trim()) {
       setSubmitState({ status: "error", message: "Completa nombre y correo electrónico antes de enviar el pedido." });
       return;
@@ -330,7 +444,7 @@ export function InventoryOrderForm() {
       const result = await submitForm("inventory_order", payload);
       setSubmitState({
         status: "success",
-        message: "Tu pedido se ha enviado correctamente. Recibirás la gestión correspondiente por correo electrónico una vez revisado.",
+        message: "Tu pedido se ha enviado correctamente. A continuación tienes los datos de pago según el método elegido.",
         reference: result.reference ?? null,
       });
     } catch (error) {
@@ -345,10 +459,10 @@ export function InventoryOrderForm() {
     <div className="form-grid">
       <div className="card">
         <div className="form-stack">
-          <Field label="Nombre completo" value={name} onChange={setName} placeholder="Tu nombre" />
-          <Field label="Email de contacto" value={email} onChange={setEmail} placeholder="tuemail@ejemplo.com" />
-          <SelectField label="Tipo de pedido" value={requestType} onChange={(v) => { setRequestType(v); setNewMode(""); setOwned([]); setWanted([]); setSubmitState({ status: "idle", message: "" }); }} options={[{ value: "new", label: "Compra nueva" }, { value: "addons", label: "Ya adquirí el sistema y quiero complemento(s)" }]} />
-          {requestType === "new" ? <SelectField label="¿Qué quieres adquirir?" value={newMode} onChange={setNewMode} options={[{ value: "base-only", label: "Solo el sistema base — 9,99 €" }, { value: "with-addons", label: "Sistema base con complementos" }]} /> : null}
+          <Field label="Nombre completo" value={name} onChange={setName} placeholder="Tu nombre" disabled={isLocked || isBusy} />
+          <Field label="Email de contacto" value={email} onChange={setEmail} placeholder="tuemail@ejemplo.com" disabled={isLocked || isBusy} />
+          <SelectField label="Tipo de pedido" value={requestType} onChange={(v) => { setRequestType(v); setNewMode(""); setOwned([]); setWanted([]); setSubmitState({ status: "idle", message: "" }); }} options={[{ value: "new", label: "Compra nueva" }, { value: "addons", label: "Ya adquirí el sistema y quiero complemento(s)" }]} disabled={isLocked || isBusy} />
+          {requestType === "new" ? <SelectField label="¿Qué quieres adquirir?" value={newMode} onChange={setNewMode} options={[{ value: "base-only", label: "Solo el sistema base — 9,99 €" }, { value: "with-addons", label: "Sistema base con complementos" }]} disabled={isLocked || isBusy} /> : null}
           {((requestType === "new" && newMode === "with-addons") || requestType === "addons") ? (
             <div className="status-box">
               {requestType === "addons" ? (
@@ -356,7 +470,7 @@ export function InventoryOrderForm() {
                   <div className="label">Complementos que ya tiene la clienta</div>
                   <div className="form-stack">
                     {complementOptions.map((item) => (
-                      <CheckRow key={`owned-${item.value}`} checked={owned.includes(item.value)} onChange={() => toggleOwned(item.value)} label={item.label.replace(" — +2,00 €", "")} />
+                      <CheckRow key={`owned-${item.value}`} checked={owned.includes(item.value)} disabled={isLocked || isBusy} onChange={() => toggleOwned(item.value)} label={item.label.replace(" — +2,00 €", "")} />
                     ))}
                   </div>
                 </div>
@@ -364,39 +478,46 @@ export function InventoryOrderForm() {
               <div className="label">Complementos que quiere adquirir</div>
               <div className="form-stack">
                 {complementOptions.map((item) => (
-                  <CheckRow key={`wanted-${item.value}`} checked={wanted.includes(item.value)} disabled={owned.includes(item.value)} onChange={() => toggleWanted(item.value)} label={item.label} />
+                  <CheckRow key={`wanted-${item.value}`} checked={wanted.includes(item.value)} disabled={owned.includes(item.value) || isLocked || isBusy} onChange={() => toggleWanted(item.value)} label={item.label} />
                 ))}
               </div>
             </div>
           ) : null}
-          <SelectField label="Método de pago" value={paymentMethod} onChange={setPaymentMethod} options={[{ value: "bizum", label: "Bizum (España)" }, { value: "paypal", label: "PayPal (Internacional / Alternativa)" }]} />
+          <SelectField label="Método de pago" value={paymentMethod} onChange={setPaymentMethod} options={[{ value: "bizum", label: "Bizum (España)" }, { value: "paypal", label: "PayPal (Internacional / Alternativa)" }]} disabled={isLocked || isBusy} />
         </div>
       </div>
       <div className="form-stack">
         <div className="card">
           <div className="badge badge-soft">Resumen automático</div>
           <h3 className="serif">Importe total del pedido</h3>
-          <p className="total-amount serif">{total.toFixed(2).replace(".", ",")} €</p>
+          <p className="total-amount serif">{formatEuro(total)}</p>
         </div>
         <div className="card">
           <div className="badge">Condiciones</div>
-          <Conditions value={confirmations} onChange={setConfirmations} />
+          <Conditions value={confirmations} onChange={setConfirmations} disabled={isLocked || isBusy} />
         </div>
         <div className="card">
           <div className="badge badge-sage">Privacidad</div>
           <OrderPrivacyNotice />
           <div style={{ marginTop: 16 }}>
-            <CheckRow checked={marketingAccepted} onChange={setMarketingAccepted} label="Quiero recibir por email novedades, actualizaciones y nuevos lanzamientos de Bordando con Fru." />
+            <CheckRow checked={marketingAccepted} disabled={isLocked || isBusy} onChange={setMarketingAccepted} label="Quiero recibir por email novedades, actualizaciones y nuevos lanzamientos de Bordando con Fru." />
           </div>
         </div>
         <div className="status-box">
           <div className="badge badge-sage">Estado</div>
           <p className="muted">Pedido listo para enviar: <strong style={{ color: "var(--text)" }}>{ready ? "sí" : "todavía no"}</strong></p>
-          <button className="btn-primary" disabled={submitState.status === "submitting"} onClick={handleSubmit}>{submitState.status === "submitting" ? "Enviando…" : "Enviar pedido"}</button>
+          {isLocked ? (
+            <div className="button-row">
+              <button className="btn-secondary" type="button" onClick={resetForm}>Enviar otro pedido</button>
+            </div>
+          ) : (
+            <button className="btn-primary" disabled={isBusy} onClick={handleSubmit}>{isBusy ? "Enviando…" : "Enviar pedido"}</button>
+          )}
           <div style={{ marginTop: 16 }}>
             <SubmitFeedback state={submitState} />
           </div>
         </div>
+        {isLocked ? <PaymentInstructions paymentMethod={paymentMethod} total={total} reference={submitState.reference} /> : null}
       </div>
     </div>
   );
