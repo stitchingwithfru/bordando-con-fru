@@ -4,6 +4,35 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { Card, InfoBadge, SecondaryLink, SectionTitle } from "@/components/UI";
 
+type SubmitState = {
+  status: "idle" | "submitting" | "success" | "error";
+  message: string;
+  reference?: string | null;
+};
+
+async function submitContact(data: {
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  privacyAccepted: boolean;
+  marketingAccepted: boolean;
+}) {
+  const response = await fetch("/api/forms", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ type: "contact", data }),
+  });
+
+  const result = await response.json().catch(() => ({ ok: false, error: "Respuesta no válida del servidor." }));
+
+  if (!response.ok || !result.ok) {
+    throw new Error(result.error || "No se ha podido enviar el mensaje.");
+  }
+
+  return result as { ok: true; reference?: string | null; message?: string };
+}
+
 export default function ContactPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -11,14 +40,47 @@ export default function ContactPage() {
   const [message, setMessage] = useState("");
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
   const [marketingAccepted, setMarketingAccepted] = useState(false);
+  const [submitState, setSubmitState] = useState<SubmitState>({ status: "idle", message: "" });
 
-  const ready = useMemo(() => Boolean(name && email && subject && message && privacyAccepted), [name, email, subject, message, privacyAccepted]);
+  const ready = useMemo(() => Boolean(name.trim() && email.trim() && subject.trim() && message.trim() && privacyAccepted), [name, email, subject, message, privacyAccepted]);
+
+  const handleSubmit = async () => {
+    if (!name.trim() || !email.trim() || !subject.trim() || !message.trim()) {
+      setSubmitState({ status: "error", message: "Completa nombre, correo electrónico, asunto y mensaje antes de enviar." });
+      return;
+    }
+
+    if (!privacyAccepted) {
+      setSubmitState({ status: "error", message: "Debes marcar la casilla de Política de privacidad para poder enviar el mensaje." });
+      return;
+    }
+
+    try {
+      setSubmitState({ status: "submitting", message: "Estoy enviando tu mensaje. Un momento, por favor." });
+      const result = await submitContact({ name, email, subject, message, privacyAccepted, marketingAccepted });
+      setSubmitState({
+        status: "success",
+        message: "Tu mensaje se ha enviado correctamente. Te responderé en cuanto pueda.",
+        reference: result.reference ?? null,
+      });
+    } catch (error) {
+      setSubmitState({
+        status: "error",
+        message: error instanceof Error ? error.message : "No se ha podido enviar el mensaje. Inténtalo de nuevo más tarde.",
+      });
+    }
+  };
 
   return (
     <main>
       <section className="section">
         <div className="container">
-          <SectionTitle eyebrow="Página aparte" title="Contacto" description="Una página pensada para resolver dudas antes del pedido o para consultas relacionadas con el contenido y las herramientas." />
+          <SectionTitle
+            eyebrow="Página aparte"
+            title="Contacto"
+            description="Una página pensada para resolver dudas antes del pedido o para consultas relacionadas con el contenido y las herramientas."
+          />
+
           <div className="form-grid">
             <Card>
               <h2 className="serif">Escríbeme</h2>
@@ -48,7 +110,15 @@ export default function ContactPage() {
                   <span>Quiero recibir por email novedades, actualizaciones y nuevos lanzamientos de Bordando con Fru.</span>
                 </label>
 
-                <button className="btn-primary" disabled={!ready}>Enviar mensaje</button>
+                <button className="btn-primary" disabled={submitState.status === "submitting"} onClick={handleSubmit}>{submitState.status === "submitting" ? "Enviando…" : "Enviar mensaje"}</button>
+
+                {submitState.status !== "idle" ? (
+                  <div className={submitState.status === "success" ? "feedback-box feedback-success" : submitState.status === "error" ? "feedback-box feedback-error" : "feedback-box"}>
+                    <p className="legal-text" style={{ color: "var(--text)" }}><strong>{submitState.status === "success" ? "Envío correcto" : submitState.status === "submitting" ? "Enviando" : "No se ha podido enviar"}</strong></p>
+                    <p className="legal-text">{submitState.message}</p>
+                    {submitState.reference ? <p className="legal-text">Referencia: <strong style={{ color: "var(--text)" }}>{submitState.reference}</strong></p> : null}
+                  </div>
+                ) : null}
               </div>
             </Card>
             <div className="form-stack">

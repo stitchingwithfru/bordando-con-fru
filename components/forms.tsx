@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import type { Dispatch, ReactNode, SetStateAction } from "react";
 import { useMemo, useState } from "react";
 
 type ConfirmationState = {
@@ -8,6 +9,36 @@ type ConfirmationState = {
   copy: boolean;
   refunds: boolean;
   waiver: boolean;
+};
+
+type SubmitState = {
+  status: "idle" | "submitting" | "success" | "error";
+  message: string;
+  reference?: string | null;
+};
+
+type TrackingPayload = {
+  name: string;
+  email: string;
+  requestType: string;
+  newVersion: string;
+  currentVersion: string;
+  upgradeVersion: string;
+  paymentMethod: string;
+  marketingAccepted: boolean;
+  total: number;
+};
+
+type InventoryPayload = {
+  name: string;
+  email: string;
+  requestType: string;
+  newMode: string;
+  owned: string[];
+  wanted: string[];
+  paymentMethod: string;
+  marketingAccepted: boolean;
+  total: number;
 };
 
 function Field({ label, value, onChange, placeholder = "" }: { label: string; value: string; onChange: (v: string) => void; placeholder?: string; }) {
@@ -33,7 +64,7 @@ function SelectField({ label, value, onChange, options, placeholder = "Seleccion
   );
 }
 
-function CheckRow({ checked, onChange, label, disabled = false }: { checked: boolean; onChange: (v: boolean) => void; label: React.ReactNode; disabled?: boolean; }) {
+function CheckRow({ checked, onChange, label, disabled = false }: { checked: boolean; onChange: (v: boolean) => void; label: ReactNode; disabled?: boolean; }) {
   return (
     <label className="checkbox-row" style={disabled ? { opacity: 0.5 } : undefined}>
       <input type="checkbox" checked={checked} disabled={disabled} onChange={(e) => onChange(e.target.checked)} />
@@ -42,7 +73,7 @@ function CheckRow({ checked, onChange, label, disabled = false }: { checked: boo
   );
 }
 
-function Conditions({ value, onChange }: { value: ConfirmationState; onChange: React.Dispatch<React.SetStateAction<ConfirmationState>>; }) {
+function Conditions({ value, onChange }: { value: ConfirmationState; onChange: Dispatch<SetStateAction<ConfirmationState>>; }) {
   return (
     <div className="form-stack">
       <CheckRow checked={value.manual} onChange={(v) => onChange((p) => ({ ...p, manual: v }))} label="Entiendo que es un producto digital con entrega manual." />
@@ -67,6 +98,36 @@ function OrderPrivacyNotice() {
   );
 }
 
+async function submitForm<T>(type: "tracking_order" | "inventory_order", data: T) {
+  const response = await fetch("/api/forms", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ type, data }),
+  });
+
+  const result = await response.json().catch(() => ({ ok: false, error: "Respuesta no válida del servidor." }));
+
+  if (!response.ok || !result.ok) {
+    throw new Error(result.error || "No se ha podido enviar el formulario.");
+  }
+
+  return result as { ok: true; reference?: string | null; message?: string };
+}
+
+function SubmitFeedback({ state }: { state: SubmitState }) {
+  if (state.status === "idle") return null;
+
+  const className = state.status === "success" ? "feedback-box feedback-success" : state.status === "error" ? "feedback-box feedback-error" : "feedback-box";
+
+  return (
+    <div className={className}>
+      <p className="legal-text" style={{ color: "var(--text)" }}><strong>{state.status === "success" ? "Envío correcto" : state.status === "submitting" ? "Enviando" : "No se ha podido enviar"}</strong></p>
+      <p className="legal-text">{state.message}</p>
+      {state.reference ? <p className="legal-text">Referencia: <strong style={{ color: "var(--text)" }}>{state.reference}</strong></p> : null}
+    </div>
+  );
+}
+
 export function TrackingOrderForm() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -77,6 +138,7 @@ export function TrackingOrderForm() {
   const [paymentMethod, setPaymentMethod] = useState("");
   const [marketingAccepted, setMarketingAccepted] = useState(false);
   const [confirmations, setConfirmations] = useState<ConfirmationState>({ manual: false, copy: false, refunds: false, waiver: false });
+  const [submitState, setSubmitState] = useState<SubmitState>({ status: "idle", message: "" });
 
   const newOptions = [
     { value: "lite", label: "LITE — 4,99 €", price: 4.99 },
@@ -104,7 +166,52 @@ export function TrackingOrderForm() {
     if (requestType === "upgrade") return safeUpgradeOptions.find((i) => i.value === upgradeVersion)?.price ?? 0;
     return 0;
   }, [requestType, newVersion, safeUpgradeOptions, upgradeVersion]);
-  const ready = Boolean(name && email && paymentMethod && total > 0 && Object.values(confirmations).every(Boolean));
+
+  const ready = Boolean(name.trim() && email.trim() && paymentMethod && total > 0 && Object.values(confirmations).every(Boolean));
+
+  const handleSubmit = async () => {
+    if (!name.trim() || !email.trim()) {
+      setSubmitState({ status: "error", message: "Completa nombre y correo electrónico antes de enviar el pedido." });
+      return;
+    }
+
+    if (!paymentMethod || total <= 0) {
+      setSubmitState({ status: "error", message: "Revisa la versión o complemento elegido y el método de pago antes de enviar el pedido." });
+      return;
+    }
+
+    if (!Object.values(confirmations).every(Boolean)) {
+      setSubmitState({ status: "error", message: "Debes aceptar todas las condiciones obligatorias antes de enviar el pedido." });
+      return;
+    }
+
+    const payload: TrackingPayload = {
+      name,
+      email,
+      requestType,
+      newVersion,
+      currentVersion,
+      upgradeVersion,
+      paymentMethod,
+      marketingAccepted,
+      total,
+    };
+
+    try {
+      setSubmitState({ status: "submitting", message: "Estoy enviando tu pedido. Un momento, por favor." });
+      const result = await submitForm("tracking_order", payload);
+      setSubmitState({
+        status: "success",
+        message: "Tu pedido se ha enviado correctamente. Recibirás la gestión correspondiente por correo electrónico una vez revisado.",
+        reference: result.reference ?? null,
+      });
+    } catch (error) {
+      setSubmitState({
+        status: "error",
+        message: error instanceof Error ? error.message : "No se ha podido enviar el pedido. Inténtalo de nuevo en unos minutos.",
+      });
+    }
+  };
 
   return (
     <div className="form-grid">
@@ -112,7 +219,7 @@ export function TrackingOrderForm() {
         <div className="form-stack">
           <Field label="Nombre completo" value={name} onChange={setName} placeholder="Tu nombre" />
           <Field label="Email de contacto" value={email} onChange={setEmail} placeholder="tuemail@ejemplo.com" />
-          <SelectField label="Tipo de pedido" value={requestType} onChange={(v) => { setRequestType(v); setNewVersion(""); setCurrentVersion(""); setUpgradeVersion(""); }} options={[{ value: "new", label: "Compra nueva" }, { value: "upgrade", label: "Ya adquirí el sistema y quiero una versión superior" }]} />
+          <SelectField label="Tipo de pedido" value={requestType} onChange={(v) => { setRequestType(v); setNewVersion(""); setCurrentVersion(""); setUpgradeVersion(""); setSubmitState({ status: "idle", message: "" }); }} options={[{ value: "new", label: "Compra nueva" }, { value: "upgrade", label: "Ya adquirí el sistema y quiero una versión superior" }]} />
           {requestType === "new" ? <SelectField label="¿Qué versión quieres adquirir?" value={newVersion} onChange={setNewVersion} options={newOptions.map((i) => ({ value: i.value, label: i.label }))} /> : null}
           {requestType === "upgrade" ? (
             <>
@@ -143,7 +250,10 @@ export function TrackingOrderForm() {
         <div className="status-box">
           <div className="badge badge-sage">Estado</div>
           <p className="muted">Pedido listo para enviar: <strong style={{ color: "var(--text)" }}>{ready ? "sí" : "todavía no"}</strong></p>
-          <button className="btn-primary" disabled={!ready}>Enviar pedido</button>
+          <button className="btn-primary" disabled={submitState.status === "submitting"} onClick={handleSubmit}>{submitState.status === "submitting" ? "Enviando…" : "Enviar pedido"}</button>
+          <div style={{ marginTop: 16 }}>
+            <SubmitFeedback state={submitState} />
+          </div>
         </div>
       </div>
     </div>
@@ -160,6 +270,7 @@ export function InventoryOrderForm() {
   const [paymentMethod, setPaymentMethod] = useState("");
   const [marketingAccepted, setMarketingAccepted] = useState(false);
   const [confirmations, setConfirmations] = useState<ConfirmationState>({ manual: false, copy: false, refunds: false, waiver: false });
+  const [submitState, setSubmitState] = useState<SubmitState>({ status: "idle", message: "" });
 
   const complementOptions = [
     { value: "telas", label: "Complemento de Telas — +2,00 €" },
@@ -184,7 +295,51 @@ export function InventoryOrderForm() {
     return 0;
   }, [requestType, newMode, wanted]);
 
-  const ready = Boolean(name && email && paymentMethod && total > 0 && Object.values(confirmations).every(Boolean));
+  const ready = Boolean(name.trim() && email.trim() && paymentMethod && total > 0 && Object.values(confirmations).every(Boolean));
+
+  const handleSubmit = async () => {
+    if (!name.trim() || !email.trim()) {
+      setSubmitState({ status: "error", message: "Completa nombre y correo electrónico antes de enviar el pedido." });
+      return;
+    }
+
+    if (!paymentMethod || total <= 0) {
+      setSubmitState({ status: "error", message: "Revisa la versión o complemento elegido y el método de pago antes de enviar el pedido." });
+      return;
+    }
+
+    if (!Object.values(confirmations).every(Boolean)) {
+      setSubmitState({ status: "error", message: "Debes aceptar todas las condiciones obligatorias antes de enviar el pedido." });
+      return;
+    }
+
+    const payload: InventoryPayload = {
+      name,
+      email,
+      requestType,
+      newMode,
+      owned,
+      wanted,
+      paymentMethod,
+      marketingAccepted,
+      total,
+    };
+
+    try {
+      setSubmitState({ status: "submitting", message: "Estoy enviando tu pedido. Un momento, por favor." });
+      const result = await submitForm("inventory_order", payload);
+      setSubmitState({
+        status: "success",
+        message: "Tu pedido se ha enviado correctamente. Recibirás la gestión correspondiente por correo electrónico una vez revisado.",
+        reference: result.reference ?? null,
+      });
+    } catch (error) {
+      setSubmitState({
+        status: "error",
+        message: error instanceof Error ? error.message : "No se ha podido enviar el pedido. Inténtalo de nuevo en unos minutos.",
+      });
+    }
+  };
 
   return (
     <div className="form-grid">
@@ -192,7 +347,7 @@ export function InventoryOrderForm() {
         <div className="form-stack">
           <Field label="Nombre completo" value={name} onChange={setName} placeholder="Tu nombre" />
           <Field label="Email de contacto" value={email} onChange={setEmail} placeholder="tuemail@ejemplo.com" />
-          <SelectField label="Tipo de pedido" value={requestType} onChange={(v) => { setRequestType(v); setNewMode(""); setOwned([]); setWanted([]); }} options={[{ value: "new", label: "Compra nueva" }, { value: "addons", label: "Ya adquirí el sistema y quiero complemento(s)" }]} />
+          <SelectField label="Tipo de pedido" value={requestType} onChange={(v) => { setRequestType(v); setNewMode(""); setOwned([]); setWanted([]); setSubmitState({ status: "idle", message: "" }); }} options={[{ value: "new", label: "Compra nueva" }, { value: "addons", label: "Ya adquirí el sistema y quiero complemento(s)" }]} />
           {requestType === "new" ? <SelectField label="¿Qué quieres adquirir?" value={newMode} onChange={setNewMode} options={[{ value: "base-only", label: "Solo el sistema base — 9,99 €" }, { value: "with-addons", label: "Sistema base con complementos" }]} /> : null}
           {((requestType === "new" && newMode === "with-addons") || requestType === "addons") ? (
             <div className="status-box">
@@ -237,7 +392,10 @@ export function InventoryOrderForm() {
         <div className="status-box">
           <div className="badge badge-sage">Estado</div>
           <p className="muted">Pedido listo para enviar: <strong style={{ color: "var(--text)" }}>{ready ? "sí" : "todavía no"}</strong></p>
-          <button className="btn-primary" disabled={!ready}>Enviar pedido</button>
+          <button className="btn-primary" disabled={submitState.status === "submitting"} onClick={handleSubmit}>{submitState.status === "submitting" ? "Enviando…" : "Enviar pedido"}</button>
+          <div style={{ marginTop: 16 }}>
+            <SubmitFeedback state={submitState} />
+          </div>
         </div>
       </div>
     </div>

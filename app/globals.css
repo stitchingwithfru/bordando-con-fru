@@ -244,3 +244,7 @@ button, input, select, textarea { font: inherit; }
 @media (max-width: 900px) {
   .footer-inner { flex-direction: column; align-items: flex-start; }
 }
+
+.feedback-box { border-radius: 20px; padding: 16px; background: #fff; border: 1px solid var(--border); }
+.feedback-success { background: #f4fbf2; border-color: #d2e6cb; }
+.feedback-error { background: #fff4f1; border-color: #f1c8bc; }
