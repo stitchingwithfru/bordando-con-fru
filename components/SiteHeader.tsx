@@ -22,6 +22,7 @@ export function SiteHeader() {
               </Link>
             </div>
           </details>
+          <Link href="/club-de-lectura">Club de Lectura</Link>
           <Link href="/faq">FAQ</Link>
           <Link href="/contacto">Contacto</Link>
         </nav>
@@ -33,6 +34,7 @@ export function SiteHeader() {
             <div className="mobile-nav-section-title">Herramientas</div>
             <Link href="/herramientas/seguimiento">Sistema de Seguimiento de Punto de Cruz</Link>
             <Link href="/herramientas/inventario">Sistema de Inventario Profesional</Link>
+            <Link href="/club-de-lectura">Club de Lectura</Link>
             <Link href="/faq">FAQ</Link>
             <Link href="/contacto">Contacto</Link>
           </div>
