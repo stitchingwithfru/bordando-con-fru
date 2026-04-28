@@ -280,89 +280,152 @@ export default async function ClubDeLecturaPage() {
     <main className="min-h-screen bg-[#F7F3EE] text-[#403A36] pt-12 pb-24 selection:bg-[#D8B7B0] selection:text-white">
       <div className="max-w-6xl mx-auto px-5 md:px-8 space-y-16">
         
-        {/* === HERO + UNIRSE AL CLUB === */}
-        <section
-          style={{
-            background: "linear-gradient(135deg, #EFE5DE 0%, #FCFAF7 100%)",
-            border: "1px solid #E8DED8",
-            borderRadius: "32px",
-            padding: "34px",
-            boxShadow: "0 10px 28px rgba(64, 58, 54, 0.06)",
-            overflow: "hidden",
-          }}
-        >
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "180px 1fr",
-              gap: "32px",
-              alignItems: "center",
-            }}
-          >
-            <div
-              style={{
-                width: "180px",
-                minWidth: "180px",
-                display: "flex",
-                justifyContent: "center",
-              }}
-            >
+        {/* === HERO CLUB DE LECTURA === */}
+        <style>
+          {`
+            .club-hero {
+              background: linear-gradient(135deg, #EFE5DE 0%, #FCFAF7 100%);
+              border: 1px solid #E8DED8;
+              border-radius: 32px;
+              padding: 34px;
+              box-shadow: 0 10px 28px rgba(64, 58, 54, 0.06);
+              overflow: hidden;
+            }
+
+            .club-hero-inner {
+              display: grid;
+              grid-template-columns: 180px 1fr;
+              gap: 32px;
+              align-items: center;
+            }
+
+            .club-hero-image-wrap {
+              width: 180px;
+              min-width: 180px;
+              display: flex;
+              justify-content: center;
+            }
+
+            .club-hero-image {
+              width: 160px;
+              height: 160px;
+              object-fit: cover;
+              border-radius: 999px;
+              border: 1px solid #E8DED8;
+              box-shadow: 0 10px 24px rgba(64, 58, 54, 0.14);
+              display: block;
+            }
+
+            .club-hero-label {
+              display: inline-flex;
+              align-items: center;
+              gap: 8px;
+              background: rgba(255,255,255,0.72);
+              border: 1px solid #E8DED8;
+              border-radius: 999px;
+              padding: 7px 14px;
+              margin-bottom: 16px;
+              color: #8A7C74;
+              font-size: 14px;
+              font-weight: 600;
+            }
+
+            .club-hero-title {
+              margin: 0 0 14px 0;
+              font-family: Georgia, serif;
+              font-size: 44px;
+              line-height: 1.05;
+              color: #403A36;
+            }
+
+            .club-hero-text {
+              margin: 0;
+              max-width: 760px;
+              color: #6F655F;
+              font-size: 19px;
+              line-height: 1.6;
+            }
+
+            @media (max-width: 700px) {
+              .club-hero {
+                border-radius: 26px;
+                padding: 24px 20px;
+              }
+
+              .club-hero-inner {
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+                text-align: center;
+              }
+
+              .club-hero-image-wrap {
+                width: 100%;
+                min-width: 0;
+              }
+
+              .club-hero-image {
+                width: 122px;
+                height: 122px;
+              }
+
+              .club-hero-label {
+                font-size: 12px;
+                padding: 7px 12px;
+                margin-bottom: 14px;
+                justify-content: center;
+              }
+
+              .club-hero-title {
+                font-size: 38px;
+                line-height: 1.05;
+                margin-bottom: 14px;
+              }
+
+              .club-hero-text {
+                font-size: 17px;
+                line-height: 1.55;
+                max-width: 100%;
+              }
+            }
+
+            @media (max-width: 430px) {
+              .club-hero-title {
+                font-size: 34px;
+              }
+
+              .club-hero-text {
+                font-size: 16px;
+              }
+
+              .club-hero-image {
+                width: 112px;
+                height: 112px;
+              }
+            }
+          `}
+        </style>
+
+        <section className="club-hero">
+          <div className="club-hero-inner">
+            <div className="club-hero-image-wrap">
               <img
                 src="/images/club-de-lectura.jpeg"
                 alt="Club de Lectura Bordando con Fru"
-                style={{
-                  width: "160px",
-                  height: "160px",
-                  objectFit: "cover",
-                  borderRadius: "999px",
-                  border: "1px solid #E8DED8",
-                  boxShadow: "0 10px 24px rgba(64, 58, 54, 0.14)",
-                  display: "block",
-                }}
+                className="club-hero-image"
               />
             </div>
 
             <div>
-              <div
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "8px",
-                  background: "rgba(255,255,255,0.72)",
-                  border: "1px solid #E8DED8",
-                  borderRadius: "999px",
-                  padding: "7px 14px",
-                  marginBottom: "16px",
-                  color: "#8A7C74",
-                  fontSize: "14px",
-                  fontWeight: 600,
-                }}
-              >
+              <div className="club-hero-label">
                 ☕ Lecturas, calma y ratitos para compartir
               </div>
 
-              <h1
-                style={{
-                  margin: 0,
-                  marginBottom: "14px",
-                  fontFamily: "Georgia, serif",
-                  fontSize: "44px",
-                  lineHeight: "1.05",
-                  color: "#403A36",
-                }}
-              >
+              <h1 className="club-hero-title">
                 Club de Lectura
               </h1>
 
-              <p
-                style={{
-                  margin: 0,
-                  maxWidth: "760px",
-                  color: "#6F655F",
-                  fontSize: "19px",
-                  lineHeight: "1.6",
-                }}
-              >
+              <p className="club-hero-text">
                 Un espacio cálido para seguir nuestras lecturas, descubrir nuevas historias
                 y disfrutar de los libros a nuestro propio ritmo.
               </p>
@@ -373,132 +436,210 @@ export default async function ClubDeLecturaPage() {
         {/* === AVISOS Y RETO ANUAL === */}
         <section className="space-y-12">
           {/* Unirse al Club en Telegram */}
-          <div
-            style={{
-              background: "linear-gradient(135deg, #FFFFFF 0%, #FCFAF7 100%)",
-              border: "1px solid #E8DED8",
-              borderRadius: "30px",
-              padding: "26px",
-              boxShadow: "0 10px 28px rgba(64, 58, 54, 0.07)",
-              width: "100%",
-              maxWidth: "980px",
-              margin: "0 auto 48px auto",
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                gap: "18px",
-                alignItems: "flex-start",
-                marginBottom: "22px",
-              }}
-            >
-              <div
-                style={{
-                  width: "54px",
-                  height: "54px",
-                  minWidth: "54px",
-                  borderRadius: "18px",
-                  background: "#F3ECE7",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: "26px",
-                }}
-              >
+          <style>
+            {`
+              .telegram-club-card {
+                background: linear-gradient(135deg, #FFFFFF 0%, #FCFAF7 100%);
+                border: 1px solid #E8DED8;
+                border-radius: 30px;
+                padding: 26px;
+                box-shadow: 0 10px 28px rgba(64, 58, 54, 0.07);
+                width: 100%;
+                max-width: 980px;
+                margin: 0 auto 64px auto;
+              }
+
+              .telegram-club-header {
+                display: flex;
+                gap: 18px;
+                align-items: flex-start;
+                margin-bottom: 22px;
+              }
+
+              .telegram-club-icon {
+                width: 54px;
+                height: 54px;
+                min-width: 54px;
+                border-radius: 18px;
+                background: #F3ECE7;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 26px;
+              }
+
+              .telegram-club-label {
+                font-size: 12px;
+                text-transform: uppercase;
+                letter-spacing: 0.16em;
+                color: #8A7C74;
+                font-weight: 700;
+                margin-bottom: 8px;
+              }
+
+              .telegram-club-title {
+                margin: 0;
+                font-family: Georgia, serif;
+                font-size: 34px;
+                line-height: 1.1;
+                color: #403A36;
+              }
+
+              .telegram-club-text {
+                margin: 0 0 24px 0;
+                color: #6F655F;
+                font-size: 17px;
+                line-height: 1.65;
+                max-width: 680px;
+              }
+
+              .telegram-club-features {
+                display: grid;
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 12px;
+                margin-bottom: 24px;
+              }
+
+              .telegram-club-feature {
+                background: #F7F3EE;
+                border: 1px solid #E8DED8;
+                border-radius: 18px;
+                padding: 14px;
+              }
+
+              .telegram-club-feature-icon {
+                font-size: 22px;
+                margin-bottom: 6px;
+              }
+
+              .telegram-club-feature-text {
+                font-size: 14px;
+                color: #6F655F;
+                line-height: 1.35;
+              }
+
+              .telegram-club-button {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+                background: #403A36;
+                color: #FFFFFF;
+                border-radius: 999px;
+                padding: 13px 22px;
+                font-size: 15px;
+                font-weight: 700;
+                text-decoration: none;
+                box-shadow: 0 8px 18px rgba(64, 58, 54, 0.14);
+              }
+
+              @media (max-width: 700px) {
+                .telegram-club-card {
+                  padding: 24px 20px;
+                  border-radius: 26px;
+                  margin-bottom: 56px;
+                }
+
+                .telegram-club-header {
+                  flex-direction: column;
+                  align-items: center;
+                  text-align: center;
+                  gap: 14px;
+                }
+
+                .telegram-club-icon {
+                  width: 48px;
+                  height: 48px;
+                  min-width: 48px;
+                  font-size: 23px;
+                }
+
+                .telegram-club-label {
+                  font-size: 11px;
+                  letter-spacing: 0.12em;
+                }
+
+                .telegram-club-title {
+                  font-size: 30px;
+                  line-height: 1.12;
+                }
+
+                .telegram-club-text {
+                  font-size: 16px;
+                  line-height: 1.6;
+                  text-align: center;
+                  max-width: 100%;
+                }
+
+                .telegram-club-features {
+                  grid-template-columns: 1fr;
+                }
+
+                .telegram-club-feature {
+                  display: flex;
+                  align-items: center;
+                  gap: 12px;
+                  padding: 14px 16px;
+                }
+
+                .telegram-club-feature-icon {
+                  margin-bottom: 0;
+                }
+
+                .telegram-club-button {
+                  width: 100%;
+                  padding: 14px 18px;
+                  font-size: 15px;
+                }
+              }
+
+              @media (max-width: 430px) {
+                .telegram-club-title {
+                  font-size: 27px;
+                }
+
+                .telegram-club-text {
+                  font-size: 15.5px;
+                }
+              }
+            `}
+          </style>
+
+          <div className="telegram-club-card">
+            <div className="telegram-club-header">
+              <div className="telegram-club-icon">
                 💬
               </div>
 
               <div>
-                <div
-                  style={{
-                    fontSize: "12px",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.16em",
-                    color: "#8A7C74",
-                    fontWeight: 700,
-                    marginBottom: "8px",
-                  }}
-                >
+                <div className="telegram-club-label">
                   Comunidad en Telegram
                 </div>
 
-                <h2
-                  style={{
-                    margin: 0,
-                    fontFamily: "Georgia, serif",
-                    fontSize: "34px",
-                    lineHeight: "1.1",
-                    color: "#403A36",
-                  }}
-                >
+                <h2 className="telegram-club-title">
                   ¡Únete al Club de Lectura!
                 </h2>
               </div>
             </div>
 
-            <p
-              style={{
-                margin: 0,
-                marginBottom: "24px",
-                color: "#6F655F",
-                fontSize: "17px",
-                lineHeight: "1.65",
-                maxWidth: "680px",
-              }}
-            >
-              Recibe avisos sobre las próximas lecturas, recomendaciones, novedades del
-              Club de Lectura y participa en las lecturas conjuntas que se organizan.
+            <p className="telegram-club-text">
+              Recibe avisos sobre las próximas lecturas, recomendaciones, novedades del Club de Lectura y participa en las lecturas conjuntas que se organizan.
             </p>
 
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
-                gap: "12px",
-                marginBottom: "24px",
-              }}
-            >
-              <div
-                style={{
-                  background: "#F7F3EE",
-                  border: "1px solid #E8DED8",
-                  borderRadius: "18px",
-                  padding: "14px",
-                }}
-              >
-                <div style={{ fontSize: "22px", marginBottom: "6px" }}>📖</div>
-                <div style={{ fontSize: "14px", color: "#6F655F", lineHeight: "1.35" }}>
-                  Lecturas conjuntas
-                </div>
+            <div className="telegram-club-features">
+              <div className="telegram-club-feature">
+                <div className="telegram-club-feature-icon">📖</div>
+                <div className="telegram-club-feature-text">Lecturas conjuntas</div>
               </div>
 
-              <div
-                style={{
-                  background: "#F7F3EE",
-                  border: "1px solid #E8DED8",
-                  borderRadius: "18px",
-                  padding: "14px",
-                }}
-              >
-                <div style={{ fontSize: "22px", marginBottom: "6px" }}>✨</div>
-                <div style={{ fontSize: "14px", color: "#6F655F", lineHeight: "1.35" }}>
-                  Avisos y novedades
-                </div>
+              <div className="telegram-club-feature">
+                <div className="telegram-club-feature-icon">✨</div>
+                <div className="telegram-club-feature-text">Avisos y novedades</div>
               </div>
 
-              <div
-                style={{
-                  background: "#F7F3EE",
-                  border: "1px solid #E8DED8",
-                  borderRadius: "18px",
-                  padding: "14px",
-                }}
-              >
-                <div style={{ fontSize: "22px", marginBottom: "6px" }}>📚</div>
-                <div style={{ fontSize: "14px", color: "#6F655F", lineHeight: "1.35" }}>
-                  Recomendaciones
-                </div>
+              <div className="telegram-club-feature">
+                <div className="telegram-club-feature-icon">📚</div>
+                <div className="telegram-club-feature-text">Recomendaciones</div>
               </div>
             </div>
 
@@ -506,20 +647,7 @@ export default async function ClubDeLecturaPage() {
               href={TELEGRAM_CLUB_URL}
               target="_blank"
               rel="noopener noreferrer"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "8px",
-                background: "#403A36",
-                color: "#FFFFFF",
-                borderRadius: "999px",
-                padding: "13px 22px",
-                fontSize: "15px",
-                fontWeight: 700,
-                textDecoration: "none",
-                boxShadow: "0 8px 18px rgba(64, 58, 54, 0.14)",
-              }}
+              className="telegram-club-button"
             >
               Unirme al Club en Telegram →
             </a>
