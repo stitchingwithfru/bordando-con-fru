@@ -1,4 +1,5 @@
 import { Card, InfoBadge, PrimaryLink, SecondaryLink, SectionTitle } from "@/components/UI";
+import HomeNewsSection from "@/components/HomeNewsSection";
 
 export default function HomePage() {
   const purchaseSteps = [
@@ -48,6 +49,8 @@ export default function HomePage() {
           </Card>
         </div>
       </section>
+
+      <HomeNewsSection />
 
       <section className="section section-soft">
         <div className="container">
