@@ -1,4 +1,4 @@
-import { getWebsiteData, formatPeriod, formatExactPeriod } from "@/lib/phase1-data";
+import { getWebsiteData, formatPeriod, formatExactPeriod, type ClubStatus } from "@/lib/phase1-data";
 
 const TELEGRAM_CLUB_URL = "https://t.me/+L60IJP_3STcwZTU0";
 
@@ -363,6 +363,241 @@ function ReadingChallengeCard({
           </div>
         </div>
       </div>
+    </>
+  );
+}
+
+function formatDisplayDate(date?: string) {
+  if (!date) return "";
+
+  return new Intl.DateTimeFormat("es-ES", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  }).format(new Date(date));
+}
+
+function ClubStatusPanel({ status }: { status: ClubStatus }) {
+  const readingDate =
+    status.reading.state === "next" && status.reading.date
+      ? `Empieza el ${formatDisplayDate(status.reading.date)}`
+      : status.reading.state === "current"
+        ? "En curso"
+        : "";
+
+  const topicDate =
+    status.topic.closeDate && status.topic.state === "open"
+      ? `Abierto hasta el ${formatDisplayDate(status.topic.closeDate)}`
+      : status.topic.closeDate && status.topic.state === "closed"
+        ? `Cerrado desde el ${formatDisplayDate(status.topic.closeDate)}`
+        : "";
+
+  const surveyDate =
+    status.survey.state === "open" && status.survey.endDate
+      ? `Puedes votar hasta el ${formatDisplayDate(status.survey.endDate)}`
+      : status.survey.state === "upcoming" && status.survey.startDate
+        ? `Empieza el ${formatDisplayDate(status.survey.startDate)}`
+        : status.survey.state === "closed" && status.survey.endDate
+          ? `Finalizó el ${formatDisplayDate(status.survey.endDate)}`
+          : "";
+
+  return (
+    <>
+      <style>
+        {`
+          .club-status-wrap {
+            max-width: 980px;
+            margin: 0 auto 56px auto;
+          }
+
+          .club-status-header {
+            margin-bottom: 18px;
+            text-align: center;
+          }
+
+          .club-status-kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #F3ECE7;
+            color: #8A7C74;
+            border: 1px solid #E8DED8;
+            border-radius: 999px;
+            padding: 7px 14px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+          }
+
+          .club-status-title {
+            margin: 0;
+            font-family: Georgia, serif;
+            font-size: 34px;
+            line-height: 1.1;
+            color: #403A36;
+          }
+
+          .club-status-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 16px;
+          }
+
+          .club-status-card {
+            background: linear-gradient(135deg, #FFFFFF 0%, #FCFAF7 100%);
+            border: 1px solid #E8DED8;
+            border-radius: 24px;
+            padding: 20px;
+            box-shadow: 0 10px 24px rgba(64, 58, 54, 0.06);
+            min-height: 190px;
+            display: flex;
+            flex-direction: column;
+          }
+
+          .club-status-icon {
+            width: 46px;
+            height: 46px;
+            border-radius: 17px;
+            background: #F3ECE7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            margin-bottom: 14px;
+          }
+
+          .club-status-card-title {
+            margin: 0 0 8px 0;
+            font-family: Georgia, serif;
+            font-size: 21px;
+            line-height: 1.15;
+            color: #403A36;
+          }
+
+          .club-status-card-text {
+            margin: 0;
+            color: #6F655F;
+            font-size: 14px;
+            line-height: 1.5;
+          }
+
+          .club-status-card-date {
+            margin-top: auto;
+            padding-top: 14px;
+            color: #8A7C74;
+            font-size: 13px;
+            line-height: 1.45;
+          }
+
+          .club-status-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 12px;
+            background: #403A36;
+            color: #FFFFFF;
+            border-radius: 999px;
+            padding: 9px 13px;
+            font-size: 13px;
+            font-weight: 700;
+            text-decoration: none;
+          }
+
+          @media (max-width: 900px) {
+            .club-status-grid {
+              grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+          }
+
+          @media (max-width: 560px) {
+            .club-status-wrap {
+              margin-bottom: 48px;
+            }
+
+            .club-status-title {
+              font-size: 29px;
+            }
+
+            .club-status-grid {
+              grid-template-columns: 1fr;
+              gap: 14px;
+            }
+
+            .club-status-card {
+              min-height: auto;
+              padding: 18px;
+            }
+
+            .club-status-card {
+              display: grid;
+              grid-template-columns: 48px 1fr;
+              gap: 14px;
+              align-items: flex-start;
+            }
+
+            .club-status-icon {
+              margin-bottom: 0;
+            }
+
+            .club-status-card-content {
+              min-width: 0;
+            }
+
+            .club-status-card-date {
+              margin-top: 10px;
+              padding-top: 0;
+            }
+          }
+        `}
+      </style>
+
+      <section className="club-status-wrap">
+        <div className="club-status-header">
+          <div className="club-status-kicker">📌 Estado del Club</div>
+          <h2 className="club-status-title">Qué está pasando ahora</h2>
+        </div>
+
+        <div className="club-status-grid">
+          <article className="club-status-card">
+            <div className="club-status-icon">📖</div>
+            <div className="club-status-card-content">
+              <h3 className="club-status-card-title">{status.reading.title}</h3>
+              <p className="club-status-card-text">{status.reading.text}</p>
+              {readingDate ? <div className="club-status-card-date">{readingDate}</div> : null}
+            </div>
+          </article>
+
+          <article className="club-status-card">
+            <div className="club-status-icon">💬</div>
+            <div className="club-status-card-content">
+              <h3 className="club-status-card-title">{status.topic.title}</h3>
+              <p className="club-status-card-text">{status.topic.text}</p>
+              {topicDate ? <div className="club-status-card-date">{topicDate}</div> : null}
+            </div>
+          </article>
+
+          <article className="club-status-card">
+            <div className="club-status-icon">🗳️</div>
+            <div className="club-status-card-content">
+              <h3 className="club-status-card-title">{status.survey.title}</h3>
+              <p className="club-status-card-text">{status.survey.text}</p>
+              {surveyDate ? <div className="club-status-card-date">{surveyDate}</div> : null}
+              {status.survey.url ? (
+                <a
+                  href={status.survey.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="club-status-button"
+                >
+                  Ver encuesta →
+                </a>
+              ) : null}
+            </div>
+          </article>
+        </div>
+      </section>
     </>
   );
 }
@@ -757,6 +992,8 @@ export default async function ClubDeLecturaPage() {
             </a>
           </div>
 
+          <ClubStatusPanel status={data.clubStatus} />
+          
           <ReadingChallengeCard challenge={readingChallenge} />
         </section>
 

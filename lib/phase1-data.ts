@@ -20,12 +20,41 @@ export type ProductNewsItem = {
   tipo: string;
 };
 
+export type ClubStatus = {
+  reading: {
+    state: "current" | "next" | "none";
+    title: string;
+    text: string;
+    date: string;
+  };
+  topic: {
+    state: "open" | "closed" | "none";
+    title: string;
+    text: string;
+    closeDate: string;
+  };
+  survey: {
+    state: "none" | "upcoming" | "open" | "closed";
+    title: string;
+    text: string;
+    url: string;
+    startDate: string;
+    endDate: string;
+  };
+  notice: {
+    visible: boolean;
+    title: string;
+    text: string;
+  };
+};
+
 export type WebsiteData = {
   currentReading: ReadingItem | null;
   nextReading: ReadingItem | null;
   previousReadings: ReadingItem[];
   recommendedReadings: ReadingItem[];
   productNews: ProductNewsItem[];
+  clubStatus: ClubStatus;
   readingChallenge: {
     year: number;
     goal: number;
