@@ -1,4 +1,5 @@
 import { getWebsiteData, formatPeriod, formatExactPeriod, type ClubStatus } from "@/lib/phase1-data";
+import ReadingProposalForm from "@/components/ReadingProposalForm";
 
 const TELEGRAM_CLUB_URL = "https://t.me/+L60IJP_3STcwZTU0";
 
@@ -602,6 +603,174 @@ function ClubStatusPanel({ status }: { status: ClubStatus }) {
   );
 }
 
+function ParticipationReminder() {
+  return (
+    <>
+      <style>
+        {`
+          .participation-reminder {
+            max-width: 980px;
+            margin: 0 auto 56px auto;
+            background: linear-gradient(135deg, #FFFFFF 0%, #FCFAF7 100%);
+            border: 1px solid #E8DED8;
+            border-radius: 30px;
+            padding: 28px;
+            box-shadow: 0 10px 28px rgba(64, 58, 54, 0.06);
+          }
+
+          .participation-reminder-inner {
+            display: grid;
+            grid-template-columns: 74px 1fr;
+            gap: 22px;
+            align-items: start;
+          }
+
+          .participation-reminder-icon {
+            width: 74px;
+            height: 74px;
+            border-radius: 24px;
+            background: #F3ECE7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 34px;
+            box-shadow: 0 8px 18px rgba(64, 58, 54, 0.08);
+          }
+
+          .participation-reminder-kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #E9F0E6;
+            color: #5E755C;
+            border-radius: 999px;
+            padding: 7px 13px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+          }
+
+          .participation-reminder-title {
+            margin: 0 0 12px 0;
+            font-family: Georgia, serif;
+            font-size: 32px;
+            line-height: 1.12;
+            color: #403A36;
+          }
+
+          .participation-reminder-text {
+            margin: 0;
+            color: #6F655F;
+            font-size: 16px;
+            line-height: 1.7;
+            max-width: 760px;
+          }
+
+          .participation-reminder-points {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+            margin-top: 22px;
+          }
+
+          .participation-reminder-point {
+            background: #F7F3EE;
+            border: 1px solid #E8DED8;
+            border-radius: 18px;
+            padding: 14px;
+            color: #6F655F;
+            font-size: 14px;
+            line-height: 1.45;
+          }
+
+          .participation-reminder-point strong {
+            display: block;
+            color: #403A36;
+            margin-bottom: 4px;
+          }
+
+          @media (max-width: 700px) {
+            .participation-reminder {
+              border-radius: 26px;
+              padding: 24px 20px;
+              margin-bottom: 48px;
+            }
+
+            .participation-reminder-inner {
+              grid-template-columns: 1fr;
+              text-align: center;
+              gap: 16px;
+            }
+
+            .participation-reminder-icon {
+              margin: 0 auto;
+              width: 62px;
+              height: 62px;
+              border-radius: 22px;
+              font-size: 30px;
+            }
+
+            .participation-reminder-title {
+              font-size: 28px;
+            }
+
+            .participation-reminder-text {
+              font-size: 15.5px;
+              max-width: 100%;
+            }
+
+            .participation-reminder-points {
+              grid-template-columns: 1fr;
+              text-align: left;
+            }
+          }
+        `}
+      </style>
+
+      <section className="participation-reminder">
+        <div className="participation-reminder-inner">
+          <div className="participation-reminder-icon">
+            🌿
+          </div>
+
+          <div>
+            <div className="participation-reminder-kicker">
+              Participación flexible
+            </div>
+
+            <h2 className="participation-reminder-title">
+              Lee y participa a tu ritmo
+            </h2>
+
+            <p className="participation-reminder-text">
+              Puedes unirte aunque no hayas participado en las lecturas anteriores, comentar cuando puedas y participar mientras el topic esté abierto. Una semana después de finalizar la lectura, el topic queda cerrado para nuevos mensajes y disponible solo para consulta.
+            </p>
+
+            <div className="participation-reminder-points">
+              <div className="participation-reminder-point">
+                <strong>Sin presión</strong>
+                No hace falta leer al mismo ritmo ni comentar siempre.
+              </div>
+
+              <div className="participation-reminder-point">
+                <strong>Topic abierto</strong>
+                Puedes participar mientras dure la lectura y durante la semana posterior.
+              </div>
+
+              <div className="participation-reminder-point">
+                <strong>Consulta posterior</strong>
+                Cuando se cierre, el topic seguirá disponible para consultarlo.
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </>
+  );
+}
+
 export default async function ClubDeLecturaPage() {
   const data = await getWebsiteData();
   const { currentReading, nextReading, previousReadings, recommendedReadings, readingChallenge } = data;
@@ -993,7 +1162,9 @@ export default async function ClubDeLecturaPage() {
           </div>
 
           <ClubStatusPanel status={data.clubStatus} />
-          
+
+          <ParticipationReminder />
+
           <ReadingChallengeCard challenge={readingChallenge} />
         </section>
 
@@ -1823,6 +1994,8 @@ export default async function ClubDeLecturaPage() {
             )}
           </div>
         </section>
+
+        <ReadingProposalForm />
 
       </div>
     </main>
