@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getWebsiteData, formatPeriod, formatExactPeriod, type ClubStatus } from "@/lib/phase1-data";
 import ReadingProposalForm from "@/components/ReadingProposalForm";
+import ShareClubBlock from "@/components/ShareClubBlock";
 
 const TELEGRAM_CLUB_URL = "https://t.me/+L60IJP_3STcwZTU0";
 
@@ -1466,188 +1467,107 @@ export default async function ClubDeLecturaPage() {
           </div>
         </section>
 
-        {/* === LECTURAS ANTERIORES === */}
-        {previousReadings.length > 0 && (
-          <section style={{ marginTop: "56px" }}>
+        {/* === ARCHIVO DE LECTURAS === */}
+        <section style={{ marginTop: "56px" }}>
+          <div
+            style={{
+              maxWidth: "980px",
+              margin: "0 auto",
+            }}
+          >
             <div
               style={{
-                maxWidth: "980px",
-                margin: "0 auto",
+                background: "linear-gradient(135deg, #FFFFFF 0%, #FCFAF7 100%)",
+                border: "1px solid #E8DED8",
+                borderRadius: "30px",
+                padding: "30px",
+                boxShadow: "0 10px 28px rgba(64, 58, 54, 0.06)",
+                textAlign: "center",
               }}
             >
-              <h2
+              <div
                 style={{
-                  margin: 0,
-                  marginBottom: "22px",
-                  fontFamily: "Georgia, serif",
-                  fontSize: "36px",
-                  lineHeight: "1.1",
-                  color: "#403A36",
+                  width: "68px",
+                  height: "68px",
+                  borderRadius: "24px",
+                  background: "#F3ECE7",
                   display: "flex",
                   alignItems: "center",
-                  gap: "12px",
+                  justifyContent: "center",
+                  fontSize: "32px",
+                  margin: "0 auto 18px auto",
                 }}
               >
-                <span
-                  style={{
-                    width: "36px",
-                    height: "2px",
-                    background: "#E8DED8",
-                    display: "inline-block",
-                  }}
-                />
-                Lecturas anteriores
-              </h2>
+                📚
+              </div>
 
               <div
                 style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-                  gap: "22px",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  background: "#F7F3EE",
+                  border: "1px solid #E8DED8",
+                  color: "#8A7C74",
+                  fontSize: "12px",
+                  padding: "7px 13px",
+                  borderRadius: "999px",
+                  fontWeight: 700,
+                  letterSpacing: "0.12em",
+                  textTransform: "uppercase",
+                  marginBottom: "14px",
                 }}
               >
-                {previousReadings.map((book) => (
-                  <div
-                    key={book.id}
-                    style={{
-                      background: "linear-gradient(135deg, #FFFFFF 0%, #FCFAF7 100%)",
-                      border: "1px solid #E8DED8",
-                      borderRadius: "26px",
-                      padding: "22px",
-                      boxShadow: "0 10px 24px rgba(64, 58, 54, 0.06)",
-                    }}
-                  >
-                    <div
-                      style={{
-                        display: "flex",
-                        gap: "18px",
-                        alignItems: "flex-start",
-                      }}
-                    >
-                      <div
-                        style={{
-                          width: "90px",
-                          minWidth: "90px",
-                          display: "flex",
-                          justifyContent: "center",
-                        }}
-                      >
-                        <img
-                          src={book.portada_url}
-                          alt={book.titulo}
-                          style={{
-                            width: "90px",
-                            maxWidth: "90px",
-                            height: "auto",
-                            objectFit: "cover",
-                            borderRadius: "12px",
-                            border: "1px solid #E8DED8",
-                            boxShadow: "0 8px 18px rgba(64, 58, 54, 0.12)",
-                            display: "block",
-                          }}
-                        />
-                      </div>
-
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div
-                          style={{
-                            display: "flex",
-                            flexWrap: "wrap",
-                            gap: "8px",
-                            marginBottom: "10px",
-                          }}
-                        >
-                          <span
-                            style={{
-                              background: "#F7F3EE",
-                              border: "1px solid #E8DED8",
-                              color: "#6F655F",
-                              fontSize: "12px",
-                              padding: "6px 10px",
-                              borderRadius: "999px",
-                              fontWeight: 600,
-                            }}
-                          >
-                            {book.generos}
-                          </span>
-
-                          {book.recomendada && (
-                            <span
-                              style={{
-                                background: "#E9F0E6",
-                                color: "#5E755C",
-                                fontSize: "12px",
-                                padding: "6px 10px",
-                                borderRadius: "999px",
-                                fontWeight: 700,
-                              }}
-                            >
-                              ★ Recomendado
-                            </span>
-                          )}
-                        </div>
-
-                        <h3
-                          style={{
-                            margin: 0,
-                            marginBottom: "6px",
-                            fontFamily: "Georgia, serif",
-                            fontSize: "22px",
-                            lineHeight: "1.15",
-                            color: "#403A36",
-                          }}
-                        >
-                          {book.titulo}
-                        </h3>
-
-                        <p
-                          style={{
-                            margin: 0,
-                            marginBottom: "10px",
-                            color: "#8A7C74",
-                            fontSize: "15px",
-                            fontStyle: "italic",
-                          }}
-                        >
-                          por {book.autor}
-                        </p>
-
-                        <p
-                          style={{
-                            margin: 0,
-                            marginBottom: "16px",
-                            color: "#8A7C74",
-                            fontSize: "13px",
-                          }}
-                        >
-                          {formatPeriod(book.fecha_inicio, book.fecha_fin)}
-                        </p>
-
-                        <a
-                          href={book.goodreads_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          style={{
-                            display: "inline-flex",
-                            alignItems: "center",
-                            color: "#403A36",
-                            fontSize: "14px",
-                            fontWeight: 700,
-                            textDecoration: "underline",
-                            textUnderlineOffset: "4px",
-                            textDecorationColor: "#D8B7B0",
-                          }}
-                        >
-                          Ver en Goodreads →
-                        </a>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                Archivo anual
               </div>
+
+              <h2
+                style={{
+                  margin: 0,
+                  marginBottom: "12px",
+                  fontFamily: "Georgia, serif",
+                  fontSize: "34px",
+                  lineHeight: "1.12",
+                  color: "#403A36",
+                }}
+              >
+                Archivo de lecturas del Club
+              </h2>
+
+              <p
+                style={{
+                  maxWidth: "680px",
+                  margin: "0 auto 24px auto",
+                  color: "#6F655F",
+                  fontSize: "16px",
+                  lineHeight: "1.7",
+                }}
+              >
+                Consulta las lecturas que ya hemos compartido en el Club, organizadas por año,
+                con sus períodos, géneros y enlaces a Goodreads.
+              </p>
+
+              <Link
+                href="/club-de-lectura/archivo"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  background: "#403A36",
+                  color: "#FFFFFF",
+                  padding: "13px 22px",
+                  borderRadius: "999px",
+                  fontSize: "15px",
+                  fontWeight: 700,
+                  textDecoration: "none",
+                  boxShadow: "0 8px 18px rgba(64, 58, 54, 0.14)",
+                }}
+              >
+                Ver archivo de lecturas →
+              </Link>
             </div>
-          </section>
-        )}
+          </div>
+        </section>
 
         {/* === RECOMENDACIONES === */}
         <section style={{ marginTop: "56px" }}>
@@ -1855,6 +1775,8 @@ export default async function ClubDeLecturaPage() {
         </section>
 
         <ReadingProposalForm />
+
+        <ShareClubBlock />
 
       </div>
     </main>
