@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getWebsiteData, formatPeriod, formatExactPeriod, type ClubStatus } from "@/lib/phase1-data";
+import { getWebsiteData, formatPeriod, formatExactPeriod, type ClubStatus, type MyReadingItem } from "@/lib/phase1-data";
 import ReadingProposalForm from "@/components/ReadingProposalForm";
 import ShareClubBlock from "@/components/ShareClubBlock";
 
@@ -605,9 +605,384 @@ function ClubStatusPanel({ status }: { status: ClubStatus }) {
   );
 }
 
+function formatMyReadingDateTime(value?: string) {
+  if (!value) return "";
+
+  // Formato nuevo: 2026-05-02 13:47:40
+  if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}/.test(value)) {
+    const [datePart, timePart] = value.split(" ");
+    const [year, month, day] = datePart.split("-");
+    const [hour, minute] = timePart.split(":");
+
+    const monthName = new Intl.DateTimeFormat("es-ES", {
+      month: "long",
+    }).format(new Date(Number(year), Number(month) - 1, Number(day)));
+
+    return `${Number(day)} de ${monthName} de ${year}, ${hour}:${minute} h`;
+  }
+
+  // Formato antiguo ISO: 2026-05-02T11:47:40.376Z
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) return value;
+
+  return new Intl.DateTimeFormat("es-ES", {
+    timeZone: "Europe/Madrid",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  })
+    .format(date)
+    .replace(",", " ·")
+    .replace(/\s(\d{2}:\d{2})$/, " $1 h");
+}
+
+function MyCurrentReadingsBlock({ readings }: { readings: MyReadingItem[] }) {
+  const visibleReadings = readings.filter((reading) =>
+    ["leyendo", "pausado"].includes(String(reading.estado || "").toLowerCase())
+  );
+
+  if (!visibleReadings.length) return null;
+
+  return (
+    <>
+      <style>
+        {`
+          .my-readings-block {
+            max-width: 980px;
+            margin: 56px auto 0 auto;
+          }
+
+          .my-readings-header {
+            text-align: center;
+            margin-bottom: 24px;
+          }
+
+          .my-readings-kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #F3ECE7;
+            color: #8A7C74;
+            border: 1px solid #E8DED8;
+            border-radius: 999px;
+            padding: 7px 14px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+          }
+
+          .my-readings-title {
+            margin: 0;
+            font-family: Georgia, serif;
+            font-size: 36px;
+            line-height: 1.1;
+            color: #403A36;
+          }
+
+          .my-readings-subtitle {
+            max-width: 640px;
+            margin: 12px auto 0 auto;
+            color: #8A7C74;
+            font-size: 16px;
+            line-height: 1.65;
+          }
+
+          .my-readings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 22px;
+          }
+
+          .my-reading-card {
+            background: linear-gradient(135deg, #FFFFFF 0%, #FCFAF7 100%);
+            border: 1px solid #E8DED8;
+            border-radius: 30px;
+            padding: 24px;
+            box-shadow: 0 10px 28px rgba(64, 58, 54, 0.06);
+          }
+
+          .my-reading-card-inner {
+            display: grid;
+            grid-template-columns: 96px 1fr;
+            gap: 18px;
+            align-items: start;
+          }
+
+          .my-reading-cover {
+            width: 96px;
+            max-width: 96px;
+            height: auto;
+            border-radius: 13px;
+            border: 1px solid #E8DED8;
+            box-shadow: 0 10px 22px rgba(64, 58, 54, 0.13);
+            display: block;
+          }
+
+          .my-reading-content {
+            min-width: 0;
+          }
+
+          .my-reading-status-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+            margin-bottom: 10px;
+          }
+
+          .my-reading-pill {
+            display: inline-flex;
+            width: fit-content;
+            border-radius: 999px;
+            padding: 5px 9px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            background: #E9F0E6;
+            color: #5E755C;
+            border: 1px solid rgba(94, 117, 92, 0.18);
+          }
+
+          .my-reading-pill.paused {
+            background: #F7F3EE;
+            color: #8A7C74;
+            border-color: #E8DED8;
+          }
+
+          .my-reading-format {
+            display: inline-flex;
+            width: fit-content;
+            border-radius: 999px;
+            padding: 5px 9px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            background: #F7F3EE;
+            color: #8A7C74;
+            border: 1px solid #E8DED8;
+          }
+
+          .my-reading-title {
+            margin: 0 0 5px 0;
+            font-family: Georgia, serif;
+            font-size: 23px;
+            line-height: 1.15;
+            color: #403A36;
+          }
+
+          .my-reading-author {
+            margin: 0 0 14px 0;
+            color: #8A7C74;
+            font-size: 14px;
+            font-style: italic;
+          }
+
+          .my-reading-page-info {
+            margin: 0 0 9px 0;
+            color: #6F655F;
+            font-size: 14px;
+            line-height: 1.4;
+            font-weight: 700;
+          }
+
+          .my-reading-progress-row {
+            display: grid;
+            grid-template-columns: 1fr 46px;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 10px;
+          }
+
+          .my-reading-progress-outer {
+            height: 17px;
+            border-radius: 999px;
+            border: 1px solid #D8B7B0;
+            background: #FFFFFF;
+            padding: 3px;
+            overflow: hidden;
+          }
+
+          .my-reading-progress-inner {
+            height: 100%;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #D8B7B0 0%, #A8B8A3 100%);
+          }
+
+          .my-reading-progress-percent {
+            color: #6F655F;
+            font-size: 14px;
+            font-weight: 700;
+            text-align: right;
+          }
+
+          .my-reading-last {
+            margin: 0;
+            color: #8A7C74;
+            font-size: 12.5px;
+            line-height: 1.45;
+          }
+
+          .my-reading-link {
+            display: inline-flex;
+            margin-top: 12px;
+            color: #403A36;
+            font-size: 13px;
+            font-weight: 700;
+            text-decoration: underline;
+            text-underline-offset: 4px;
+            text-decoration-color: #D8B7B0;
+          }
+
+          @media (max-width: 700px) {
+            .my-readings-block {
+              margin-top: 48px;
+            }
+
+            .my-readings-title {
+              font-size: 30px;
+            }
+
+            .my-readings-subtitle {
+              font-size: 15.5px;
+            }
+
+            .my-reading-card {
+              border-radius: 26px;
+              padding: 20px;
+            }
+
+            .my-reading-card-inner {
+              grid-template-columns: 78px 1fr;
+              gap: 15px;
+            }
+
+            .my-reading-cover {
+              width: 78px;
+              max-width: 78px;
+              border-radius: 11px;
+            }
+
+            .my-reading-title {
+              font-size: 20px;
+            }
+
+            .my-reading-progress-row {
+              grid-template-columns: 1fr 42px;
+            }
+          }
+
+          @media (max-width: 430px) {
+            .my-reading-card-inner {
+              grid-template-columns: 70px 1fr;
+              gap: 13px;
+            }
+
+            .my-reading-cover {
+              width: 70px;
+              max-width: 70px;
+            }
+
+            .my-reading-title {
+              font-size: 19px;
+            }
+          }
+        `}
+      </style>
+
+      <section className="my-readings-block">
+        <div className="my-readings-header">
+          <div className="my-readings-kicker">📖 Mi rincón lector</div>
+          <h2 className="my-readings-title">Mis lecturas actuales</h2>
+          <p className="my-readings-subtitle">
+            Un pequeño seguimiento visual de los libros que estoy leyendo ahora mismo.
+          </p>
+        </div>
+
+        <div className="my-readings-grid">
+          {visibleReadings.map((reading) => {
+            const estado = String(reading.estado || "").toLowerCase();
+            const formato = String(reading.formato || "").toLowerCase();
+            const progress = Math.min(Math.max(reading.progressPercent || 0, 0), 100);
+
+            return (
+              <article key={reading.id} className="my-reading-card">
+                <div className="my-reading-card-inner">
+                  <img
+                    src={reading.portada_url}
+                    alt={reading.titulo}
+                    className="my-reading-cover"
+                  />
+
+                  <div className="my-reading-content">
+                    <div className="my-reading-status-row">
+                      <span className={`my-reading-pill ${estado === "pausado" ? "paused" : ""}`}>
+                        {estado === "pausado" ? "Pausado" : "Leyendo"}
+                      </span>
+
+                      <span className="my-reading-format">
+                        {formato === "fisico" ? "Físico" : "Digital"}
+                      </span>
+                    </div>
+
+                    <h3 className="my-reading-title">{reading.titulo}</h3>
+
+                    <p className="my-reading-author">por {reading.autor}</p>
+
+                    {formato === "fisico" ? (
+                      <p className="my-reading-page-info">
+                        Página {reading.pagina_actual || 0} de {reading.paginas_totales || 0}
+                      </p>
+                    ) : null}
+
+                    <div className="my-reading-progress-row">
+                      <div className="my-reading-progress-outer">
+                        <div
+                          className="my-reading-progress-inner"
+                          style={{ width: `${progress}%` }}
+                        />
+                      </div>
+
+                      <div className="my-reading-progress-percent">
+                        {progress}%
+                      </div>
+                    </div>
+
+                    {reading.ultimo_progreso ? (
+                      <p className="my-reading-last">
+                        Último avance: {formatMyReadingDateTime(reading.ultimo_progreso)}
+                      </p>
+                    ) : null}
+
+                    {reading.goodreads_url ? (
+                      <a
+                        href={reading.goodreads_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="my-reading-link"
+                      >
+                        Ver en Goodreads →
+                      </a>
+                    ) : null}
+                  </div>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      </section>
+    </>
+  );
+}
+
 export default async function ClubDeLecturaPage() {
   const data = await getWebsiteData();
-  const { currentReading, nextReading, previousReadings, recommendedReadings, readingChallenge } = data;
+  const { currentReading, nextReading, previousReadings, recommendedReadings, readingChallenge, myReadings } = data;
 
   // Evitar duplicados en las recomendaciones
   const usedIds = new Set([
@@ -1026,6 +1401,8 @@ export default async function ClubDeLecturaPage() {
           <ClubStatusPanel status={data.clubStatus} />
 
           <ReadingChallengeCard challenge={readingChallenge} />
+
+          <MyCurrentReadingsBlock readings={myReadings} />
         </section>
 
         {/* === LECTURA ACTUAL === */}

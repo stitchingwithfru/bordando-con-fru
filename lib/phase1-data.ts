@@ -48,6 +48,24 @@ export type ClubStatus = {
   };
 };
 
+export type MyReadingItem = {
+  id: string;
+  titulo: string;
+  autor: string;
+  portada_url: string;
+  goodreads_url: string;
+  formato: "fisico" | "digital" | string;
+  paginas_totales: number;
+  fecha_inicio: string;
+  fecha_fin: string;
+  estado: "leyendo" | "pausado" | "terminado" | "abandonado" | string;
+  pagina_actual: number;
+  porcentaje_actual: number;
+  progressPercent: number;
+  ultimo_progreso: string;
+  nota: string;
+};
+
 export type WebsiteData = {
   currentReading: ReadingItem | null;
   nextReading: ReadingItem | null;
@@ -55,6 +73,7 @@ export type WebsiteData = {
   recommendedReadings: ReadingItem[];
   productNews: ProductNewsItem[];
   clubStatus: ClubStatus;
+  myReadings: MyReadingItem[];
   readingChallenge: {
     year: number;
     goal: number;
