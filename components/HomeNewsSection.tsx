@@ -231,6 +231,18 @@ export default async function HomeNewsSection() {
             border: 1px solid #E8DED8;
           }
 
+          .home-news-reading-icon {
+            width: 72px;
+            height: 72px;
+            border-radius: 999px;
+            border: 1px solid #E8DED8;
+            background: #E9F0E6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+          }
+
           .home-news-empty {
             color: #8A7C74;
             font-size: 14px;
@@ -305,9 +317,14 @@ export default async function HomeNewsSection() {
               grid-template-columns: 58px 1fr;
             }
 
-            .home-news-club img {
+            .home-news-club img,
+            .home-news-reading-icon {
               width: 58px;
               height: 58px;
+            }
+
+            .home-news-reading-icon {
+              font-size: 26px;
             }
           }
         `}
@@ -429,7 +446,27 @@ export default async function HomeNewsSection() {
                         : "Club de Lectura"}
                   </h3>
                   <p className="home-news-item-text">
-                    Ver lecturas, reto anual y recomendaciones →
+                    Ver lecturas conjuntas, archivo y propuestas →
+                  </p>
+                </div>
+              </Link>
+            </div>
+
+            <div className="home-news-card home-news-box">
+              <div className="home-news-card-label">📖 Mi rincón lector</div>
+
+              <Link href="/mis-lecturas" className="home-news-club">
+                <div className="home-news-reading-icon">
+                  📚
+                </div>
+
+                <div>
+                  <h3 className="home-news-item-title">
+                    Mis lecturas
+                  </h3>
+
+                  <p className="home-news-item-text">
+                    Mi reto anual, lecturas actuales y archivo personal →
                   </p>
                 </div>
               </Link>
