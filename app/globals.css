@@ -4,7 +4,7 @@
   --surface-soft: #fcfaf7;
   --rose: #d8b7b0;
   --sage: #a8b8a3;
-  --taupe: #8a7c74;
+  --taupe: #6f625c;
   --text: #403a36;
   --border: #eadfd6;
   --soft: #f4ece8;
@@ -106,7 +106,13 @@ button, input, select, textarea { font: inherit; }
   padding: 24px;
   box-shadow: 0 8px 24px rgba(64,58,54,0.06);
 }
-.feature-panel h3 { margin: 0 0 8px; font-size: 22px; line-height: 1.15; }
+.feature-panel h3,
+.feature-panel-title {
+  margin: 0 0 8px;
+  font-size: 22px;
+  line-height: 1.15;
+  font-weight: 700;
+}
 .feature-panel p { margin: 0; font-size: 18px; line-height: 1.55; }
 .feature-icon { font-size: 28px; line-height: 1; margin-top: 4px; }
 .card {
@@ -260,4 +266,27 @@ button, input, select, textarea { font: inherit; }
   display: block;
   margin: 0 auto;
   border-radius: 24px;
+}
+
+/* Mejora suave de contraste para textos secundarios */
+.home-news-subtitle,
+.home-news-meta,
+.home-news-item-text,
+.home-news-small-video-date,
+.home-news-card-label {
+  color: #6f625c;
+}
+
+.feature-panel-title {
+  margin: 0 0 8px;
+  font-size: 22px;
+  line-height: 1.15;
+  font-weight: 700;
+}
+
+.step-card-title {
+  margin: 0 0 8px;
+  font-size: 22px;
+  line-height: 1.15;
+  font-weight: 700;
 }

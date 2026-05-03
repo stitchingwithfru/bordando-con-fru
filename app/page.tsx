@@ -29,20 +29,20 @@ export default function HomePage() {
               <div className="feature-panel">
                 <div className="feature-icon" style={{ color: "#C7866A" }}>✦</div>
                 <div>
-                  <h3 className="serif">Borda conmigo</h3>
+                  <div className="serif feature-panel-title">Borda conmigo</div>
                   <p className="muted">Contenido cercano y creativo para disfrutar del proceso.</p>
                 </div>
               </div>
               <div className="feature-panel">
                 <div className="feature-icon" style={{ color: "#A8B8A3" }}>▣</div>
                 <div>
-                  <h3 className="serif">Herramientas</h3>
+                  <div className="serif feature-panel-title">Herramientas</div>
                   <p className="muted">Sistemas digitales para organizar materiales y avances.</p>
                 </div>
               </div>
               <div className="card" style={{ background: "var(--soft)" }}>
                 <div className="eyebrow" style={{ marginBottom: 8 }}>Experiencia de compra</div>
-                <h3 className="serif" style={{ fontSize: 32, margin: "0 0 8px" }}>Pedidos claros, bonitos y sencillos</h3>
+                <div className="serif feature-panel-title" style={{ fontSize: 32, margin: "0 0 8px" }}>Pedidos claros, bonitos y sencillos</div>
                 <p className="muted">Descubre cada herramienta, elige la opción que necesites y realiza tu pedido de forma clara y sencilla.</p>
               </div>
             </div>
@@ -64,15 +64,15 @@ export default function HomePage() {
           <div className="grid-2">
             <Card>
               <InfoBadge tone="sage">Disponible</InfoBadge>
-              <h3 className="serif">Sistema de Seguimiento de Punto de Cruz</h3>
+              <div className="serif feature-panel-title">Sistema de Seguimiento de Punto de Cruz</div>
               <p className="muted">Para registrar tus cruces bordadas y consultar tu progreso por periodos.</p>
-              <PrimaryLink href="/herramientas/seguimiento">Ver producto</PrimaryLink>
+              <PrimaryLink href="/herramientas/seguimiento">Ver Sistema de Seguimiento</PrimaryLink>
             </Card>
             <Card>
               <InfoBadge>Disponible</InfoBadge>
-              <h3 className="serif">Sistema de Inventario Profesional</h3>
+              <div className="serif feature-panel-title">Sistema de Inventario Profesional</div>
               <p className="muted">Un sistema base de inventario de hilos al que puedes añadir complementos para ampliar sus funcionalidades.</p>
-              <PrimaryLink href="/herramientas/inventario">Ver producto</PrimaryLink>
+              <PrimaryLink href="/herramientas/inventario">Ver Sistema de Inventario</PrimaryLink>
             </Card>
           </div>
         </div>
@@ -85,7 +85,7 @@ export default function HomePage() {
             {purchaseSteps.map((step) => (
               <Card key={step.num}>
                 <div style={{ width: 40, height: 40, borderRadius: 999, background: "#efe6e2", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 16 }}>{step.num}</div>
-                <h3 className="serif">{step.title}</h3>
+                <div className="serif step-card-title">{step.title}</div>
                 <p className="muted">{step.text}</p>
               </Card>
             ))}

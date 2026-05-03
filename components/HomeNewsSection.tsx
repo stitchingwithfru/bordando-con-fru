@@ -37,7 +37,7 @@ export default async function HomeNewsSection() {
             align-items: center;
             gap: 8px;
             background: #F3ECE7;
-            color: #8A7C74;
+            color: #5f544f;
             border: 1px solid #E8DED8;
             border-radius: 999px;
             padding: 7px 14px;
@@ -59,7 +59,7 @@ export default async function HomeNewsSection() {
           .home-news-subtitle {
             max-width: 660px;
             margin: 14px auto 0 auto;
-            color: #8A7C74;
+            color: #5f544f;
             font-size: 17px;
             line-height: 1.65;
           }
@@ -98,7 +98,7 @@ export default async function HomeNewsSection() {
             align-items: center;
             gap: 7px;
             background: #F3ECE7;
-            color: #8A7C74;
+            color: #5f544f;
             border-radius: 999px;
             padding: 6px 12px;
             font-size: 12px;
@@ -118,7 +118,7 @@ export default async function HomeNewsSection() {
 
           .home-news-meta {
             margin: 0 0 18px 0;
-            color: #8A7C74;
+            color: #5f544f;
             font-size: 14px;
           }
 
@@ -176,7 +176,7 @@ export default async function HomeNewsSection() {
 
           .home-news-small-video-date {
             margin: 0;
-            color: #8A7C74;
+            color: #5f544f;
             font-size: 13px;
           }
 
@@ -205,7 +205,7 @@ export default async function HomeNewsSection() {
 
           .home-news-item-text {
             margin: 0;
-            color: #8A7C74;
+            color: #5f544f;
             font-size: 14px;
             line-height: 1.5;
           }
@@ -244,7 +244,7 @@ export default async function HomeNewsSection() {
           }
 
           .home-news-empty {
-            color: #8A7C74;
+            color: #5f544f;
             font-size: 14px;
             line-height: 1.5;
             margin: 0;
@@ -434,7 +434,7 @@ export default async function HomeNewsSection() {
 
               <Link href="/club-de-lectura" className="home-news-club">
                 <img
-                  src="/images/club-de-lectura.jpeg"
+                  src="/images/club-de-lectura-thumb.webp"
                   alt="Club de Lectura"
                 />
                 <div>

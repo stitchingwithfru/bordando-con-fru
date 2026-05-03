@@ -701,9 +701,11 @@ export function MyCurrentReadingsBlock({ readings }: { readings: MyReadingItem[]
               <article key={reading.id} className="my-reading-card">
                 <div className="my-reading-card-inner">
                   <img
-                    src={reading.portada_url}
+                    src={reading.portada_local || reading.portada_url}
                     alt={reading.titulo}
                     className="my-reading-cover"
+                    width={220}
+                    height={330}
                   />
 
                   <div className="my-reading-content">
@@ -986,9 +988,11 @@ export function MyFinishedReadingsBlock({ readings }: { readings: MyReadingItem[
               <article key={reading.id} className="finished-reading-card">
                 <div className="finished-reading-cover-wrap">
                   <img
-                    src={reading.portada_url}
+                    src={reading.portada_local || reading.portada_url}
                     alt={reading.titulo}
                     className="finished-reading-cover"
+                    width={220}
+                    height={330}
                   />
                 </div>
 

@@ -58,7 +58,7 @@ function ClubStatusPanel({ status }: { status: ClubStatus }) {
             align-items: center;
             gap: 8px;
             background: #F3ECE7;
-            color: #8A7C74;
+            color: #5f544f;
             border: 1px solid #E8DED8;
             border-radius: 999px;
             padding: 7px 14px;
@@ -378,9 +378,11 @@ export default async function ClubDeLecturaPage() {
           <div className="club-hero-inner">
             <div className="club-hero-image-wrap">
               <img
-                src="/images/club-de-lectura.jpeg"
+                src="/images/club-de-lectura-hero.webp"
                 alt="Club de Lectura Bordando con Fru"
                 className="club-hero-image"
+                width={480}
+                height={480}
               />
             </div>
 
@@ -800,8 +802,10 @@ export default async function ClubDeLecturaPage() {
                   }}
                 >
                   <img
-                    src={currentReading.portada_url}
+                    src={currentReading.portada_large || currentReading.portada_local || currentReading.portada_url}
                     alt={currentReading.titulo}
+                    width={440}
+                    height={660}
                     style={{
                       width: "165px",
                       maxWidth: "165px",
@@ -1019,8 +1023,10 @@ export default async function ClubDeLecturaPage() {
                   }}
                 >
                   <img
-                    src={nextReading.portada_url}
+                    src={nextReading.portada_large || nextReading.portada_local || nextReading.portada_url}
                     alt={nextReading.titulo}
+                    width={440}
+                    height={660}
                     style={{
                       width: "150px",
                       maxWidth: "150px",

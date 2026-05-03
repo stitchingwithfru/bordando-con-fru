@@ -6,6 +6,8 @@ export type ReadingItem = {
   generos: string;
   goodreads_url: string;
   portada_url: string;
+  portada_local?: string;
+  portada_large?: string;
   fecha_inicio: string;
   fecha_fin: string;
   recomendada: boolean;
@@ -53,6 +55,7 @@ export type MyReadingItem = {
   titulo: string;
   autor: string;
   portada_url: string;
+  portada_local?: string;
   goodreads_url: string;
   formato: "fisico" | "digital" | string;
   paginas_totales: number;

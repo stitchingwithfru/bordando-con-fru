@@ -441,9 +441,11 @@ export default async function ArchivoMisLecturasPage() {
                           <div className="personal-archive-card-inner">
                             <div className="personal-archive-cover-wrap">
                               <img
-                                src={reading.portada_url}
+                                src={reading.portada_local || reading.portada_url}
                                 alt={reading.titulo}
                                 className="personal-archive-cover"
+                                width={220}
+                                height={330}
                               />
                             </div>
 

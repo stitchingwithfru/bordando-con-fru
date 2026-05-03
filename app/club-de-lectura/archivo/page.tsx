@@ -356,9 +356,11 @@ const years = Object.keys(readingsByYear).sort((a, b) => Number(b) - Number(a));
                             <div className="archive-card-inner">
                             <div className="archive-cover-wrap">
                                 <img
-                                src={book.portada_url}
-                                alt={book.titulo}
-                                className="archive-cover"
+                                  src={book.portada_local || book.portada_url}
+                                  alt={book.titulo}
+                                  className="archive-cover"
+                                  width={220}
+                                  height={330}
                                 />
                             </div>
 

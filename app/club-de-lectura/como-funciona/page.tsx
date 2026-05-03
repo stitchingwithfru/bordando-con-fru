@@ -28,7 +28,7 @@ export default function ComoFuncionaClubPage() {
               border-radius: 999px;
               padding: 7px 14px;
               margin-bottom: 16px;
-              color: #8A7C74;
+              color: #5f544f;
               font-size: 12px;
               font-weight: 700;
               letter-spacing: 0.14em;
@@ -380,7 +380,7 @@ export default function ComoFuncionaClubPage() {
             }
 
             .club-genre-count {
-              color: #8A7C74;
+              color: #5f544f;
               font-size: 13px;
               white-space: nowrap;
             }
@@ -401,7 +401,7 @@ export default function ComoFuncionaClubPage() {
 
             .club-genre-plan-note {
               margin: 18px 0 0 0;
-              color: #8A7C74;
+              color: #5f544f;
               font-size: 14px;
               line-height: 1.6;
             }
