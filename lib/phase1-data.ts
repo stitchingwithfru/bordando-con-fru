@@ -57,6 +57,7 @@ export type MyReadingItem = {
   portada_url: string;
   portada_local?: string;
   goodreads_url: string;
+  generos: string;
   formato: "fisico" | "digital" | string;
   paginas_totales: number;
   fecha_inicio: string;

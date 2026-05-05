@@ -754,6 +754,7 @@ export function MyCurrentReadingsBlock({ readings }: { readings: MyReadingItem[]
                         target="_blank"
                         rel="noopener noreferrer"
                         className="my-reading-link"
+                        aria-label={`Ver ${reading.titulo} en Goodreads`}
                       >
                         Ver en Goodreads →
                       </a>
@@ -1021,6 +1022,7 @@ export function MyFinishedReadingsBlock({ readings }: { readings: MyReadingItem[
                       target="_blank"
                       rel="noopener noreferrer"
                       className="finished-reading-link"
+                      aria-label={`Ver ${reading.titulo} en Goodreads`}
                     >
                       Ver en Goodreads →
                     </a>

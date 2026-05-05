@@ -24,8 +24,10 @@ export function SiteHeader() {
           </details>
           <Link href="/club-de-lectura">Club de Lectura</Link>
           <Link href="/mis-lecturas">Mis lecturas</Link>
+          <Link href="/acceso-clientes">Mi espacio</Link>
           <Link href="/faq">FAQ</Link>
           <Link href="/contacto">Contacto</Link>
+          <Link href="/admin-clientes">Gestión</Link>
         </nav>
 
         <details className="mobile-nav">
@@ -37,8 +39,10 @@ export function SiteHeader() {
             <Link href="/herramientas/inventario">Sistema de Inventario Profesional</Link>
             <Link href="/club-de-lectura">Club de Lectura</Link>
             <Link href="/mis-lecturas">Mis lecturas</Link>
+            <Link href="/acceso-clientes">Mi espacio</Link>
             <Link href="/faq">FAQ</Link>
             <Link href="/contacto">Contacto</Link>
+            <Link href="/admin-clientes">Gestión</Link>
           </div>
         </details>
       </div>

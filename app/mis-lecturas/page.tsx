@@ -153,6 +153,77 @@ export default async function MisLecturasPage() {
               box-shadow: 0 8px 18px rgba(64, 58, 54, 0.14);
             }
 
+            .personal-stats-link-card {
+              max-width: 980px;
+              margin: 0 auto;
+              display: grid;
+              grid-template-columns: 74px 1fr;
+              gap: 24px;
+              align-items: start;
+              background: linear-gradient(135deg, #FFFFFF 0%, #FCFAF7 100%);
+              border: 1px solid #E8DED8;
+              border-radius: 30px;
+              padding: 28px;
+              box-shadow: 0 10px 28px rgba(64, 58, 54, 0.06);
+            }
+
+            .personal-stats-link-icon {
+              width: 74px;
+              height: 74px;
+              border-radius: 24px;
+              background: #F3ECE7;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              font-size: 34px;
+              box-shadow: 0 8px 18px rgba(64, 58, 54, 0.08);
+            }
+
+            .personal-stats-link-kicker {
+              display: inline-flex;
+              align-items: center;
+              background: #F3ECE7;
+              color: #5f544f;
+              border: 1px solid #E8DED8;
+              border-radius: 999px;
+              padding: 7px 13px;
+              font-size: 12px;
+              font-weight: 700;
+              letter-spacing: 0.12em;
+              text-transform: uppercase;
+              margin-bottom: 12px;
+            }
+
+            .personal-stats-link-title {
+              margin: 0 0 12px 0;
+              font-family: Georgia, serif;
+              font-size: 32px;
+              line-height: 1.12;
+              color: #403A36;
+            }
+
+            .personal-stats-link-text {
+              margin: 0 0 22px 0;
+              color: #6F655F;
+              font-size: 16px;
+              line-height: 1.7;
+              max-width: 760px;
+            }
+
+            .personal-stats-link-button {
+              display: inline-flex;
+              align-items: center;
+              justify-content: center;
+              background: #403A36;
+              color: #FFFFFF;
+              border-radius: 999px;
+              padding: 13px 22px;
+              font-size: 15px;
+              font-weight: 700;
+              text-decoration: none;
+              box-shadow: 0 8px 18px rgba(64, 58, 54, 0.14);
+            }
+
             @media (max-width: 600px) {
               .personal-reading-hero {
                 border-radius: 28px;
@@ -209,6 +280,35 @@ export default async function MisLecturasPage() {
               .personal-archive-link-button {
                 width: 100%;
               }
+
+              .personal-stats-link-card {
+                grid-template-columns: 1fr;
+                text-align: center;
+                border-radius: 26px;
+                padding: 24px 20px;
+                gap: 16px;
+              }
+
+              .personal-stats-link-icon {
+                margin: 0 auto;
+                width: 62px;
+                height: 62px;
+                border-radius: 22px;
+                font-size: 30px;
+              }
+
+              .personal-stats-link-title {
+                font-size: 28px;
+              }
+
+              .personal-stats-link-text {
+                font-size: 15.5px;
+                max-width: 100%;
+              }
+
+              .personal-stats-link-button {
+                width: 100%;
+              }
             }
           `}
         </style>
@@ -234,6 +334,32 @@ export default async function MisLecturasPage() {
 
         <div className="personal-reading-sections">
           <ReadingChallengeCard challenge={data.readingChallenge} />
+
+          <section className="personal-stats-link-card">
+            <div className="personal-stats-link-icon">📊</div>
+
+            <div>
+              <div className="personal-stats-link-kicker">
+                Balance lector
+              </div>
+
+              <h2 className="personal-stats-link-title">
+                Estadísticas personales
+              </h2>
+
+              <p className="personal-stats-link-text">
+                Consulta el resumen anual de mis lecturas: libros terminados,
+                formatos, estados, páginas registradas y evolución mensual.
+              </p>
+
+              <Link
+                href="/mis-lecturas/estadisticas"
+                className="personal-stats-link-button"
+              >
+                Ver estadísticas →
+              </Link>
+            </div>
+          </section>
 
           <MyCurrentReadingsBlock readings={data.myReadings || []} />
 

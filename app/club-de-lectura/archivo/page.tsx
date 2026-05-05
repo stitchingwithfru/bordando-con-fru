@@ -399,6 +399,7 @@ const years = Object.keys(readingsByYear).sort((a, b) => Number(b) - Number(a));
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="archive-link"
+                                    aria-label={`Ver ${book.titulo} en Goodreads`}
                                 >
                                     Ver en Goodreads →
                                 </a>

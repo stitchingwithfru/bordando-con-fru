@@ -29,6 +29,20 @@ export default function ReadingProgressApp({ readings }: { readings: MyReadingIt
   const [selectedId, setSelectedId] = useState(availableReadings[0]?.id || "");
   const selectedReading = availableReadings.find((reading) => reading.id === selectedId) || null;
 
+  function applyFinishedProgress(reading: MyReadingItem | null) {
+    if (!reading) return;
+
+    if (reading.formato === "fisico") {
+      setPage(String(reading.paginas_totales || 0));
+      setPercent("");
+    }
+
+    if (reading.formato === "digital") {
+      setPercent("100");
+      setPage("");
+    }
+  }
+
   const [page, setPage] = useState("");
   const [percent, setPercent] = useState("");
   const [status, setStatus] = useState<Status>("leyendo");
@@ -36,6 +50,39 @@ export default function ReadingProgressApp({ readings }: { readings: MyReadingIt
   const [submitError, setSubmitError] = useState("");
   const [submitSuccess, setSubmitSuccess] = useState("");
   const [submitLoading, setSubmitLoading] = useState(false);
+
+  useEffect(() => {
+    if (!selectedReading) return;
+
+    setPage(
+      selectedReading.formato === "fisico"
+        ? String(selectedReading.pagina_actual || "")
+        : ""
+    );
+
+    setPercent(
+      selectedReading.formato === "digital"
+        ? String(selectedReading.progressPercent || selectedReading.porcentaje_actual || "")
+        : ""
+    );
+
+    const readingStatus = String(selectedReading.estado || "leyendo").toLowerCase();
+
+    if (
+      readingStatus === "leyendo" ||
+      readingStatus === "pausado" ||
+      readingStatus === "terminado" ||
+      readingStatus === "abandonado"
+    ) {
+      setStatus(readingStatus);
+    } else {
+      setStatus("leyendo");
+    }
+
+    setNote("");
+    setSubmitError("");
+    setSubmitSuccess("");
+  }, [selectedReading]);
 
   async function handleAuth(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -88,8 +135,18 @@ export default function ReadingProgressApp({ readings }: { readings: MyReadingIt
         },
         body: JSON.stringify({
           lectura_id: selectedReading.id,
-          pagina_actual: selectedReading.formato === "fisico" ? page : "",
-          porcentaje_actual: selectedReading.formato === "digital" ? percent : "",
+          pagina_actual:
+            selectedReading.formato === "fisico"
+              ? status === "terminado"
+                ? String(selectedReading.paginas_totales || 0)
+                : page
+              : "",
+          porcentaje_actual:
+            selectedReading.formato === "digital"
+              ? status === "terminado"
+                ? "100"
+                : percent
+              : "",
           estado: status,
           nota: note,
         }),
@@ -222,9 +279,12 @@ export default function ReadingProgressApp({ readings }: { readings: MyReadingIt
 
           .progress-cover {
             width: 76px;
+            height: 114px;
+            object-fit: cover;
             border-radius: 11px;
             border: 1px solid #E8DED8;
             box-shadow: 0 8px 18px rgba(64, 58, 54, 0.12);
+            display: block;
           }
 
           .progress-book-title {
@@ -310,6 +370,7 @@ export default function ReadingProgressApp({ readings }: { readings: MyReadingIt
 
             .progress-cover {
               width: 68px;
+              height: 102px;
             }
 
             .progress-book-title {
@@ -367,12 +428,6 @@ export default function ReadingProgressApp({ readings }: { readings: MyReadingIt
                       value={selectedId}
                       onChange={(event) => {
                         setSelectedId(event.target.value);
-                        setPage("");
-                        setPercent("");
-                        setStatus("leyendo");
-                        setNote("");
-                        setSubmitError("");
-                        setSubmitSuccess("");
                       }}
                     >
                       {availableReadings.map((reading) => (
@@ -386,9 +441,11 @@ export default function ReadingProgressApp({ readings }: { readings: MyReadingIt
                   {selectedReading ? (
                     <div className="progress-selected-book">
                       <img
-                        src={selectedReading.portada_url}
+                        src={selectedReading.portada_local || selectedReading.portada_url}
                         alt={selectedReading.titulo}
                         className="progress-cover"
+                        width={220}
+                        height={330}
                       />
                       <div>
                         <h2 className="progress-book-title">{selectedReading.titulo}</h2>
@@ -446,7 +503,14 @@ export default function ReadingProgressApp({ readings }: { readings: MyReadingIt
                       id="status"
                       className="progress-select"
                       value={status}
-                      onChange={(event) => setStatus(event.target.value as Status)}
+                      onChange={(event) => {
+                        const nextStatus = event.target.value as Status;
+                        setStatus(nextStatus);
+
+                        if (nextStatus === "terminado") {
+                          applyFinishedProgress(selectedReading);
+                        }
+                      }}
                     >
                       <option value="leyendo">Leyendo</option>
                       <option value="pausado">Pausado</option>

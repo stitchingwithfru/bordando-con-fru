@@ -488,6 +488,7 @@ export default async function ArchivoMisLecturasPage() {
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   className="personal-archive-link"
+                                  aria-label={`Ver ${reading.titulo} en Goodreads`}
                                 >
                                   Ver en Goodreads →
                                 </a>
