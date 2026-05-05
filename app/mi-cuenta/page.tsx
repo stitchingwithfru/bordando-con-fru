@@ -29,6 +29,33 @@ type Product = {
   product_resources: ProductResource[];
 };
 
+type ProductUpdate = {
+  id: string;
+  title: string;
+  description: string | null;
+  version: string | null;
+  published_at: string;
+};
+
+type ProductUpdateItem = {
+  id: string;
+  product_id: string;
+  updated_template_url: string | null;
+  updated_pdf_file_path: string | null;
+  updated_video_url: string | null;
+  notes: string | null;
+  sort_order: number;
+  product_updates: ProductUpdate[] | ProductUpdate | null;
+};
+
+function getUpdateFromItem(item: ProductUpdateItem) {
+  if (Array.isArray(item.product_updates)) {
+    return item.product_updates[0] || null;
+  }
+
+  return item.product_updates;
+}
+
 export default async function MiCuentaPage() {
   const supabase = await createClient();
 
@@ -43,13 +70,13 @@ export default async function MiCuentaPage() {
   const { data: products, error } = await supabase
     .from("products")
     .select(`
-        id,
-        slug,
-        name,
-        description,
-        current_version,
-        instructions,
-        product_resources (
+      id,
+      slug,
+      name,
+      description,
+      current_version,
+      instructions,
+      product_resources (
         id,
         type,
         label,
@@ -58,20 +85,61 @@ export default async function MiCuentaPage() {
         file_path,
         version,
         sort_order
-        )
+      )
     `)
     .order("name", { ascending: true })
     .order("sort_order", {
-        referencedTable: "product_resources",
-        ascending: true,
+      referencedTable: "product_resources",
+      ascending: true,
     });
 
-   function getResourceTypeLabel(type: ProductResource["type"]) {
+  const { data: updateItems, error: updatesError } = await supabase
+    .from("product_update_items")
+    .select(`
+      id,
+      product_id,
+      updated_template_url,
+      updated_pdf_file_path,
+      updated_video_url,
+      notes,
+      sort_order,
+      product_updates (
+        id,
+        title,
+        description,
+        version,
+        published_at
+      )
+    `);
+
+  const typedUpdateItems = (updateItems || []) as unknown as ProductUpdateItem[];
+
+  const updatesByProductId = typedUpdateItems.reduce<
+    Record<string, ProductUpdateItem[]>
+  >((acc, item) => {
+    if (!acc[item.product_id]) acc[item.product_id] = [];
+    acc[item.product_id].push(item);
+    return acc;
+  }, {});
+
+  Object.values(updatesByProductId).forEach((items) => {
+    items.sort((a, b) => {
+      const updateA = getUpdateFromItem(a);
+      const updateB = getUpdateFromItem(b);
+
+      const dateA = new Date(updateA?.published_at || 0).getTime();
+      const dateB = new Date(updateB?.published_at || 0).getTime();
+
+      return dateB - dateA;
+    });
+  });
+
+  function getResourceTypeLabel(type: ProductResource["type"]) {
     if (type === "google_sheet_copy") return "Plantilla";
     if (type === "pdf") return "PDF";
     if (type === "video") return "Vídeo";
     return "Enlace";
-   }
+  }
 
   return (
     <main className="min-h-screen bg-[#F7F3EE] text-[#403A36] pt-12 pb-24 px-5">
@@ -253,25 +321,85 @@ export default async function MiCuentaPage() {
                 text-decoration: none;
                 }
 
-            .account-empty {
-              background: linear-gradient(135deg, #FFFFFF 0%, #FCFAF7 100%);
-              border: 1px dashed #D8B7B0;
-              border-radius: 26px;
-              padding: 28px;
-              color: #5f544f;
-              text-align: center;
-              line-height: 1.6;
-            }
+              .account-empty {
+                background: linear-gradient(135deg, #FFFFFF 0%, #FCFAF7 100%);
+                border: 1px dashed #D8B7B0;
+                border-radius: 26px;
+                padding: 28px;
+                color: #5f544f;
+                text-align: center;
+                line-height: 1.6;
+              }
 
-            .account-error {
-              background: #F7E4E1;
-              color: #8A3C35;
-              border-radius: 18px;
-              padding: 14px;
-              font-size: 14px;
-              line-height: 1.45;
-              margin-bottom: 20px;
-            }
+              .account-error {
+                background: #F7E4E1;
+                color: #8A3C35;
+                border-radius: 18px;
+                padding: 14px;
+                font-size: 14px;
+                line-height: 1.45;
+                margin-bottom: 20px;
+              }
+
+              .account-updates {
+                display: grid;
+                gap: 12px;
+                margin-top: 18px;
+              }
+
+              .account-update-card {
+                background: #FFF7EF;
+                border: 1px solid #E8DED8;
+                border-radius: 18px;
+                padding: 14px;
+              }
+
+              .account-update-kicker {
+                display: inline-flex;
+                border-radius: 999px;
+                padding: 5px 9px;
+                background: #E9F0E6;
+                color: #4D6249;
+                font-size: 11px;
+                font-weight: 700;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+                margin-bottom: 9px;
+              }
+
+              .account-update-title {
+                margin: 0 0 7px 0;
+                font-family: Georgia, serif;
+                color: #403A36;
+                font-size: 19px;
+                line-height: 1.18;
+              }
+
+              .account-update-description {
+                margin: 0 0 10px 0;
+                color: #6F655F;
+                font-size: 13.5px;
+                line-height: 1.55;
+              }
+
+              .account-update-meta {
+                margin: 0;
+                color: #5f544f;
+                font-size: 12.5px;
+                line-height: 1.45;
+                font-weight: 700;
+              }
+
+              .account-update-note {
+                margin: 10px 0 0 0;
+                background: #FFFFFF;
+                border: 1px solid #E8DED8;
+                border-radius: 14px;
+                padding: 11px;
+                color: #6F655F;
+                font-size: 13px;
+                line-height: 1.5;
+              }
 
             @media (max-width: 700px) {
               .account-title {
@@ -313,6 +441,12 @@ export default async function MiCuentaPage() {
         {error ? (
           <div className="account-error">
             No se han podido cargar tus productos. Inténtalo de nuevo más tarde.
+          </div>
+        ) : null}
+
+        {updatesError ? (
+          <div className="account-error">
+            No se han podido cargar las actualizaciones. Inténtalo de nuevo más tarde.
           </div>
         ) : null}
 
@@ -407,6 +541,49 @@ export default async function MiCuentaPage() {
                         ))}
                     </div>
                     ) : null}
+
+                  {updatesByProductId[product.id]?.length ? (
+                    <div className="account-updates">
+                      {updatesByProductId[product.id].map((item) => {
+                        const update = getUpdateFromItem(item);
+
+                        if (!update) return null;
+
+                        return (
+                          <div key={item.id} className="account-update-card">
+                            <div className="account-update-kicker">
+                              Novedad del producto
+                            </div>
+
+                            <h3 className="account-update-title">
+                              {update.title}
+                            </h3>
+
+                            {update.description ? (
+                              <p className="account-update-description">
+                                {update.description}
+                              </p>
+                            ) : null}
+
+                            <p className="account-update-meta">
+                              {update.version ? `Versión ${update.version}` : "Nueva actualización"} ·{" "}
+                              {new Intl.DateTimeFormat("es-ES", {
+                                day: "numeric",
+                                month: "long",
+                                year: "numeric",
+                              }).format(new Date(update.published_at))}
+                            </p>
+
+                            {item.notes ? (
+                              <p className="account-update-note">
+                                {item.notes}
+                              </p>
+                            ) : null}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : null}
               </article>
             ))}
           </section>

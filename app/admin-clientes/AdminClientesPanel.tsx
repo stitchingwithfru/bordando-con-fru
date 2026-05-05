@@ -40,6 +40,32 @@ type ApiResponse = {
   authUser?: AuthUser;
 };
 
+type UpdateProductDraft = {
+  productId: string;
+  productName: string;
+  enabled: boolean;
+  updatedTemplateUrl: string;
+  updatedPdfFilePath: string;
+  updatedVideoUrl: string;
+  notes: string;
+};
+
+type ProductUpdateSummary = {
+  id: string;
+  title: string;
+  version: string | null;
+  published_at: string;
+  created_at: string;
+};
+
+type UpdateNotificationPreview = {
+  totalRecipients: number;
+  alreadySentCount: number;
+  pendingCount: number;
+  recipients: string[];
+  pendingRecipients: string[];
+};
+
 export default function AdminClientesPanel() {
   const [adminPassword, setAdminPassword] = useState("");
   const [email, setEmail] = useState("");
@@ -51,6 +77,25 @@ export default function AdminClientesPanel() {
   const [isError, setIsError] = useState(false);
   const [isReady, setIsReady] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [updateTitle, setUpdateTitle] = useState("");
+  const [updateDescription, setUpdateDescription] = useState("");
+  const [updateVersion, setUpdateVersion] = useState("");
+  const [updatePublishedAt, setUpdatePublishedAt] = useState(
+    new Date().toISOString().slice(0, 10)
+  );
+  const [updateProducts, setUpdateProducts] = useState<UpdateProductDraft[]>([]);
+  const [updateMessage, setUpdateMessage] = useState("");
+  const [updateIsError, setUpdateIsError] = useState(false);
+  const [isCreatingUpdate, setIsCreatingUpdate] = useState(false);
+  const [availableUpdates, setAvailableUpdates] = useState<ProductUpdateSummary[]>([]);
+  const [selectedUpdateId, setSelectedUpdateId] = useState("");
+  const [notificationPreview, setNotificationPreview] =
+    useState<UpdateNotificationPreview | null>(null);
+  const [notificationMessage, setNotificationMessage] = useState("");
+  const [notificationIsError, setNotificationIsError] = useState(false);
+  const [isLoadingUpdates, setIsLoadingUpdates] = useState(false);
+  const [isPreviewingNotification, setIsPreviewingNotification] = useState(false);
+  const [isSendingNotification, setIsSendingNotification] = useState(false);
 
   async function runAction(action: string, extra?: { productId?: string }) {
     setIsLoading(true);
@@ -79,7 +124,10 @@ export default function AdminClientesPanel() {
         return;
       }
 
-      if (result.products) setProducts(result.products);
+      if (result.products) {
+        setProducts(result.products);
+        syncUpdateProducts(result.products);
+      }
 
       if ("accesses" in result) {
        setAccesses(result.accesses || []);
@@ -98,6 +146,204 @@ export default function AdminClientesPanel() {
       setIsLoading(false);
     }
   }
+
+function syncUpdateProducts(productList: Product[]) {
+  setUpdateProducts(
+    productList.map((product) => ({
+      productId: product.id,
+      productName: product.name,
+      enabled: false,
+      updatedTemplateUrl: "",
+      updatedPdfFilePath: "",
+      updatedVideoUrl: "",
+      notes: "",
+    }))
+  );
+}
+
+function updateDraftProduct(
+  productId: string,
+  changes: Partial<UpdateProductDraft>
+) {
+  setUpdateProducts((current) =>
+    current.map((item) =>
+      item.productId === productId ? { ...item, ...changes } : item
+    )
+  );
+}
+
+function resetUpdateForm() {
+  setUpdateTitle("");
+  setUpdateDescription("");
+  setUpdateVersion("");
+  setUpdatePublishedAt(new Date().toISOString().slice(0, 10));
+  setUpdateProducts((current) =>
+    current.map((item) => ({
+      ...item,
+      enabled: false,
+      updatedTemplateUrl: "",
+      updatedPdfFilePath: "",
+      updatedVideoUrl: "",
+      notes: "",
+    }))
+  );
+}
+
+async function createProductUpdate() {
+  setUpdateMessage("");
+  setUpdateIsError(false);
+
+  const selectedItems = updateProducts.filter((item) => item.enabled);
+
+  if (!updateTitle.trim()) {
+    setUpdateIsError(true);
+    setUpdateMessage("Añade un título para la actualización.");
+    return;
+  }
+
+  if (!selectedItems.length) {
+    setUpdateIsError(true);
+    setUpdateMessage("Selecciona al menos un producto afectado.");
+    return;
+  }
+
+  setIsCreatingUpdate(true);
+
+  try {
+    const response = await fetch("/api/admin/product-updates", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        adminPassword,
+        title: updateTitle,
+        description: updateDescription,
+        version: updateVersion,
+        publishedAt: updatePublishedAt,
+        items: selectedItems.map((item) => ({
+          productId: item.productId,
+          updatedTemplateUrl: item.updatedTemplateUrl,
+          updatedPdfFilePath: item.updatedPdfFilePath,
+          updatedVideoUrl: item.updatedVideoUrl,
+          notes: item.notes,
+        })),
+      }),
+    });
+
+    const result = await response.json();
+
+    if (!response.ok || !result.ok) {
+      setUpdateIsError(true);
+      setUpdateMessage(result.error || "No se ha podido crear la actualización.");
+      return;
+    }
+
+    setUpdateMessage(result.message || "Actualización creada correctamente.");
+    resetUpdateForm();
+  } catch {
+    setUpdateIsError(true);
+    setUpdateMessage("No se ha podido conectar con el servidor.");
+  } finally {
+    setIsCreatingUpdate(false);
+  }
+}
+
+async function loadProductUpdates() {
+  setIsLoadingUpdates(true);
+  setNotificationMessage("");
+  setNotificationIsError(false);
+
+  try {
+    const response = await fetch(
+      `/api/admin/product-updates?adminPassword=${encodeURIComponent(adminPassword)}`
+    );
+
+    const result = await response.json();
+
+    if (!response.ok || !result.ok) {
+      setNotificationIsError(true);
+      setNotificationMessage(
+        result.error || "No se han podido cargar las actualizaciones."
+      );
+      return;
+    }
+
+    setAvailableUpdates(result.updates || []);
+    setNotificationPreview(null);
+
+    if (!selectedUpdateId && result.updates?.length) {
+      setSelectedUpdateId(result.updates[0].id);
+    }
+  } catch {
+    setNotificationIsError(true);
+    setNotificationMessage("No se ha podido conectar con el servidor.");
+  } finally {
+    setIsLoadingUpdates(false);
+  }
+}
+
+async function runUpdateNotification(action: "preview" | "send") {
+  setNotificationMessage("");
+  setNotificationIsError(false);
+
+  if (!selectedUpdateId) {
+    setNotificationIsError(true);
+    setNotificationMessage("Selecciona una actualización.");
+    return;
+  }
+
+  if (action === "preview") {
+    setIsPreviewingNotification(true);
+  } else {
+    setIsSendingNotification(true);
+  }
+
+  try {
+    const response = await fetch("/api/admin/product-updates/notify", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        adminPassword,
+        updateId: selectedUpdateId,
+        action,
+      }),
+    });
+
+    const result = await response.json();
+
+    if (!response.ok || !result.ok) {
+      setNotificationIsError(true);
+      setNotificationMessage(
+        result.error || "No se ha podido procesar el aviso."
+      );
+      return;
+    }
+
+    if (action === "preview") {
+      setNotificationPreview({
+        totalRecipients: result.totalRecipients || 0,
+        alreadySentCount: result.alreadySentCount || 0,
+        pendingCount: result.pendingCount || 0,
+        recipients: result.recipients || [],
+        pendingRecipients: result.pendingRecipients || [],
+      });
+
+      setNotificationMessage("Previsualización cargada correctamente.");
+    } else {
+      setNotificationMessage(result.message || "Aviso enviado correctamente.");
+      await runUpdateNotification("preview");
+    }
+  } catch {
+    setNotificationIsError(true);
+    setNotificationMessage("No se ha podido conectar con el servidor.");
+  } finally {
+    setIsPreviewingNotification(false);
+    setIsSendingNotification(false);
+  }
+}
 
   const canUseEmailActions = Boolean(email.trim());
 
@@ -300,6 +546,117 @@ export default function AdminClientesPanel() {
             line-height: 1.55;
           }
 
+          .admin-update-intro {
+            margin: 0 0 16px 0;
+            color: #6F655F;
+            font-size: 14px;
+            line-height: 1.55;
+          }
+
+          .admin-update-product-list {
+            display: grid;
+            gap: 14px;
+          }
+
+          .admin-update-product-card {
+            background: #FFFFFF;
+            border: 1px solid #E8DED8;
+            border-radius: 20px;
+            padding: 16px;
+          }
+
+          .admin-update-product-head {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 12px;
+          }
+
+          .admin-update-product-checkbox {
+            margin-top: 4px;
+          }
+
+          .admin-update-product-title {
+            margin: 0;
+            color: #403A36;
+            font-size: 15px;
+            font-weight: 700;
+            line-height: 1.35;
+          }
+
+          .admin-update-product-fields {
+            display: grid;
+            gap: 12px;
+            margin-top: 12px;
+          }
+
+          .admin-update-help {
+            margin: 6px 0 0 0;
+            color: #6F655F;
+            font-size: 13px;
+            line-height: 1.45;
+          }
+
+          .admin-textarea {
+            width: 100%;
+            min-height: 90px;
+            border: 1px solid #E8DED8;
+            border-radius: 16px;
+            background: #FFFFFF;
+            color: #403A36;
+            padding: 12px 13px;
+            font-size: 15px;
+            outline: none;
+            resize: vertical;
+          }
+
+          .admin-notification-summary {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+          }
+
+          .admin-notification-stat {
+            background: #FFFFFF;
+            border: 1px solid #E8DED8;
+            border-radius: 18px;
+            padding: 14px;
+          }
+
+          .admin-notification-stat-label {
+            margin: 0 0 6px 0;
+            color: #6F655F;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+          }
+
+          .admin-notification-stat-value {
+            margin: 0;
+            color: #403A36;
+            font-family: Georgia, serif;
+            font-size: 28px;
+            line-height: 1;
+          }
+
+          .admin-recipient-list {
+            display: grid;
+            gap: 8px;
+            max-height: 180px;
+            overflow: auto;
+            background: #FFFFFF;
+            border: 1px solid #E8DED8;
+            border-radius: 18px;
+            padding: 12px;
+          }
+
+          .admin-recipient-item {
+            color: #403A36;
+            font-size: 13.5px;
+            line-height: 1.4;
+          }
+
           @media (max-width: 800px) {
             .admin-grid {
               grid-template-columns: 1fr;
@@ -312,6 +669,10 @@ export default function AdminClientesPanel() {
             .admin-card {
               border-radius: 26px;
               padding: 22px 18px;
+            }
+
+            .admin-notification-summary {
+              grid-template-columns: 1fr;
             }
           }
         `}
@@ -523,6 +884,379 @@ export default function AdminClientesPanel() {
                 No hay productos asignados a esta clienta o todavía no has buscado su email.
               </div>
             )}
+          </div>
+
+          <div className="admin-section full">
+            <h2 className="admin-section-title">
+              Crear actualización de producto
+            </h2>
+
+            <p className="admin-update-intro">
+              Crea un aviso de actualización para uno o varios productos. Si añades nuevos enlaces
+              de plantilla, PDF o vídeo, también se sustituirán los recursos principales que ve la
+              clienta en “Mi cuenta”.
+            </p>
+
+            <div className="admin-form">
+              <div className="admin-field">
+                <label className="admin-label" htmlFor="updateTitle">
+                  Título de la actualización
+                </label>
+                <input
+                  id="updateTitle"
+                  className="admin-input"
+                  type="text"
+                  value={updateTitle}
+                  onChange={(event) => setUpdateTitle(event.target.value)}
+                  placeholder="Ej. Nueva versión 1.1 del Sistema de Seguimiento"
+                  disabled={!isReady}
+                />
+              </div>
+
+              <div className="admin-field">
+                <label className="admin-label" htmlFor="updateDescription">
+                  Descripción general
+                </label>
+                <textarea
+                  id="updateDescription"
+                  className="admin-textarea"
+                  value={updateDescription}
+                  onChange={(event) => setUpdateDescription(event.target.value)}
+                  placeholder="Explica brevemente qué ha cambiado."
+                  disabled={!isReady}
+                />
+              </div>
+
+              <div className="admin-grid">
+                <div className="admin-field">
+                  <label className="admin-label" htmlFor="updateVersion">
+                    Nueva versión
+                  </label>
+                  <input
+                    id="updateVersion"
+                    className="admin-input"
+                    type="text"
+                    value={updateVersion}
+                    onChange={(event) => setUpdateVersion(event.target.value)}
+                    placeholder="Ej. 1.1"
+                    disabled={!isReady}
+                  />
+                </div>
+
+                <div className="admin-field">
+                  <label className="admin-label" htmlFor="updatePublishedAt">
+                    Fecha de publicación
+                  </label>
+                  <input
+                    id="updatePublishedAt"
+                    className="admin-input"
+                    type="date"
+                    value={updatePublishedAt}
+                    onChange={(event) => setUpdatePublishedAt(event.target.value)}
+                    disabled={!isReady}
+                  />
+                </div>
+              </div>
+
+              <div className="admin-field">
+                <label className="admin-label">
+                  Productos afectados
+                </label>
+
+                {updateProducts.length > 0 ? (
+                  <div className="admin-update-product-list">
+                    {updateProducts.map((item) => (
+                      <div key={item.productId} className="admin-update-product-card">
+                        <label className="admin-update-product-head">
+                          <input
+                            className="admin-update-product-checkbox"
+                            type="checkbox"
+                            checked={item.enabled}
+                            onChange={(event) =>
+                              updateDraftProduct(item.productId, {
+                                enabled: event.target.checked,
+                              })
+                            }
+                            disabled={!isReady}
+                          />
+
+                          <span className="admin-update-product-title">
+                            {item.productName}
+                          </span>
+                        </label>
+
+                        {item.enabled ? (
+                          <div className="admin-update-product-fields">
+                            <div className="admin-field">
+                              <label className="admin-label">
+                                Nuevo enlace de plantilla /copy
+                              </label>
+                              <input
+                                className="admin-input"
+                                type="url"
+                                value={item.updatedTemplateUrl}
+                                onChange={(event) =>
+                                  updateDraftProduct(item.productId, {
+                                    updatedTemplateUrl: event.target.value,
+                                  })
+                                }
+                                placeholder="https://docs.google.com/spreadsheets/d/.../copy"
+                              />
+                              <p className="admin-update-help">
+                                Déjalo vacío si la plantilla no cambia.
+                              </p>
+                            </div>
+
+                            <div className="admin-field">
+                              <label className="admin-label">
+                                Nuevo PDF privado
+                              </label>
+                              <input
+                                className="admin-input"
+                                type="text"
+                                value={item.updatedPdfFilePath}
+                                onChange={(event) =>
+                                  updateDraftProduct(item.productId, {
+                                    updatedPdfFilePath: event.target.value,
+                                  })
+                                }
+                                placeholder="seguimiento-pro/manual-seguimiento-pro-v1-1.pdf"
+                              />
+                              <p className="admin-update-help">
+                                Solo para productos que tengan PDF. Déjalo vacío si no cambia.
+                              </p>
+                            </div>
+
+                            <div className="admin-field">
+                              <label className="admin-label">
+                                Nuevo enlace de vídeo
+                              </label>
+                              <input
+                                className="admin-input"
+                                type="url"
+                                value={item.updatedVideoUrl}
+                                onChange={(event) =>
+                                  updateDraftProduct(item.productId, {
+                                    updatedVideoUrl: event.target.value,
+                                  })
+                                }
+                                placeholder="https://drive.google.com/file/d/..."
+                              />
+                              <p className="admin-update-help">
+                                Déjalo vacío si el vídeo no cambia.
+                              </p>
+                            </div>
+
+                            <div className="admin-field">
+                              <label className="admin-label">
+                                Nota específica para este producto
+                              </label>
+                              <textarea
+                                className="admin-textarea"
+                                value={item.notes}
+                                onChange={(event) =>
+                                  updateDraftProduct(item.productId, {
+                                    notes: event.target.value,
+                                  })
+                                }
+                                placeholder="Ej. Esta versión incluye una mejora específica para PRO."
+                              />
+                            </div>
+                          </div>
+                        ) : null}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="admin-empty">
+                    Primero pulsa “Entrar al panel” para cargar los productos disponibles.
+                  </div>
+                )}
+              </div>
+
+              <div className="admin-actions">
+                <button
+                  type="button"
+                  className="admin-button"
+                  disabled={
+                    !isReady ||
+                    isCreatingUpdate ||
+                    !adminPassword ||
+                    !updateTitle.trim() ||
+                    !updateProducts.some((item) => item.enabled)
+                  }
+                  onClick={createProductUpdate}
+                >
+                  {isCreatingUpdate ? "Creando actualización..." : "Crear actualización"}
+                </button>
+
+                <button
+                  type="button"
+                  className="admin-button secondary"
+                  disabled={isCreatingUpdate}
+                  onClick={resetUpdateForm}
+                >
+                  Limpiar actualización
+                </button>
+              </div>
+
+              {updateMessage ? (
+                <div className={`admin-message ${updateIsError ? "error" : ""}`}>
+                  {updateMessage}
+                </div>
+              ) : null}
+            </div>
+
+            <div className="admin-section full">
+              <h2 className="admin-section-title">
+                Avisar actualización por email
+              </h2>
+
+              <p className="admin-update-intro">
+                Selecciona una actualización ya creada, revisa qué clientas recibirían el aviso
+                y envía el email solo a las pendientes. El sistema evita reenvíos duplicados.
+              </p>
+
+              <div className="admin-form">
+                <div className="admin-actions">
+                  <button
+                    type="button"
+                    className="admin-button secondary"
+                    disabled={!isReady || !adminPassword || isLoadingUpdates}
+                    onClick={loadProductUpdates}
+                  >
+                    {isLoadingUpdates ? "Cargando..." : "Cargar actualizaciones"}
+                  </button>
+                </div>
+
+                <div className="admin-field">
+                  <label className="admin-label" htmlFor="selectedUpdate">
+                    Actualización
+                  </label>
+
+                  <select
+                    id="selectedUpdate"
+                    className="admin-select"
+                    value={selectedUpdateId}
+                    onChange={(event) => {
+                      setSelectedUpdateId(event.target.value);
+                      setNotificationPreview(null);
+                      setNotificationMessage("");
+                      setNotificationIsError(false);
+                    }}
+                    disabled={!isReady || !availableUpdates.length}
+                  >
+                    <option value="">Selecciona una actualización</option>
+                    {availableUpdates.map((update) => (
+                      <option key={update.id} value={update.id}>
+                        {update.title}
+                        {update.version ? ` · v${update.version}` : ""} ·{" "}
+                        {new Date(update.published_at).toLocaleDateString("es-ES")}
+                      </option>
+                    ))}
+                  </select>
+
+                  {!availableUpdates.length ? (
+                    <p className="admin-update-help">
+                      Pulsa “Cargar actualizaciones” para ver las actualizaciones disponibles.
+                    </p>
+                  ) : null}
+                </div>
+
+                <div className="admin-actions">
+                  <button
+                    type="button"
+                    className="admin-button secondary"
+                    disabled={
+                      !isReady ||
+                      !selectedUpdateId ||
+                      isPreviewingNotification ||
+                      isSendingNotification
+                    }
+                    onClick={() => runUpdateNotification("preview")}
+                  >
+                    {isPreviewingNotification
+                      ? "Revisando..."
+                      : "Previsualizar destinatarias"}
+                  </button>
+
+                  <button
+                    type="button"
+                    className="admin-button"
+                    disabled={
+                      !isReady ||
+                      !selectedUpdateId ||
+                      isPreviewingNotification ||
+                      isSendingNotification ||
+                      !notificationPreview ||
+                      notificationPreview.pendingCount === 0
+                    }
+                    onClick={() => runUpdateNotification("send")}
+                  >
+                    {isSendingNotification ? "Enviando..." : "Enviar aviso"}
+                  </button>
+                </div>
+
+                {notificationPreview ? (
+                  <>
+                    <div className="admin-notification-summary">
+                      <div className="admin-notification-stat">
+                        <p className="admin-notification-stat-label">
+                          Destinatarias
+                        </p>
+                        <p className="admin-notification-stat-value">
+                          {notificationPreview.totalRecipients}
+                        </p>
+                      </div>
+
+                      <div className="admin-notification-stat">
+                        <p className="admin-notification-stat-label">
+                          Ya avisadas
+                        </p>
+                        <p className="admin-notification-stat-value">
+                          {notificationPreview.alreadySentCount}
+                        </p>
+                      </div>
+
+                      <div className="admin-notification-stat">
+                        <p className="admin-notification-stat-label">
+                          Pendientes
+                        </p>
+                        <p className="admin-notification-stat-value">
+                          {notificationPreview.pendingCount}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="admin-field">
+                      <label className="admin-label">
+                        Emails pendientes de aviso
+                      </label>
+
+                      {notificationPreview.pendingRecipients.length > 0 ? (
+                        <div className="admin-recipient-list">
+                          {notificationPreview.pendingRecipients.map((recipient) => (
+                            <div key={recipient} className="admin-recipient-item">
+                              {recipient}
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="admin-empty">
+                          No hay destinatarias pendientes para esta actualización.
+                        </div>
+                      )}
+                    </div>
+                  </>
+                ) : null}
+
+                {notificationMessage ? (
+                  <div className={`admin-message ${notificationIsError ? "error" : ""}`}>
+                    {notificationMessage}
+                  </div>
+                ) : null}
+              </div>
+            </div>
           </div>
         </div>
 
