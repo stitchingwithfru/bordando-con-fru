@@ -97,10 +97,14 @@ export default function CreatePasswordForm() {
     });
 
     if (error) {
-        setMessage(`No se ha podido crear la contraseña: ${error.message}`);
-        setIsLoading(false);
-        return;
-        }
+      setMessage(`No se ha podido crear la contraseña: ${error.message}`);
+      setIsLoading(false);
+      return;
+    }
+
+    await fetch("/api/admin/customer-password-created", {
+      method: "POST",
+    });
 
     router.push("/mi-cuenta");
     router.refresh();
