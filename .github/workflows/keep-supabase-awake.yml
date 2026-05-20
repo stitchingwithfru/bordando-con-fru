@@ -12,10 +12,25 @@ jobs:
     steps:
       - name: Ping Supabase products table
         run: |
-          curl -s -f \
-          "$SUPABASE_URL/rest/v1/products?select=id&limit=1" \
-          -H "apikey: $SUPABASE_ANON_KEY" \
-          -H "Authorization: Bearer $SUPABASE_ANON_KEY"
+          echo "Pinging Supabase..."
+          echo "URL: $SUPABASE_URL/rest/v1/products?select=id&limit=1"
+
+          HTTP_CODE=$(curl -s -o response.txt -w "%{http_code}" \
+            "$SUPABASE_URL/rest/v1/products?select=id&limit=1" \
+            -H "apikey: $SUPABASE_ANON_KEY" \
+            -H "Authorization: Bearer $SUPABASE_ANON_KEY")
+
+          echo "HTTP code: $HTTP_CODE"
+          echo "Response:"
+          cat response.txt
+
+          if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 300 ]; then
+            echo "Supabase ping OK"
+            exit 0
+          else
+            echo "Supabase ping failed"
+            exit 1
+          fi
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
