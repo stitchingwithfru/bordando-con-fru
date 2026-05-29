@@ -1,5 +1,21 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { getWebsiteData, formatPeriod } from "@/lib/phase1-data";
+
+export const metadata: Metadata = {
+  title: "Archivo del Club de Lectura | Bordando con Fru",
+  description:
+    "Archivo de lecturas del Club de Lectura de Bordando con Fru: libros leídos por año, lecturas conjuntas, géneros, recomendaciones y enlaces a Goodreads.",
+  openGraph: {
+    title: "Archivo del Club de Lectura | Bordando con Fru",
+    description:
+      "Consulta las lecturas compartidas en el Club de Lectura, organizadas por año, con géneros, períodos y enlaces a Goodreads.",
+    url: "https://stitchingwithfru.com/club-de-lectura/archivo",
+    siteName: "Bordando con Fru",
+    locale: "es_ES",
+    type: "website",
+  },
+};
 
 export default async function ArchivoClubPage() {
   const data = await getWebsiteData();
@@ -325,8 +341,8 @@ const years = Object.keys(readingsByYear).sort((a, b) => Number(b) - Number(a));
           <h1 className="archive-title">Archivo de lecturas del Club</h1>
 
           <p className="archive-intro">
-            Consulta las lecturas que hemos compartido en el Club de Lectura,
-            organizadas por año y con sus períodos, géneros y enlaces a Goodreads.
+            Consulta el archivo de lecturas conjuntas del Club de Lectura de Bordando con Fru,
+            organizado por año, con períodos de lectura, géneros, recomendaciones y enlaces a Goodreads.
           </p>
 
           <div className="archive-actions">
@@ -336,6 +352,10 @@ const years = Object.keys(readingsByYear).sort((a, b) => Number(b) - Number(a));
 
             <Link href="/club-de-lectura/como-funciona" className="archive-button">
               Cómo funciona el Club
+            </Link>
+
+            <Link href="/club-de-lectura/estadisticas" className="archive-button">
+              Ver estadísticas del Club
             </Link>
           </div>
         </section>

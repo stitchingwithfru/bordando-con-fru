@@ -5,10 +5,51 @@ import {
   formatShortDate,
 } from "@/lib/phase1-data";
 
+async function withTimeout<T>(
+  promise: Promise<T>,
+  fallback: T,
+  timeoutMs = 4500
+): Promise<T> {
+  let timeoutId: ReturnType<typeof setTimeout> | null = null;
+
+  const timeoutPromise = new Promise<T>((resolve) => {
+    timeoutId = setTimeout(() => {
+      resolve(fallback);
+    }, timeoutMs);
+  });
+
+  try {
+    const result = await Promise.race([promise, timeoutPromise]);
+
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+
+    return result;
+  } catch {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+
+    return fallback;
+  }
+}
+
 export default async function HomeNewsSection() {
+  const emptyWebsiteData = {
+    productNews: [],
+    currentReading: null,
+    nextReading: null,
+    previousReadings: [],
+    recommendedReadings: [],
+    clubStatus: {},
+    myReadings: [],
+    readingChallenge: null,
+  } as unknown as Awaited<ReturnType<typeof getWebsiteData>>;
+
   const [videos, websiteData] = await Promise.all([
-    getLatestYouTubeVideos(),
-    getWebsiteData(),
+    withTimeout(getLatestYouTubeVideos(), [], 4500),
+    withTimeout(getWebsiteData(), emptyWebsiteData, 4500),
   ]);
 
   const latestVideo = videos[0];
@@ -351,9 +392,7 @@ export default async function HomeNewsSection() {
 
                 <div className="home-news-card-label">▶ Último vídeo</div>
 
-                <h3 className="home-news-video-title">
-                  {latestVideo.title}
-                </h3>
+                <h3 className="home-news-video-title">{latestVideo.title}</h3>
 
                 <p className="home-news-meta">
                   Publicado el {formatShortDate(latestVideo.published)}
@@ -370,7 +409,7 @@ export default async function HomeNewsSection() {
               </>
             ) : (
               <p className="home-news-empty">
-                Todavía no se han podido cargar los vídeos recientes.
+                Ahora mismo no se han podido cargar los vídeos recientes, pero puedes visitar el canal de YouTube desde el menú principal.
               </p>
             )}
           </div>
@@ -401,7 +440,9 @@ export default async function HomeNewsSection() {
                     </a>
                   ))
                 ) : (
-                  <p className="home-news-empty">No hay vídeos anteriores disponibles.</p>
+                  <p className="home-news-empty">
+                    No hay vídeos anteriores disponibles en este momento.
+                  </p>
                 )}
               </div>
             </div>
@@ -412,11 +453,7 @@ export default async function HomeNewsSection() {
               <div className="home-news-list">
                 {productNews.length > 0 ? (
                   productNews.map((item) => (
-                    <a
-                      key={item.id}
-                      href={item.url || "#"}
-                      className="home-news-item"
-                    >
+                    <a key={item.id} href={item.url || "#"} className="home-news-item">
                       <h3 className="home-news-item-title">{item.titulo}</h3>
                       <p className="home-news-item-text">{item.texto}</p>
                     </a>
@@ -433,10 +470,7 @@ export default async function HomeNewsSection() {
               <div className="home-news-card-label">📚 Club de Lectura</div>
 
               <Link href="/club-de-lectura" className="home-news-club">
-                <img
-                  src="/images/club-de-lectura-thumb.webp"
-                  alt="Club de Lectura"
-                />
+                <img src="/images/club-de-lectura-thumb.webp" alt="Club de Lectura" />
                 <div>
                   <h3 className="home-news-item-title">
                     {currentReading
@@ -456,14 +490,10 @@ export default async function HomeNewsSection() {
               <div className="home-news-card-label">📖 Mi rincón lector</div>
 
               <Link href="/mis-lecturas" className="home-news-club">
-                <div className="home-news-reading-icon">
-                  📚
-                </div>
+                <div className="home-news-reading-icon">📚</div>
 
                 <div>
-                  <h3 className="home-news-item-title">
-                    Mis lecturas
-                  </h3>
+                  <h3 className="home-news-item-title">Mis lecturas</h3>
 
                   <p className="home-news-item-text">
                     Mi reto anual, lecturas actuales y archivo personal →

@@ -228,7 +228,7 @@ export async function POST(request: Request) {
       const { data, error } = await supabaseAdmin.auth.admin.inviteUserByEmail(
         email,
         {
-          redirectTo: `${siteUrl}/crear-contrasena`,
+          redirectTo: `${siteUrl}/auth/confirm`,
         }
       );
 
@@ -261,7 +261,7 @@ export async function POST(request: Request) {
       }
 
       const { error } = await supabaseAdmin.auth.resetPasswordForEmail(email, {
-        redirectTo: `${siteUrl}/crear-contrasena`,
+        redirectTo: `${siteUrl}/auth/confirm`,
       });
 
       if (error) {

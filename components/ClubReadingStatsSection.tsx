@@ -541,8 +541,8 @@ export default function ClubReadingStatsSection({
           </h1>
 
           <p className="club-stats-subtitle">
-            Un resumen de las lecturas conjuntas: libros compartidos, géneros más repetidos,
-            recomendaciones y evolución del Club a lo largo del tiempo.
+            Un resumen de las lecturas conjuntas del Club de Lectura: libros compartidos,
+            géneros más repetidos, recomendaciones, duración media y evolución por año.
           </p>
         </div>
 

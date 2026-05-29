@@ -1,8 +1,8 @@
 import LoginClientForm from "./LoginClientForm";
 
 export const metadata = {
-  title: "Acceso clientes | Bordando con Fru",
-  description: "Accede a tu zona privada de cliente.",
+  title: "Mi espacio | Bordando con Fru",
+  description: "Accede a tu zona privada para consultar tus recursos digitales de Bordando con Fru.",
 };
 
 export default function AccesoClientesPage() {

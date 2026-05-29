@@ -1,7 +1,35 @@
+import type { Metadata } from "next";
 import Link from "next/link";
-import { getWebsiteData, formatPeriod, formatExactPeriod, type ClubStatus, type MyReadingItem } from "@/lib/phase1-data";
+import {
+  getWebsiteData,
+  formatExactPeriod,
+  type ClubStatus,
+} from "@/lib/phase1-data";
 import ReadingProposalForm from "@/components/ReadingProposalForm";
 import ShareClubBlock from "@/components/ShareClubBlock";
+
+export const metadata: Metadata = {
+  title: "Club de Lectura | Bordando con Fru",
+  description:
+    "Club de Lectura de Bordando con Fru: lecturas conjuntas, próximas lecturas, archivo de libros leídos, propuestas y comunidad lectora en Telegram.",
+  openGraph: {
+    title: "Club de Lectura | Bordando con Fru",
+    description:
+      "Un espacio para compartir lecturas conjuntas, descubrir nuevos libros y participar en el Club de Lectura de Bordando con Fru.",
+    url: "https://stitchingwithfru.com/club-de-lectura",
+    siteName: "Bordando con Fru",
+    images: [
+      {
+        url: "https://stitchingwithfru.com/images/club-de-lectura-hero.webp",
+        width: 1200,
+        height: 630,
+        alt: "Club de Lectura Bordando con Fru",
+      },
+    ],
+    locale: "es_ES",
+    type: "website",
+  },
+};
 
 const TELEGRAM_CLUB_URL = "https://t.me/+L60IJP_3STcwZTU0";
 
@@ -392,12 +420,12 @@ export default async function ClubDeLecturaPage() {
               </div>
 
               <h1 className="club-hero-title">
-                Club de Lectura
+                Club de Lectura de Bordando con Fru
               </h1>
 
               <p className="club-hero-text">
-                Un espacio cálido para seguir nuestras lecturas, descubrir nuevas historias
-                y disfrutar de los libros a nuestro propio ritmo.
+                Un espacio cálido para compartir lecturas conjuntas, descubrir nuevas historias,
+                participar en propuestas de libros y disfrutar de la lectura a nuestro propio ritmo.
               </p>
             </div>
           </div>
@@ -716,7 +744,7 @@ export default async function ClubDeLecturaPage() {
             </div>
 
             <p className="telegram-club-text">
-              Recibe avisos sobre las próximas lecturas, recomendaciones, novedades del Club de Lectura y participa en las lecturas conjuntas que se organizan.
+              Únete a la comunidad en Telegram para recibir avisos sobre próximas lecturas, recomendaciones, encuestas, novedades del Club de Lectura y participar en las lecturas conjuntas.
             </p>
 
             <div className="telegram-club-features">

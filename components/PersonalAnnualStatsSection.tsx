@@ -493,8 +493,8 @@ export default function PersonalAnnualStatsSection({
           </h1>
 
           <p className="annual-stats-subtitle">
-            Un resumen automático de mis lecturas del año: libros terminados,
-            formatos, estados, páginas registradas y evolución mensual.
+            Un resumen de mi año lector: libros terminados, formatos de lectura,
+            estados, páginas registradas, géneros y evolución mensual.
           </p>
         </div>
 

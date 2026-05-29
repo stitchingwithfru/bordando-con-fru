@@ -34,6 +34,33 @@ export default function LoginClientForm() {
     router.refresh();
   }
 
+  async function handlePasswordRecovery() {
+    if (!email.trim()) {
+      setMessage("Escribe primero el email asociado a tu compra.");
+      return;
+    }
+
+    setIsLoading(true);
+    setMessage("");
+
+    const redirectTo = `${window.location.origin}/auth/confirm`;
+
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo,
+    });
+
+    if (error) {
+      console.error("Password recovery error:", error);
+
+      setMessage(`No se ha podido enviar el email de recuperación. Detalle: ${error.message}`);
+      setIsLoading(false);
+      return;
+    }
+
+    setMessage("Te he enviado un email para crear una nueva contraseña. Revisa también spam o promociones.");
+    setIsLoading(false);
+  }
+
   return (
     <>
       <style>
@@ -129,6 +156,46 @@ export default function LoginClientForm() {
             line-height: 1.45;
           }
 
+          .client-login-help {
+            margin-top: 18px;
+            background: #F7F3EE;
+            border: 1px solid #E8DED8;
+            border-radius: 18px;
+            padding: 14px;
+            color: #6F655F;
+            font-size: 13.5px;
+            line-height: 1.55;
+          }
+
+          .client-login-help p {
+            margin: 0;
+          }
+
+          .client-login-help p + p {
+            margin-top: 8px;
+          }
+
+          .client-login-help a {
+            color: #403A36;
+            font-weight: 700;
+          }
+
+          .client-login-secondary-button {
+            border: 0;
+            background: transparent;
+            color: #403A36;
+            font-size: 14px;
+            font-weight: 700;
+            text-decoration: underline;
+            cursor: pointer;
+            padding: 4px;
+          }
+
+          .client-login-secondary-button:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+          }
+
           @media (max-width: 600px) {
             .client-login-card {
               border-radius: 26px;
@@ -147,12 +214,12 @@ export default function LoginClientForm() {
           <div className="client-login-kicker">🔐 Zona privada</div>
 
           <h1 className="client-login-title">
-            Acceso clientes
-          </h1>
+              Mi espacio
+            </h1>
 
-          <p className="client-login-text">
-            Entra con el email de compra y tu contraseña para acceder a tus recursos.
-          </p>
+            <p className="client-login-text">
+              Entra con el email asociado a tu compra y tu contraseña para consultar tus recursos digitales.
+            </p>
         </div>
 
         <form className="client-login-form" onSubmit={handleLogin}>
@@ -189,9 +256,28 @@ export default function LoginClientForm() {
           {message ? <div className="client-login-message">{message}</div> : null}
 
           <button className="client-login-button" type="submit" disabled={isLoading}>
-            {isLoading ? "Entrando..." : "Entrar"}
+            {isLoading ? "Entrando..." : "Entrar a mi espacio"}
+          </button>
+
+          <button
+            className="client-login-secondary-button"
+            type="button"
+            disabled={isLoading}
+            onClick={handlePasswordRecovery}
+          >
+            He olvidado la contraseña
           </button>
         </form>
+
+        <div className="client-login-help">
+          <p>
+            Si acabas de comprar una herramienta, primero recibirás una invitación por email para crear tu contraseña.
+          </p>
+
+          <p>
+            Si ya tienes cuenta pero no recuerdas la contraseña, escribe tu email y pulsa “He olvidado la contraseña”.
+          </p>
+        </div>
       </section>
     </>
   );

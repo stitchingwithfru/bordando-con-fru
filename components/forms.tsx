@@ -111,10 +111,38 @@ function CheckRow({ checked, onChange, label, disabled = false }: { checked: boo
 function Conditions({ value, onChange, disabled = false }: { value: ConfirmationState; onChange: Dispatch<SetStateAction<ConfirmationState>>; disabled?: boolean; }) {
   return (
     <div className="form-stack">
-      <CheckRow checked={value.manual} disabled={disabled} onChange={(v) => onChange((p) => ({ ...p, manual: v }))} label="Entiendo que es un producto digital con entrega manual." />
-      <CheckRow checked={value.copy} disabled={disabled} onChange={(v) => onChange((p) => ({ ...p, copy: v }))} label="Entiendo que recibiré el contenido en el correo electrónico facilitado en el pedido." />
-      <CheckRow checked={value.refunds} disabled={disabled} onChange={(v) => onChange((p) => ({ ...p, refunds: v }))} label="Entiendo que, una vez entregado el acceso al contenido digital, no se aceptan devoluciones." />
-      <CheckRow checked={value.waiver} disabled={disabled} onChange={(v) => onChange((p) => ({ ...p, waiver: v }))} label={<>Solicito la entrega del contenido digital y acepto estas <Link href="/condiciones-compra">Condiciones de compra</Link>.</>} />
+      <CheckRow
+        checked={value.manual}
+        disabled={disabled}
+        onChange={(v) => onChange((p) => ({ ...p, manual: v }))}
+        label="Entiendo que es un producto digital con entrega manual tras la comprobación del pago."
+      />
+
+      <CheckRow
+        checked={value.copy}
+        disabled={disabled}
+        onChange={(v) => onChange((p) => ({ ...p, copy: v }))}
+        label="Entiendo que el producto se asociará al email indicado en este pedido y que recibiré una invitación para acceder a mi zona privada."
+      />
+
+      <CheckRow
+        checked={value.refunds}
+        disabled={disabled}
+        onChange={(v) => onChange((p) => ({ ...p, refunds: v }))}
+        label="Entiendo que, una vez asignado el acceso al contenido digital, no se aceptan devoluciones."
+      />
+
+      <CheckRow
+        checked={value.waiver}
+        disabled={disabled}
+        onChange={(v) => onChange((p) => ({ ...p, waiver: v }))}
+        label={
+          <>
+            Solicito la entrega del contenido digital en mi zona privada y acepto estas{" "}
+            <Link href="/condiciones-compra">Condiciones de compra</Link>.
+          </>
+        }
+      />
     </div>
   );
 }
@@ -195,7 +223,9 @@ function PaymentInstructions({ paymentMethod, total, reference }: { paymentMetho
       )}
 
       <div className="status-box" style={{ marginTop: 20 }}>
-        <p className="legal-text">Una vez comprobado el pago, recibirás la entrega correspondiente por correo electrónico.</p>
+        <p className="legal-text">
+          Una vez comprobado el pago, asignaré el producto al email indicado en el pedido y recibirás una invitación para crear tu acceso a la zona privada de la web.
+        </p>
       </div>
     </div>
   );
@@ -309,7 +339,7 @@ export function TrackingOrderForm() {
       const result = await submitForm("tracking_order", payload);
       setSubmitState({
         status: "success",
-        message: "Tu pedido se ha enviado correctamente. A continuación tienes los datos de pago según el método elegido.",
+        message: "Tu pedido se ha enviado correctamente. A continuación tienes los datos de pago según el método elegido. Cuando compruebe el pago, asignaré el producto al email indicado y recibirás una invitación para acceder a tu zona privada.",
         reference: result.reference ?? null,
       });
     } catch (error) {
@@ -325,7 +355,13 @@ export function TrackingOrderForm() {
       <div className="card">
         <div className="form-stack">
           <Field label="Nombre completo" value={name} onChange={setName} placeholder="Tu nombre" disabled={isLocked || isBusy} />
-          <Field label="Email de contacto" value={email} onChange={setEmail} placeholder="tuemail@ejemplo.com" disabled={isLocked || isBusy} />
+          <Field
+            label="Email para asociar tu compra"
+            value={email}
+            onChange={setEmail}
+            placeholder="tuemail@ejemplo.com"
+            disabled={isLocked || isBusy}
+          />
           <SelectField label="Tipo de pedido" value={requestType} onChange={(v) => { setRequestType(v); setNewVersion(""); setCurrentVersion(""); setUpgradeVersion(""); setSubmitState({ status: "idle", message: "" }); }} options={[{ value: "new", label: "Compra nueva" }, { value: "upgrade", label: "Ya adquirí el sistema y quiero una versión superior" }]} disabled={isLocked || isBusy} />
           {requestType === "new" ? <SelectField label="¿Qué versión quieres adquirir?" value={newVersion} onChange={setNewVersion} options={newOptions.map((i) => ({ value: i.value, label: i.label }))} disabled={isLocked || isBusy} /> : null}
           {requestType === "upgrade" ? (
@@ -462,7 +498,7 @@ export function InventoryOrderForm() {
       const result = await submitForm("inventory_order", payload);
       setSubmitState({
         status: "success",
-        message: "Tu pedido se ha enviado correctamente. A continuación tienes los datos de pago según el método elegido.",
+        message: "Tu pedido se ha enviado correctamente. A continuación tienes los datos de pago según el método elegido. Cuando compruebe el pago, asignaré el producto al email indicado y recibirás una invitación para acceder a tu zona privada.",
         reference: result.reference ?? null,
       });
     } catch (error) {
@@ -478,7 +514,13 @@ export function InventoryOrderForm() {
       <div className="card">
         <div className="form-stack">
           <Field label="Nombre completo" value={name} onChange={setName} placeholder="Tu nombre" disabled={isLocked || isBusy} />
-          <Field label="Email de contacto" value={email} onChange={setEmail} placeholder="tuemail@ejemplo.com" disabled={isLocked || isBusy} />
+          <Field
+            label="Email para asociar tu compra"
+            value={email}
+            onChange={setEmail}
+            placeholder="tuemail@ejemplo.com"
+            disabled={isLocked || isBusy}
+          />
           <SelectField label="Tipo de pedido" value={requestType} onChange={(v) => { setRequestType(v); setNewMode(""); setOwned([]); setWanted([]); setSubmitState({ status: "idle", message: "" }); }} options={[{ value: "new", label: "Compra nueva" }, { value: "addons", label: "Ya adquirí el sistema y quiero complemento(s)" }]} disabled={isLocked || isBusy} />
           {requestType === "new" ? <SelectField label="¿Qué quieres adquirir?" value={newMode} onChange={setNewMode} options={[{ value: "base-only", label: "Solo el sistema base — 9,99 €" }, { value: "with-addons", label: "Sistema base con complementos" }]} disabled={isLocked || isBusy} /> : null}
           {((requestType === "new" && newMode === "with-addons") || requestType === "addons") ? (

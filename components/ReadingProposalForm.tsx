@@ -241,9 +241,9 @@ export default function ReadingProposalForm() {
 
           <div>
             <div className="proposal-kicker">Propuestas de lectura</div>
-            <h2 className="proposal-title">Propón una lectura para el Club</h2>
+            <h2 className="proposal-title">Propón un libro para el Club de Lectura</h2>
             <p className="proposal-text">
-              Puedes sugerir libros para futuras lecturas conjuntas. Las propuestas podrán tenerse en cuenta para preparar próximas encuestas en Telegram.
+              Puedes sugerir libros para futuras lecturas conjuntas del Club. Las propuestas podrán tenerse en cuenta para preparar próximas encuestas en Telegram.
             </p>
           </div>
         </div>

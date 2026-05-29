@@ -1,11 +1,21 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { getWebsiteData } from "@/lib/phase1-data";
 import ClubReadingStatsSection from "@/components/ClubReadingStatsSection";
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "Estadísticas del Club de Lectura | Bordando con Fru",
   description:
-    "Resumen de las lecturas conjuntas del Club de Lectura: libros compartidos, géneros, recomendaciones y evolución por año.",
+    "Estadísticas del Club de Lectura de Bordando con Fru: lecturas conjuntas, libros compartidos, géneros más repetidos, duración media y evolución por año.",
+  openGraph: {
+    title: "Estadísticas del Club de Lectura | Bordando con Fru",
+    description:
+      "Consulta el balance del Club de Lectura: lecturas por año, géneros, recomendaciones, duración media y próximas lecturas.",
+    url: "https://stitchingwithfru.com/club-de-lectura/estadisticas",
+    siteName: "Bordando con Fru",
+    locale: "es_ES",
+    type: "website",
+  },
 };
 
 export default async function ClubLecturaEstadisticasPage() {
@@ -21,6 +31,8 @@ export default async function ClubLecturaEstadisticasPage() {
               margin: 0 auto 28px auto;
               display: flex;
               justify-content: flex-start;
+              gap: 10px;
+              flex-wrap: wrap;
             }
 
             .club-stats-back-link {
@@ -53,6 +65,10 @@ export default async function ClubLecturaEstadisticasPage() {
         <div className="club-stats-page-actions">
           <Link href="/club-de-lectura" className="club-stats-back-link">
             ← Volver al Club de Lectura
+          </Link>
+
+          <Link href="/club-de-lectura/archivo" className="club-stats-back-link">
+            Ver archivo del Club
           </Link>
         </div>
 

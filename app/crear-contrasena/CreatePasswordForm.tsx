@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
@@ -11,72 +12,38 @@ export default function CreatePasswordForm() {
   const [password, setPassword] = useState("");
   const [repeatPassword, setRepeatPassword] = useState("");
   const [message, setMessage] = useState("");
+  const [hasSession, setHasSession] = useState(false);
   const [isReady, setIsReady] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    async function checkInvitationSession() {
-        setMessage("");
+    async function checkSession() {
+      setMessage("");
 
-        const currentUrl = new URL(window.location.href);
-
-        // Formato nuevo habitual: ?code=...
-        const code = currentUrl.searchParams.get("code");
-
-        if (code) {
-        const { error } = await supabase.auth.exchangeCodeForSession(code);
-
-        if (error) {
-            setMessage(
-            `El enlace de invitación no es válido o ha caducado. Detalle: ${error.message}`
-            );
-            setIsReady(true);
-            return;
-        }
-
-        window.history.replaceState({}, document.title, "/crear-contrasena");
-        }
-
-        // Formato alternativo: #access_token=...&refresh_token=...
-        const hashParams = new URLSearchParams(window.location.hash.replace("#", ""));
-        const accessToken = hashParams.get("access_token");
-        const refreshToken = hashParams.get("refresh_token");
-
-        if (accessToken && refreshToken) {
-        const { error } = await supabase.auth.setSession({
-            access_token: accessToken,
-            refresh_token: refreshToken,
-        });
-
-        if (error) {
-            setMessage(
-            `El enlace de invitación no es válido o ha caducado. Detalle: ${error.message}`
-            );
-            setIsReady(true);
-            return;
-        }
-
-        window.history.replaceState({}, document.title, "/crear-contrasena");
-        }
-
-        const {
+      const {
         data: { session },
-        } = await supabase.auth.getSession();
+      } = await supabase.auth.getSession();
 
-        if (!session) {
+      if (!session) {
+        setHasSession(false);
         setMessage(
-            "El enlace de invitación no es válido o ha caducado. Solicita un nuevo enlace de acceso."
+          "El enlace no es válido, ha caducado o ya se ha utilizado. Solicita un nuevo enlace desde Mi espacio."
         );
-        }
-
         setIsReady(true);
+        return;
+      }
+
+      setHasSession(true);
+      setIsReady(true);
     }
 
-    checkInvitationSession();
-    }, [supabase]);
+    checkSession();
+  }, [supabase]);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+
+    if (!hasSession) return;
 
     setMessage("");
 
@@ -97,13 +64,15 @@ export default function CreatePasswordForm() {
     });
 
     if (error) {
-      setMessage(`No se ha podido crear la contraseña: ${error.message}`);
+      setMessage(`No se ha podido guardar la contraseña: ${error.message}`);
       setIsLoading(false);
       return;
     }
 
     await fetch("/api/admin/customer-password-created", {
       method: "POST",
+    }).catch(() => {
+      // La contraseña ya está creada. Si falla el aviso interno, no bloqueamos a la clienta.
     });
 
     router.push("/mi-cuenta");
@@ -196,6 +165,11 @@ export default function CreatePasswordForm() {
             box-shadow: 0 8px 18px rgba(64, 58, 54, 0.14);
           }
 
+          .create-password-button:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+          }
+
           .create-password-message {
             background: #F7E4E1;
             color: #8A3C35;
@@ -203,6 +177,30 @@ export default function CreatePasswordForm() {
             padding: 12px 14px;
             font-size: 14px;
             line-height: 1.45;
+          }
+
+          .create-password-help {
+            margin-top: 18px;
+            background: #F7F3EE;
+            border: 1px solid #E8DED8;
+            border-radius: 18px;
+            padding: 14px;
+            color: #6F655F;
+            font-size: 13.5px;
+            line-height: 1.55;
+          }
+
+          .create-password-help p {
+            margin: 0;
+          }
+
+          .create-password-help p + p {
+            margin-top: 8px;
+          }
+
+          .create-password-help a {
+            color: #403A36;
+            font-weight: 700;
           }
 
           @media (max-width: 600px) {
@@ -220,24 +218,24 @@ export default function CreatePasswordForm() {
 
       <section className="create-password-card">
         <div className="create-password-header">
-          <div className="create-password-kicker">🔐 Primer acceso</div>
+          <div className="create-password-kicker">🔐 Acceso seguro</div>
 
           <h1 className="create-password-title">
             Crea tu contraseña
           </h1>
 
           <p className="create-password-text">
-            Define una contraseña para acceder a tu zona privada siempre que lo necesites.
+            Define una contraseña para entrar a tu espacio privado y consultar tus recursos digitales siempre que lo necesites.
           </p>
         </div>
 
         {!isReady ? (
-          <p className="create-password-text">Comprobando invitación...</p>
-        ) : (
+          <p className="create-password-text">Comprobando enlace...</p>
+        ) : hasSession ? (
           <form className="create-password-form" onSubmit={handleSubmit}>
             <div className="create-password-field">
               <label className="create-password-label" htmlFor="password">
-                Contraseña
+                Nueva contraseña
               </label>
               <input
                 id="password"
@@ -252,7 +250,7 @@ export default function CreatePasswordForm() {
 
             <div className="create-password-field">
               <label className="create-password-label" htmlFor="repeatPassword">
-                Repetir contraseña
+                Repetir nueva contraseña
               </label>
               <input
                 id="repeatPassword"
@@ -268,9 +266,23 @@ export default function CreatePasswordForm() {
             {message ? <div className="create-password-message">{message}</div> : null}
 
             <button className="create-password-button" type="submit" disabled={isLoading}>
-              {isLoading ? "Guardando..." : "Crear contraseña"}
+              {isLoading ? "Guardando..." : "Guardar contraseña"}
             </button>
           </form>
+        ) : (
+          <>
+            {message ? <div className="create-password-message">{message}</div> : null}
+
+            <div className="create-password-help">
+              <p>
+                Si necesitas recuperar el acceso, vuelve a <Link href="/acceso-clientes">Mi espacio</Link>, escribe tu email y pulsa “He olvidado la contraseña”.
+              </p>
+
+              <p>
+                Si acabas de comprar una herramienta, utiliza siempre el email de invitación más reciente.
+              </p>
+            </div>
+          </>
         )}
       </section>
     </>

@@ -1,11 +1,21 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { getWebsiteData } from "@/lib/phase1-data";
 import PersonalAnnualStatsSection from "@/components/PersonalAnnualStatsSection";
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "Estadísticas lectoras | Bordando con Fru",
   description:
-    "Resumen anual de mis lecturas personales: reto lector, libros terminados, formatos, estados y páginas registradas.",
+    "Estadísticas de mis lecturas personales: reto lector anual, libros terminados, formatos, estados, páginas registradas, géneros y evolución mensual.",
+  openGraph: {
+    title: "Estadísticas lectoras | Bordando con Fru",
+    description:
+      "Consulta el balance de mi año lector: reto anual, libros terminados, páginas registradas, géneros, formatos y evolución mensual.",
+    url: "https://stitchingwithfru.com/mis-lecturas/estadisticas",
+    siteName: "Bordando con Fru",
+    locale: "es_ES",
+    type: "website",
+  },
 };
 
 export default async function MisLecturasEstadisticasPage() {
@@ -21,6 +31,8 @@ export default async function MisLecturasEstadisticasPage() {
               margin: 0 auto 28px auto;
               display: flex;
               justify-content: flex-start;
+              gap: 10px;
+              flex-wrap: wrap;
             }
 
             .stats-back-link {
@@ -53,6 +65,10 @@ export default async function MisLecturasEstadisticasPage() {
         <div className="stats-page-actions">
           <Link href="/mis-lecturas" className="stats-back-link">
             ← Volver a Mis lecturas
+          </Link>
+
+          <Link href="/mis-lecturas/archivo" className="stats-back-link">
+            Ver archivo lector
           </Link>
         </div>
 

@@ -92,9 +92,9 @@ export default function ContactPage() {
       <section className="section">
         <div className="container">
           <SectionTitle
-            eyebrow="Página aparte"
-            title="Contacto"
-            description="Una página pensada para resolver dudas antes del pedido o para consultas relacionadas con el contenido y las herramientas."
+            eyebrow="Contacto"
+            title="Escríbeme"
+            description="Puedes escribirme si tienes dudas antes de hacer un pedido, si necesitas ayuda con tu zona privada o si tienes alguna consulta relacionada con las herramientas digitales de Bordando con Fru."
           />
 
           <div className="form-grid">
@@ -107,13 +107,40 @@ export default function ContactPage() {
                 <div className="field"><label>Mensaje</label><textarea className="textarea" placeholder="Escribe aquí tu consulta" value={message} onChange={(e) => setMessage(e.target.value)} disabled={isLocked || isBusy} /></div>
 
                 <div className="legal-box">
-                  <p className="legal-text"><strong style={{ color: "var(--text)" }}>Información básica sobre protección de datos</strong></p>
-                  <p className="legal-text">Responsable: <strong style={{ color: "var(--text)" }}>Bordando con Fru</strong>.</p>
-                  <p className="legal-text">Finalidad: atender tu consulta y comunicarnos contigo en relación con ella. Si lo autorizas expresamente, también podremos enviarte información sobre novedades y nuevos lanzamientos.</p>
-                  <p className="legal-text">Legitimación: consentimiento de la persona interesada.</p>
-                  <p className="legal-text">Destinatarios: no cedemos tus datos a terceros.</p>
-                  <p className="legal-text">Derechos: puedes acceder, rectificar o suprimir tus datos escribiendo a <a href="mailto:stitchingwithfru@gmail.com">stitchingwithfru@gmail.com</a>.</p>
-                  <p className="legal-text">Más información en la <Link href="/politica-privacidad">Política de privacidad</Link>.</p>
+                  <p className="legal-text">
+                    <strong style={{ color: "var(--text)" }}>
+                      Información básica sobre protección de datos
+                    </strong>
+                  </p>
+
+                  <p className="legal-text">
+                    Responsable: <strong style={{ color: "var(--text)" }}>Bordando con Fru</strong>.
+                  </p>
+
+                  <p className="legal-text">
+                    Finalidad: atender tu consulta y comunicarnos contigo en relación con ella. Si tu consulta está relacionada con un pedido o con tu zona privada, también podremos utilizar los datos necesarios para revisar tu acceso o los productos asociados a tu email.
+                  </p>
+
+                  <p className="legal-text">
+                    Si lo autorizas expresamente, también podremos enviarte información sobre novedades, actualizaciones y nuevos lanzamientos.
+                  </p>
+
+                  <p className="legal-text">
+                    Legitimación: consentimiento de la persona interesada y, cuando proceda, gestión de la relación derivada de un pedido.
+                  </p>
+
+                  <p className="legal-text">
+                    Destinatarios: no vendemos tus datos ni los cedemos a terceros para fines comerciales. Podemos utilizar proveedores técnicos necesarios para prestar el servicio.
+                  </p>
+
+                  <p className="legal-text">
+                    Derechos: puedes acceder, rectificar o suprimir tus datos escribiendo a{" "}
+                    <a href="mailto:stitchingwithfru@gmail.com">stitchingwithfru@gmail.com</a>.
+                  </p>
+
+                  <p className="legal-text">
+                    Más información en la <Link href="/politica-privacidad">Política de privacidad</Link>.
+                  </p>
                 </div>
 
                 <label className="checkbox-row">
@@ -147,7 +174,9 @@ export default function ContactPage() {
               <Card>
                 <InfoBadge>Antes de comprar</InfoBadge>
                 <h2 className="serif">Consultas previas al pedido</h2>
-                <p className="muted">Si tienes dudas sobre una herramienta, una versión o un complemento, desde esta página puedes escribirme antes de hacer tu pedido.</p>
+                <p className="muted">
+                  Si tienes dudas sobre una herramienta, una versión, un complemento o el funcionamiento de la zona privada, desde esta página puedes escribirme antes de hacer tu pedido.
+                </p>
               </Card>
               <Card>
                 <InfoBadge tone="sage">Otras vías</InfoBadge>

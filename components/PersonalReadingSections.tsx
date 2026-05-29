@@ -687,7 +687,7 @@ export function MyCurrentReadingsBlock({ readings }: { readings: MyReadingItem[]
           <div className="my-readings-kicker">📖 Mi rincón lector</div>
           <h2 className="my-readings-title">Mis lecturas actuales</h2>
           <p className="my-readings-subtitle">
-            Un pequeño seguimiento visual de los libros que estoy leyendo ahora mismo.
+            Un seguimiento visual de los libros que estoy leyendo ahora mismo y del avance de cada lectura.
           </p>
         </div>
 
@@ -977,7 +977,7 @@ export function MyFinishedReadingsBlock({ readings }: { readings: MyReadingItem[
           </h2>
 
           <p className="finished-readings-subtitle">
-            Un pequeño resumen de los libros que he terminado recientemente.
+            Un resumen de mis últimas lecturas terminadas, con fecha de finalización y enlace a Goodreads cuando está disponible.
           </p>
         </div>
 

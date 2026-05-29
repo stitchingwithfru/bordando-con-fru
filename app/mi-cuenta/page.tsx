@@ -4,8 +4,8 @@ import { createClient } from "@/lib/supabase/server";
 import LogoutButton from "./LogoutButton";
 
 export const metadata = {
-  title: "Mi cuenta | Bordando con Fru",
-  description: "Zona privada de cliente de Bordando con Fru.",
+  title: "Mi espacio | Bordando con Fru",
+  description: "Zona privada para consultar tus recursos digitales de Bordando con Fru.",
 };
 
 type ProductResource = {
@@ -401,6 +401,46 @@ export default async function MiCuentaPage() {
                 line-height: 1.5;
               }
 
+              .account-user-email {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                margin-top: 14px;
+                background: #FFFFFF;
+                border: 1px solid #E8DED8;
+                border-radius: 999px;
+                padding: 8px 13px;
+                color: #5f544f;
+                font-size: 13px;
+                line-height: 1.3;
+              }
+
+              .account-section-note {
+                margin: 0 0 18px 0;
+                background: #FFFFFF;
+                border: 1px solid #E8DED8;
+                border-radius: 20px;
+                padding: 16px;
+                color: #6F655F;
+                font-size: 14px;
+                line-height: 1.55;
+              }
+
+              .account-empty-title {
+                margin: 0 0 8px 0;
+                font-family: Georgia, serif;
+                color: #403A36;
+                font-size: 22px;
+                line-height: 1.2;
+              }
+
+              .account-empty-text {
+                margin: 0;
+                color: #6F655F;
+                font-size: 14px;
+                line-height: 1.6;
+              }
+
             @media (max-width: 700px) {
               .account-title {
                 font-size: 34px;
@@ -419,15 +459,21 @@ export default async function MiCuentaPage() {
         </style>
 
         <header className="account-header">
-          <div className="account-kicker">🔐 Mi zona privada</div>
+          <div className="account-kicker">🔐 Zona privada</div>
 
           <h1 className="account-title">
-            Mi cuenta
+            Mi espacio
           </h1>
 
           <p className="account-text">
-            Aquí encontrarás los productos digitales asociados a tu email y sus recursos disponibles.
+            Aquí encontrarás los productos digitales asociados a tu email: plantillas, manuales, vídeos y actualizaciones disponibles.
           </p>
+
+          {user.email ? (
+            <div className="account-user-email">
+              Sesión iniciada con: <strong style={{ marginLeft: 5 }}>{user.email}</strong>
+            </div>
+          ) : null}
 
           <div className="account-actions">
             <Link href="/" className="account-secondary-link">
@@ -451,6 +497,10 @@ export default async function MiCuentaPage() {
         ) : null}
 
         {products && products.length > 0 ? (
+          <>
+            <div className="account-section-note">
+              Guarda esta página como referencia: desde aquí podrás acceder a los recursos de tus productos siempre que lo necesites. Si hay una actualización disponible para una de tus versiones, aparecerá dentro del producto correspondiente.
+            </div>
           <section className="account-grid">
             {(products as Product[]).map((product) => (
               <article key={product.id} className="account-product-card">
@@ -552,7 +602,7 @@ export default async function MiCuentaPage() {
                         return (
                           <div key={item.id} className="account-update-card">
                             <div className="account-update-kicker">
-                              Novedad del producto
+                              Actualización disponible
                             </div>
 
                             <h3 className="account-update-title">
@@ -587,9 +637,16 @@ export default async function MiCuentaPage() {
               </article>
             ))}
           </section>
+        </>
         ) : (
           <div className="account-empty">
-            Todavía no hay productos asociados a este email.
+            <h2 className="account-empty-title">
+              Todavía no hay productos asociados
+            </h2>
+
+            <p className="account-empty-text">
+              Si acabas de hacer un pedido, es posible que todavía esté pendiente de comprobar el pago y asignar el acceso. Cuando tu producto esté asociado a este email, aparecerá aquí automáticamente.
+            </p>
           </div>
         )}
       </div>

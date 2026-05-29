@@ -1,5 +1,21 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { getWebsiteData, type MyReadingItem } from "@/lib/phase1-data";
+
+export const metadata: Metadata = {
+  title: "Archivo de mis lecturas | Bordando con Fru",
+  description:
+    "Archivo lector personal de Bordando con Fru: libros leídos, lecturas actuales, terminadas, pausadas y abandonadas, organizadas por año.",
+  openGraph: {
+    title: "Archivo de mis lecturas | Bordando con Fru",
+    description:
+      "Consulta mi archivo lector personal, con libros actuales, terminados, pausados y abandonados organizados por año.",
+    url: "https://stitchingwithfru.com/mis-lecturas/archivo",
+    siteName: "Bordando con Fru",
+    locale: "es_ES",
+    type: "website",
+  },
+};
 
 function formatPersonalArchiveDate(value?: string) {
   if (!value) return "";
@@ -397,7 +413,7 @@ export default async function ArchivoMisLecturasPage() {
           <h1 className="personal-archive-title">Archivo de mis lecturas</h1>
 
           <p className="personal-archive-intro">
-            Consulta mi archivo lector personal, con las lecturas actuales, terminadas,
+            Consulta mi archivo lector personal, con libros actuales, lecturas terminadas,
             pausadas y abandonadas organizadas por año.
           </p>
 
@@ -408,6 +424,10 @@ export default async function ArchivoMisLecturasPage() {
 
             <Link href="/club-de-lectura" className="personal-archive-button">
               Ir al Club de Lectura
+            </Link>
+
+            <Link href="/mis-lecturas/estadisticas" className="personal-archive-button">
+              Ver estadísticas lectoras
             </Link>
           </div>
         </section>

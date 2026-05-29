@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { getWebsiteData } from "@/lib/phase1-data";
 import {
@@ -5,6 +6,21 @@ import {
   MyCurrentReadingsBlock,
   MyFinishedReadingsBlock,
 } from "@/components/PersonalReadingSections";
+
+export const metadata: Metadata = {
+  title: "Mis lecturas | Bordando con Fru",
+  description:
+    "Mi rincón lector personal: reto anual de lectura, libros actuales, últimas lecturas terminadas, archivo lector y estadísticas personales.",
+  openGraph: {
+    title: "Mis lecturas | Bordando con Fru",
+    description:
+      "Consulta mi reto lector, mis lecturas actuales, libros terminados, archivo personal y estadísticas de lectura.",
+    url: "https://stitchingwithfru.com/mis-lecturas",
+    siteName: "Bordando con Fru",
+    locale: "es_ES",
+    type: "website",
+  },
+};
 
 export default async function MisLecturasPage() {
   const data = await getWebsiteData();
@@ -317,17 +333,24 @@ export default async function MisLecturasPage() {
           <div className="personal-reading-kicker">📖 Mi rincón lector</div>
 
           <h1 className="personal-reading-title">
-            Mis lecturas
+            Mis lecturas personales
           </h1>
 
           <p className="personal-reading-intro">
-            Un espacio personal donde comparto mi reto de lectura, los libros que estoy leyendo
-            actualmente y mis últimas lecturas terminadas.
+            Un rincón lector donde comparto mi reto anual de lectura, los libros que estoy leyendo actualmente, mis últimas lecturas terminadas y el archivo de libros que me han acompañado.
           </p>
 
           <div className="personal-reading-actions">
             <Link href="/club-de-lectura" className="personal-reading-button">
               ← Volver al Club de Lectura
+            </Link>
+
+            <Link href="/mis-lecturas/archivo" className="personal-reading-button">
+              Ver archivo lector
+            </Link>
+
+            <Link href="/mis-lecturas/estadisticas" className="personal-reading-button">
+              Ver estadísticas
             </Link>
           </div>
         </section>
@@ -348,8 +371,8 @@ export default async function MisLecturasPage() {
               </h2>
 
               <p className="personal-stats-link-text">
-                Consulta el resumen anual de mis lecturas: libros terminados,
-                formatos, estados, páginas registradas y evolución mensual.
+                Consulta el resumen de mi año lector: libros terminados, formatos de lectura,
+                estados, páginas registradas, evolución mensual y balance personal.
               </p>
 
               <Link
@@ -378,8 +401,8 @@ export default async function MisLecturasPage() {
               </h2>
 
               <p className="personal-archive-link-text">
-                Consulta mi archivo lector personal completo, con lecturas actuales,
-                terminadas, pausadas y abandonadas organizadas por año.
+                Consulta mi archivo lector personal completo, con libros actuales,
+                lecturas terminadas, pausadas y abandonadas, organizadas por año.
               </p>
 
               <Link

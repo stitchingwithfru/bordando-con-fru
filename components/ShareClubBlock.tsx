@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-const CLUB_URL = "https://www.stitchingwithfru.com/club-de-lectura";
+const CLUB_URL = "https://stitchingwithfru.com/club-de-lectura";
 const SHARE_TEXT = "Únete al Club de Lectura de Bordando con Fru";
 
 export default function ShareClubBlock() {

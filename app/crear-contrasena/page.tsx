@@ -1,8 +1,8 @@
 import CreatePasswordForm from "./CreatePasswordForm";
 
 export const metadata = {
-  title: "Crear contraseña | Bordando con Fru",
-  description: "Crea tu contraseña para acceder a tu zona privada.",
+  title: "Crear o cambiar contraseña | Bordando con Fru",
+  description: "Crea o cambia tu contraseña para acceder a tu espacio privado de Bordando con Fru.",
 };
 
 export default function CrearContrasenaPage() {
