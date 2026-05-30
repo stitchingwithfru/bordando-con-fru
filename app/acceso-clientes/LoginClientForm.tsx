@@ -43,7 +43,7 @@ export default function LoginClientForm() {
     setIsLoading(true);
     setMessage("");
 
-    const redirectTo = `${window.location.origin}/auth/confirm`;
+    const redirectTo = `${window.location.origin}/auth/confirm?next=/crear-contrasena`;
 
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo,
