@@ -70,6 +70,46 @@ export type MyReadingItem = {
   nota: string;
 };
 
+export type BordadoResumen = {
+  anio: number;
+  mes: number;
+  mes_nombre: string;
+  total_mes: number;
+  total_anual: number;
+  dias_activos_mes: number;
+  proyecto_mas_trabajado_mes: string;
+  ultima_actualizacion: string;
+  visible: string;
+};
+
+export type BordadoMesActualItem = {
+  fecha: string;
+  dia: number;
+  proyecto: string;
+  cruces: number;
+  total_dia: number;
+  orden: number;
+  visible: string;
+};
+
+export type BordadoWipItem = {
+  id: string;
+  slug: string;
+  titulo: string;
+  fecha_inicio: string;
+  fecha_fin: string;
+  cruces_anio: number;
+  cruces_previas: number;
+  cruces_acumuladas: number;
+  total_cruces: number;
+  progreso: string;
+  estado: string;
+  imagen_url: string;
+  notas: string;
+  visible: string;
+  orden: number;
+};
+
 export type WebsiteData = {
   currentReading: ReadingItem | null;
   nextReading: ReadingItem | null;
@@ -84,6 +124,9 @@ export type WebsiteData = {
     completed: number;
     progressPercent: number;
   };
+  bordadoResumen: BordadoResumen | null;
+  bordadoMesActual: BordadoMesActualItem[];
+  bordadoWips: BordadoWipItem[];
 };
 
 export type YouTubeVideo = {

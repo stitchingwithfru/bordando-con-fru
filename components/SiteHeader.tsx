@@ -23,6 +23,9 @@ export function SiteHeader() {
               <Link className="dropdown-item" href="/punto-de-cruz">
                 Punto de cruz
               </Link>
+              <Link className="dropdown-item" href="/mis-bordados">
+                Mis bordados
+              </Link>
               <Link className="dropdown-item" href="/club-de-lectura">
                 Club de Lectura
               </Link>
@@ -60,6 +63,7 @@ export function SiteHeader() {
 
             <div className="mobile-nav-section-title">Contenidos</div>
             <Link href="/punto-de-cruz">Punto de cruz</Link>
+            <Link href="/mis-bordados">Mis bordados</Link>
             <Link href="/club-de-lectura">Club de Lectura</Link>
             <Link href="/mis-lecturas">Mis lecturas</Link>
 
