@@ -270,7 +270,14 @@ function ClubStatusPanel({ status }: { status: ClubStatus }) {
 
 export default async function ClubDeLecturaPage() {
   const data = await getWebsiteData();
-  const { currentReading, nextReading, previousReadings } = data;
+  const { currentReading, currentReadings, nextReading, previousReadings } = data;
+
+  const activeReadings =
+    currentReadings && currentReadings.length > 0
+      ? currentReadings
+      : currentReading
+        ? [currentReading]
+        : [];
 
   return (
     <main className="min-h-screen bg-[#F7F3EE] text-[#403A36] pt-12 pb-24 selection:bg-[#D8B7B0] selection:text-white">
@@ -938,181 +945,186 @@ export default async function ClubDeLecturaPage() {
                   display: "inline-block",
                 }}
               />
-              Lectura actual
+              {activeReadings.length > 1 ? "Lecturas actuales" : "Lectura actual"}
             </h2>
 
-            {currentReading ? (
-              <div
-                style={{
-                  background: "linear-gradient(135deg, #FFFFFF 0%, #FCFAF7 100%)",
-                  border: "1px solid #E8DED8",
-                  borderRadius: "30px",
-                  padding: "34px",
-                  boxShadow: "0 10px 28px rgba(64, 58, 54, 0.07)",
-                  textAlign: "center",
-                }}
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    marginBottom: "24px",
-                  }}
-                >
-                  <img
-                    src={currentReading.portada_large || currentReading.portada_local || currentReading.portada_url}
-                    alt={currentReading.titulo}
-                    width={440}
-                    height={660}
+            {activeReadings.length > 0 ? (
+              <div style={{ display: "grid", gap: "28px" }}>
+                {activeReadings.map((reading) => (
+                  <div
+                    key={reading.id}
                     style={{
-                      width: "165px",
-                      maxWidth: "165px",
-                      height: "auto",
-                      objectFit: "cover",
-                      borderRadius: "16px",
+                      background: "linear-gradient(135deg, #FFFFFF 0%, #FCFAF7 100%)",
                       border: "1px solid #E8DED8",
-                      boxShadow: "0 12px 26px rgba(64, 58, 54, 0.16)",
-                      display: "block",
-                    }}
-                  />
-                </div>
-
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    gap: "10px",
-                    flexWrap: "wrap",
-                    marginBottom: "18px",
-                  }}
-                >
-                  <span
-                    style={{
-                      background: "#EFE5DE",
-                      color: "#403A36",
-                      fontSize: "12px",
-                      padding: "7px 13px",
-                      borderRadius: "999px",
-                      fontWeight: 700,
-                      letterSpacing: "0.04em",
+                      borderRadius: "30px",
+                      padding: "34px",
+                      boxShadow: "0 10px 28px rgba(64, 58, 54, 0.07)",
+                      textAlign: "center",
                     }}
                   >
-                    Lectura en curso
-                  </span>
-
-                  {currentReading.recomendada && (
-                    <span
+                    <div
                       style={{
-                        background: "#E9F0E6",
-                        color: "#5E755C",
-                        fontSize: "12px",
-                        padding: "7px 13px",
-                        borderRadius: "999px",
-                        fontWeight: 700,
-                        letterSpacing: "0.04em",
+                        display: "flex",
+                        justifyContent: "center",
+                        marginBottom: "24px",
                       }}
                     >
-                      ★ Recomendado
-                    </span>
-                  )}
-                </div>
+                      <img
+                        src={reading.portada_large || reading.portada_local || reading.portada_url}
+                        alt={reading.titulo}
+                        width={440}
+                        height={660}
+                        style={{
+                          width: "165px",
+                          maxWidth: "165px",
+                          height: "auto",
+                          objectFit: "cover",
+                          borderRadius: "16px",
+                          border: "1px solid #E8DED8",
+                          boxShadow: "0 12px 26px rgba(64, 58, 54, 0.16)",
+                          display: "block",
+                        }}
+                      />
+                    </div>
 
-                <h3
-                  style={{
-                    margin: 0,
-                    marginBottom: "8px",
-                    fontFamily: "Georgia, serif",
-                    fontSize: "34px",
-                    lineHeight: "1.15",
-                    color: "#403A36",
-                  }}
-                >
-                  {currentReading.titulo}
-                </h3>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "center",
+                        gap: "10px",
+                        flexWrap: "wrap",
+                        marginBottom: "18px",
+                      }}
+                    >
+                      <span
+                        style={{
+                          background: "#EFE5DE",
+                          color: "#403A36",
+                          fontSize: "12px",
+                          padding: "7px 13px",
+                          borderRadius: "999px",
+                          fontWeight: 700,
+                          letterSpacing: "0.04em",
+                        }}
+                      >
+                        Lectura en curso
+                      </span>
 
-                <p
-                  style={{
-                    margin: 0,
-                    marginBottom: "18px",
-                    color: "#8A7C74",
-                    fontSize: "18px",
-                    fontStyle: "italic",
-                  }}
-                >
-                  por {currentReading.autor}
-                </p>
+                      {reading.recomendada && (
+                        <span
+                          style={{
+                            background: "#E9F0E6",
+                            color: "#5E755C",
+                            fontSize: "12px",
+                            padding: "7px 13px",
+                            borderRadius: "999px",
+                            fontWeight: 700,
+                            letterSpacing: "0.04em",
+                          }}
+                        >
+                          ★ Recomendado
+                        </span>
+                      )}
+                    </div>
 
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    gap: "10px",
-                    flexWrap: "wrap",
-                    marginBottom: "24px",
-                  }}
-                >
-                  <span
-                    style={{
-                      background: "#F7F3EE",
-                      border: "1px solid #E8DED8",
-                      color: "#6F655F",
-                      fontSize: "14px",
-                      padding: "8px 13px",
-                      borderRadius: "12px",
-                    }}
-                  >
-                    {currentReading.generos}
-                  </span>
+                    <h3
+                      style={{
+                        margin: 0,
+                        marginBottom: "8px",
+                        fontFamily: "Georgia, serif",
+                        fontSize: "34px",
+                        lineHeight: "1.15",
+                        color: "#403A36",
+                      }}
+                    >
+                      {reading.titulo}
+                    </h3>
 
-                  <span
-                    style={{
-                      background: "#F7F3EE",
-                      border: "1px solid #E8DED8",
-                      color: "#6F655F",
-                      fontSize: "14px",
-                      padding: "8px 13px",
-                      borderRadius: "12px",
-                    }}
-                  >
-                    {formatExactPeriod(currentReading.fecha_inicio, currentReading.fecha_fin)}
-                  </span>
-                </div>
+                    <p
+                      style={{
+                        margin: 0,
+                        marginBottom: "18px",
+                        color: "#8A7C74",
+                        fontSize: "18px",
+                        fontStyle: "italic",
+                      }}
+                    >
+                      por {reading.autor}
+                    </p>
 
-                <p
-                  style={{
-                    maxWidth: "760px",
-                    margin: "0 auto 28px auto",
-                    color: "rgba(64, 58, 54, 0.82)",
-                    fontSize: "16px",
-                    lineHeight: "1.75",
-                    textAlign: "justify",
-                    hyphens: "auto",
-                  }}
-                >
-                  {currentReading.sinopsis}
-                </p>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "center",
+                        gap: "10px",
+                        flexWrap: "wrap",
+                        marginBottom: "24px",
+                      }}
+                    >
+                      <span
+                        style={{
+                          background: "#F7F3EE",
+                          border: "1px solid #E8DED8",
+                          color: "#6F655F",
+                          fontSize: "14px",
+                          padding: "8px 13px",
+                          borderRadius: "12px",
+                        }}
+                      >
+                        {reading.generos}
+                      </span>
 
-                <a
-                  href={currentReading.goodreads_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={`Ver ${currentReading.titulo} en Goodreads`}
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    background: "#403A36",
-                    color: "#FFFFFF",
-                    padding: "13px 22px",
-                    borderRadius: "999px",
-                    fontSize: "15px",
-                    fontWeight: 700,
-                    textDecoration: "none",
-                    boxShadow: "0 8px 18px rgba(64, 58, 54, 0.14)",
-                  }}
-                >
-                  Ver en Goodreads →
-                </a>
+                      <span
+                        style={{
+                          background: "#F7F3EE",
+                          border: "1px solid #E8DED8",
+                          color: "#6F655F",
+                          fontSize: "14px",
+                          padding: "8px 13px",
+                          borderRadius: "12px",
+                        }}
+                      >
+                        {formatExactPeriod(reading.fecha_inicio, reading.fecha_fin)}
+                      </span>
+                    </div>
+
+                    <p
+                      style={{
+                        maxWidth: "760px",
+                        margin: "0 auto 28px auto",
+                        color: "rgba(64, 58, 54, 0.82)",
+                        fontSize: "16px",
+                        lineHeight: "1.75",
+                        textAlign: "justify",
+                        hyphens: "auto",
+                      }}
+                    >
+                      {reading.sinopsis}
+                    </p>
+
+                    <a
+                      href={reading.goodreads_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`Ver ${reading.titulo} en Goodreads`}
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        background: "#403A36",
+                        color: "#FFFFFF",
+                        padding: "13px 22px",
+                        borderRadius: "999px",
+                        fontSize: "15px",
+                        fontWeight: 700,
+                        textDecoration: "none",
+                        boxShadow: "0 8px 18px rgba(64, 58, 54, 0.14)",
+                      }}
+                    >
+                      Ver en Goodreads →
+                    </a>
+                  </div>
+                ))}
               </div>
             ) : (
               <div

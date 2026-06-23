@@ -140,6 +140,7 @@ export type SalDisenoItem = {
 
 export type WebsiteData = {
   currentReading: ReadingItem | null;
+  currentReadings: ReadingItem[];
   nextReading: ReadingItem | null;
   previousReadings: ReadingItem[];
   recommendedReadings: ReadingItem[];
