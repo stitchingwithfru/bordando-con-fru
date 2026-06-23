@@ -110,6 +110,34 @@ export type BordadoWipItem = {
   orden: number;
 };
 
+export type SalItem = {
+  id: string;
+  slug: string;
+  titulo: string;
+  estado: string;
+  fecha_inicio: string;
+  fecha_fin: string;
+  descripcion_corta: string;
+  descripcion_larga: string;
+  tipo: string;
+  whatsapp_url: string;
+  imagen_principal_url: string;
+  visible: string;
+  orden: number;
+};
+
+export type SalDisenoItem = {
+  id: string;
+  sal_id: string;
+  titulo: string;
+  descripcion: string;
+  imagen_url: string;
+  enlace_compra: string;
+  count_info: string;
+  visible: string;
+  orden: number;
+};
+
 export type WebsiteData = {
   currentReading: ReadingItem | null;
   nextReading: ReadingItem | null;
@@ -127,6 +155,8 @@ export type WebsiteData = {
   bordadoResumen: BordadoResumen | null;
   bordadoMesActual: BordadoMesActualItem[];
   bordadoWips: BordadoWipItem[];
+  sals: SalItem[];
+  salDisenos: SalDisenoItem[];
 };
 
 export type YouTubeVideo = {

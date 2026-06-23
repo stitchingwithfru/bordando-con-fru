@@ -1,9 +1,12 @@
 import type { MetadataRoute } from "next";
+import { getWebsiteData } from "@/lib/phase1-data";
 
 const siteUrl = "https://stitchingwithfru.com";
 
-export default function sitemap(): MetadataRoute.Sitemap {
-  const routes = [
+export const revalidate = 3600;
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const staticRoutes = [
     "",
     "/punto-de-cruz",
     "/punto-de-cruz/empezar-punto-de-cruz",
@@ -13,6 +16,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/punto-de-cruz/errores-comunes-punto-de-cruz",
     "/mis-bordados",
     "/mis-bordados/wips",
+    "/sals",
     "/herramientas/seguimiento",
     "/herramientas/inventario",
     "/pedidos/seguimiento",
@@ -26,6 +30,20 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/acceso-clientes",
   ];
 
+  let salRoutes: string[] = [];
+
+  try {
+    const data = await getWebsiteData();
+
+    salRoutes = (data.sals || [])
+      .filter((sal) => sal.slug)
+      .map((sal) => `/sals/${sal.slug}`);
+  } catch {
+    salRoutes = [];
+  }
+
+  const routes = [...staticRoutes, ...salRoutes];
+
   return routes.map((route) => ({
     url: `${siteUrl}${route}`,
     lastModified: new Date(),
@@ -37,12 +55,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
           ? 0.9
           : route === "/mis-bordados"
             ? 0.85
-            : route.startsWith("/herramientas")
+            : route === "/sals"
               ? 0.85
-              : route.startsWith("/punto-de-cruz/")
-                ? 0.8
-                : route.startsWith("/mis-bordados/")
-                  ? 0.75
-                  : 0.6,
+              : route.startsWith("/herramientas")
+                ? 0.85
+                : route.startsWith("/punto-de-cruz/")
+                  ? 0.8
+                  : route.startsWith("/mis-bordados/")
+                    ? 0.75
+                    : route.startsWith("/sals/")
+                      ? 0.75
+                      : 0.6,
   }));
 }
