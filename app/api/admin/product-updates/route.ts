@@ -132,6 +132,67 @@ export async function POST(request: Request) {
       );
     }
 
+    const supabaseAdmin = createAdminClient();
+
+    const productIds = Array.from(
+      new Set(
+        normalizedItems
+          .map((item) => item.productId)
+          .filter(
+            (value): value is string =>
+              Boolean(value)
+          )
+      )
+    );
+
+    const {
+      data: affectedProducts,
+      error: affectedProductsError,
+    } = await supabaseAdmin
+      .from("products")
+      .select("id, slug")
+      .in("id", productIds);
+
+    if (affectedProductsError) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: affectedProductsError.message,
+        },
+        { status: 500 }
+      );
+    }
+
+    if (
+      !affectedProducts ||
+      affectedProducts.length !== productIds.length
+    ) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error:
+            "Uno o varios productos seleccionados no son válidos.",
+        },
+        { status: 400 }
+      );
+    }
+
+    const containsInventory =
+      affectedProducts.some((product) =>
+        product.slug.startsWith("inventario-")
+      );
+
+    if (containsInventory) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error:
+            "Las actualizaciones de Inventario Profesional no se gestionan mediante el sistema de plantillas, PDF y vídeos del Sistema de Seguimiento.",
+        },
+        { status: 400 }
+      );
+    }
+
     const invalidUrlItem = normalizedItems.find(
       (item) =>
         !isValidResourceUrl(item.updatedTemplateUrl) ||
@@ -148,8 +209,6 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
-
-    const supabaseAdmin = createAdminClient();
 
     const { data: createdUpdate, error: updateError } = await supabaseAdmin
       .from("product_updates")

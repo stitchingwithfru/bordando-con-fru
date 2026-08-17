@@ -24,6 +24,23 @@ type AccessRow = {
   } | null;
 };
 
+type InventoryDeliveryStatus =
+  | "ready"
+  | "redeemed"
+  | "revoked";
+
+type InventoryDelivery = {
+  id: string;
+  customer_email: string;
+  license_variant: string;
+  activation_code: string;
+  activation_status: InventoryDeliveryStatus;
+  created_at: string;
+  updated_at: string;
+  redeemed_at: string | null;
+  notes: string | null;
+};
+
 type AuthUser = {
   id: string;
   email: string;
@@ -38,6 +55,7 @@ type ApiResponse = {
   products?: Product[];
   accesses?: AccessRow[];
   authUser?: AuthUser;
+  inventoryDelivery?: InventoryDelivery | null;
 };
 
 type UpdateProductDraft = {
@@ -73,6 +91,12 @@ export default function AdminClientesPanel() {
   const [products, setProducts] = useState<Product[]>([]);
   const [accesses, setAccesses] = useState<AccessRow[]>([]);
   const [authUser, setAuthUser] = useState<AuthUser>(null);
+  const [inventoryDelivery, setInventoryDelivery] = useState<InventoryDelivery | null>(null);
+  const [inventoryVariant, setInventoryVariant] = useState("");
+  const [
+    inventoryActivationCode,
+    setInventoryActivationCode,
+  ] = useState("");
   const [message, setMessage] = useState("");
   const [isError, setIsError] = useState(false);
   const [isReady, setIsReady] = useState(false);
@@ -97,7 +121,15 @@ export default function AdminClientesPanel() {
   const [isPreviewingNotification, setIsPreviewingNotification] = useState(false);
   const [isSendingNotification, setIsSendingNotification] = useState(false);
 
-  async function runAction(action: string, extra?: { productId?: string }) {
+  async function runAction(
+    action: string,
+    extra?: {
+      productId?: string;
+      licenseVariant?: string;
+      activationCode?: string;
+      activationStatus?: InventoryDeliveryStatus;
+    }
+  ) {
     setIsLoading(true);
     setMessage("");
     setIsError(false);
@@ -113,6 +145,9 @@ export default function AdminClientesPanel() {
           adminPassword,
           email,
           productId: extra?.productId ?? productId,
+          licenseVariant: extra?.licenseVariant,
+          activationCode: extra?.activationCode,
+          activationStatus: extra?.activationStatus,
         }),
       });
 
@@ -137,6 +172,25 @@ export default function AdminClientesPanel() {
        setAuthUser(result.authUser || null);
       }
 
+      if ("inventoryDelivery" in result) {
+        const delivery =
+          result.inventoryDelivery || null;
+
+        setInventoryDelivery(delivery);
+
+        if (delivery) {
+          setInventoryVariant(
+            delivery.license_variant
+          );
+        } else {
+          setInventoryVariant("");
+        }
+      }
+
+      if (action === "save_inventory_delivery") {
+        setInventoryActivationCode("");
+      }
+
       setIsReady(true);
       setMessage(result.message || "Acción completada correctamente.");
     } catch {
@@ -149,15 +203,20 @@ export default function AdminClientesPanel() {
 
 function syncUpdateProducts(productList: Product[]) {
   setUpdateProducts(
-    productList.map((product) => ({
-      productId: product.id,
-      productName: product.name,
-      enabled: false,
-      updatedTemplateUrl: "",
-      updatedPdfFilePath: "",
-      updatedVideoUrl: "",
-      notes: "",
-    }))
+    productList
+      .filter(
+        (product) =>
+          !product.slug.startsWith("inventario-")
+      )
+      .map((product) => ({
+        productId: product.id,
+        productName: product.name,
+        enabled: false,
+        updatedTemplateUrl: "",
+        updatedPdfFilePath: "",
+        updatedVideoUrl: "",
+        notes: "",
+      }))
   );
 }
 
@@ -346,6 +405,16 @@ async function runUpdateNotification(action: "preview" | "send") {
 }
 
   const canUseEmailActions = Boolean(email.trim());
+
+  const inventoryProducts = products.filter(
+    (product) =>
+      product.slug.startsWith("inventario-")
+  );
+
+  const assignableProducts = products.filter(
+    (product) =>
+      !product.slug.startsWith("inventario-")
+  );
 
   return (
     <>
@@ -735,12 +804,15 @@ async function runUpdateNotification(action: "preview" | "send") {
                     type="email"
                     value={email}
                     onChange={(event) => {
-                        setEmail(event.target.value);
-                        setAccesses([]);
-                        setAuthUser(null);
-                        setProductId("");
-                        setMessage("");
-                        setIsError(false);
+                      setEmail(event.target.value);
+                      setAccesses([]);
+                      setAuthUser(null);
+                      setProductId("");
+                      setInventoryDelivery(null);
+                      setInventoryVariant("");
+                      setInventoryActivationCode("");
+                      setMessage("");
+                      setIsError(false);
                     }}
                     placeholder="email@ejemplo.com"
                     />
@@ -800,7 +872,14 @@ async function runUpdateNotification(action: "preview" | "send") {
           </div>
 
           <div className="admin-section full">
-            <h2 className="admin-section-title">Asignar producto</h2>
+            <h2 className="admin-section-title">
+              Asignar producto de Seguimiento
+            </h2>
+
+            <p className="admin-update-intro">
+              Utiliza este bloque únicamente para el Sistema de Seguimiento de Punto de Cruz.
+              Inventario Profesional se gestiona en su bloque específico de aplicación.
+            </p>
 
             <div className="admin-form">
               <div className="admin-field">
@@ -815,7 +894,7 @@ async function runUpdateNotification(action: "preview" | "send") {
                   disabled={!isReady}
                 >
                   <option value="">Selecciona un producto</option>
-                  {products.map((product) => (
+                  {assignableProducts.map((product) => (
                     <option key={product.id} value={product.id}>
                       {product.name}
                       {product.current_version ? ` · v${product.current_version}` : ""}
@@ -888,13 +967,245 @@ async function runUpdateNotification(action: "preview" | "send") {
 
           <div className="admin-section full">
             <h2 className="admin-section-title">
+              Inventario Profesional — aplicación
+            </h2>
+
+            <p className="admin-update-intro">
+              Gestiona la entrega de la licencia de la nueva aplicación.
+              Cada clienta dispone de una única entrega vigente. El código
+              debe haberse generado previamente en el sistema real de
+              Inventario Profesional.
+            </p>
+
+            {inventoryDelivery ? (
+              <div className="admin-user-status">
+                <strong>Entrega preparada:</strong> sí
+                <br />
+
+                <strong>Variante actual:</strong>{" "}
+                {inventoryDelivery.license_variant}
+                <br />
+
+                <strong>Estado:</strong>{" "}
+                {inventoryDelivery.activation_status === "ready"
+                  ? "Pendiente de activación"
+                  : inventoryDelivery.activation_status === "redeemed"
+                    ? "Código utilizado"
+                    : "Código revocado"}
+                <br />
+
+                <strong>Código entregado:</strong>{" "}
+                <code>
+                  {inventoryDelivery.activation_code}
+                </code>
+
+                <br />
+
+                <strong>Última actualización:</strong>{" "}
+                {new Date(
+                  inventoryDelivery.updated_at
+                ).toLocaleString("es-ES")}
+
+                {inventoryDelivery.redeemed_at ? (
+                  <>
+                    <br />
+
+                    <strong>
+                      Marcado como utilizado:
+                    </strong>{" "}
+                    {new Date(
+                      inventoryDelivery.redeemed_at
+                    ).toLocaleString("es-ES")}
+                  </>
+                ) : null}
+              </div>
+            ) : (
+              <div className="admin-empty">
+                Esta clienta todavía no tiene preparada una
+                entrega para la nueva aplicación de Inventario
+                Profesional.
+              </div>
+            )}
+
+            <div
+              className="admin-form"
+              style={{ marginTop: 16 }}
+            >
+              <div className="admin-field">
+                <label
+                  className="admin-label"
+                  htmlFor="inventoryVariant"
+                >
+                  Variante de licencia
+                </label>
+
+                <select
+                  id="inventoryVariant"
+                  className="admin-select"
+                  value={inventoryVariant}
+                  onChange={(event) =>
+                    setInventoryVariant(
+                      event.target.value
+                    )
+                  }
+                  disabled={!isReady}
+                >
+                  <option value="">
+                    Selecciona una variante
+                  </option>
+
+                  {inventoryProducts.map((product) => (
+                    <option
+                      key={product.id}
+                      value={product.slug}
+                    >
+                      {product.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="admin-field">
+                <label
+                  className="admin-label"
+                  htmlFor="inventoryActivationCode"
+                >
+                  Código de activación
+                </label>
+
+                <input
+                  id="inventoryActivationCode"
+                  className="admin-input"
+                  type="text"
+                  value={inventoryActivationCode}
+                  onChange={(event) =>
+                    setInventoryActivationCode(
+                      event.target.value
+                    )
+                  }
+                  placeholder={
+                    inventoryDelivery
+                      ? "Déjalo vacío para conservar el código actual"
+                      : "Pega aquí el código generado en Inventario"
+                  }
+                  autoComplete="off"
+                  disabled={!isReady}
+                />
+
+                <p className="admin-update-help">
+                  Si la clienta solo compra nuevos módulos,
+                  cambia la variante y deja este campo vacío.
+                  Introduce un código distinto únicamente
+                  cuando exista un nuevo código real generado
+                  para esa entrega.
+                </p>
+              </div>
+
+              <div className="admin-actions">
+                <button
+                  type="button"
+                  className="admin-button"
+                  disabled={
+                    !isReady ||
+                    isLoading ||
+                    !canUseEmailActions ||
+                    !inventoryVariant ||
+                    (!inventoryDelivery &&
+                      !inventoryActivationCode.trim())
+                  }
+                  onClick={() =>
+                    runAction(
+                      "save_inventory_delivery",
+                      {
+                        licenseVariant:
+                          inventoryVariant,
+                        activationCode:
+                          inventoryActivationCode,
+                      }
+                    )
+                  }
+                >
+                  {inventoryDelivery
+                    ? "Actualizar Inventario"
+                    : "Preparar entrega"}
+                </button>
+              </div>
+
+              {inventoryDelivery ? (
+                <div className="admin-actions">
+                  <button
+                    type="button"
+                    className="admin-button secondary"
+                    disabled={
+                      isLoading ||
+                      inventoryDelivery.activation_status ===
+                        "ready"
+                    }
+                    onClick={() =>
+                      runAction(
+                        "set_inventory_delivery_status",
+                        {
+                          activationStatus: "ready",
+                        }
+                      )
+                    }
+                  >
+                    Marcar como pendiente
+                  </button>
+
+                  <button
+                    type="button"
+                    className="admin-button secondary"
+                    disabled={
+                      isLoading ||
+                      inventoryDelivery.activation_status ===
+                        "redeemed"
+                    }
+                    onClick={() =>
+                      runAction(
+                        "set_inventory_delivery_status",
+                        {
+                          activationStatus: "redeemed",
+                        }
+                      )
+                    }
+                  >
+                    Marcar código como utilizado
+                  </button>
+
+                  <button
+                    type="button"
+                    className="admin-button danger"
+                    disabled={
+                      isLoading ||
+                      inventoryDelivery.activation_status ===
+                        "revoked"
+                    }
+                    onClick={() =>
+                      runAction(
+                        "set_inventory_delivery_status",
+                        {
+                          activationStatus: "revoked",
+                        }
+                      )
+                    }
+                  >
+                    Marcar código como revocado
+                  </button>
+                </div>
+              ) : null}
+            </div>
+          </div>
+
+          <div className="admin-section full">
+            <h2 className="admin-section-title">
               Crear actualización de producto
             </h2>
 
             <p className="admin-update-intro">
-              Crea un aviso de actualización para uno o varios productos. Si añades nuevos enlaces
-              de plantilla, PDF o vídeo, también se sustituirán los recursos principales que ve la
-              clienta en “Mi cuenta”.
+              Gestiona las actualizaciones del Sistema de Seguimiento de Punto de Cruz.
+              Si añades nuevos enlaces de plantilla, PDF o vídeo, también se sustituirán
+              los recursos principales que ve la clienta en “Mi espacio”.
             </p>
 
             <div className="admin-form">

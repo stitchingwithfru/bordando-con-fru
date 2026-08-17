@@ -167,6 +167,40 @@ export async function POST(request: Request) {
       );
     }
 
+    const {
+      data: affectedProducts,
+      error: affectedProductsError,
+    } = await supabaseAdmin
+      .from("products")
+      .select("id, slug")
+      .in("id", productIds);
+
+    if (affectedProductsError) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: affectedProductsError.message,
+        },
+        { status: 500 }
+      );
+    }
+
+    const containsInventory =
+      (affectedProducts || []).some((product) =>
+        product.slug.startsWith("inventario-")
+      );
+
+    if (containsInventory) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error:
+            "Los avisos de actualización de Inventario Profesional no se gestionan mediante el sistema antiguo de actualizaciones de producto.",
+        },
+        { status: 400 }
+      );
+    }
+
     const { data: accessRows, error: accessError } = await supabaseAdmin
       .from("customer_access")
       .select("customer_email")
