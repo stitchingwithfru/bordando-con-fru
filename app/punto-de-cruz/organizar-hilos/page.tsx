@@ -436,7 +436,7 @@ export default function OrganizarHilosPuntoDeCruzPage() {
                 <p>• No recuerdas dónde guardaste una referencia concreta.</p>
                 <p>• Tienes materiales repartidos en varias cajas o bolsas.</p>
                 <p>• Preparar un proyecto nuevo te lleva demasiado tiempo.</p>
-                <p>• Quieres controlar hilos, telas, kits y calculadora de materiales en un mismo sistema.</p>
+                <p>• Quieres controlar hilos, telas, kits, gráficos y materiales desde una misma aplicación.</p>
               </div>
             </div>
           </article>
@@ -447,18 +447,21 @@ export default function OrganizarHilosPuntoDeCruzPage() {
             </h2>
 
             <p className="article-text">
-              Si quieres llevar el control de tus hilos de forma más completa, el Sistema de Inventario Profesional
-              está pensado para organizar tus materiales de punto de cruz dentro del entorno Google.
+              Si quieres llevar el control de tus materiales de forma más completa,
+              Inventario Profesional es una aplicación web privada pensada para ayudarte
+              a saber qué tienes, dónde está guardado, qué necesitas comprar y cómo cambia
+              tu stock con cada movimiento.
             </p>
 
             <p className="article-text">
-              Puedes empezar con el inventario base de hilos y, si más adelante lo necesitas, añadir complementos
-              como telas, kits/proyectos o calculadora de tela e hilos.
+              Puedes empezar con la edición base, centrada en hilos, movimientos, stock,
+              pedidos y ubicaciones, y añadir posteriormente módulos como Telas,
+              Kits y gráficos o Calculadora de tela e hilos y carrito de proyectos.
             </p>
 
             <div className="article-actions" style={{ marginTop: 22 }}>
               <Link href="/herramientas/inventario" className="article-button">
-                Ver Sistema de Inventario
+                Ver Inventario Profesional
               </Link>
 
               <Link href="/pedidos/inventario" className="article-button secondary">
@@ -467,7 +470,7 @@ export default function OrganizarHilosPuntoDeCruzPage() {
             </div>
           </article>
 
-                    <article className="article-card">
+          <article className="article-card">
             <h2 className="article-section-title">
               También puedes organizar tus proyectos y avances
             </h2>

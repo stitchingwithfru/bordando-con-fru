@@ -616,12 +616,12 @@ export default function TelasPuntoDeCruzPage() {
                 </h3>
 
                 <p className="article-callout-text">
-                    Cuando empiezas a trabajar con distintos counts, márgenes de tela y tamaños de patrón, puede resultar más cómodo usar una calculadora preparada para ello. Dentro del Sistema de Inventario Profesional existe un complemento de Calculadora de Tela e Hilos pensado para ayudarte a calcular medidas y materiales antes de empezar un proyecto.
+                  Cuando empiezas a trabajar con distintos counts, márgenes de tela y tamaños de patrón, puede resultar más cómodo usar una calculadora preparada para ello. Dentro de Inventario Profesional puedes añadir el módulo de Calculadora, que incluye herramientas para calcular medidas y materiales antes de empezar un proyecto.
                 </p>
 
                 <div className="article-actions" style={{ marginTop: 18 }}>
                     <Link href="/herramientas/inventario" className="article-button secondary">
-                    Ver complemento de Calculadora de Tela e Hilos
+                    Ver módulo de Calculadora
                     </Link>
                 </div>
                 </div>

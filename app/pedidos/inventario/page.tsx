@@ -3,9 +3,13 @@ import { SectionTitle } from "@/components/UI";
 import { InventoryOrderForm } from "@/components/forms";
 
 export const metadata: Metadata = {
-  title: "Pedido Sistema de Inventario Profesional | Bordando con Fru",
+  title: "Pedido Inventario Profesional | Bordando con Fru",
   description:
-    "Formulario para pedir el Sistema de Inventario Profesional. El acceso se asignará al email indicado y podrás entrar desde tu zona privada.",
+    "Formulario para adquirir Inventario Profesional o añadir módulos a una licencia existente.",
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 export default function PedidoInventarioPage() {
@@ -15,8 +19,8 @@ export default function PedidoInventarioPage() {
         <div className="container">
           <SectionTitle
             eyebrow="Formulario de pedido"
-            title="Pedir el Sistema de Inventario Profesional"
-            description="Completa el formulario con el email al que quieres asociar tu compra. Tras comprobar el pago, te enviaré una invitación para acceder a tu zona privada y consultar tus recursos."
+            title="Pedir Inventario Profesional"
+            description="Completa el formulario con el email que utilizarás para gestionar tu compra y acceder a tus recursos en la zona privada. Tras comprobar el pago, se preparará la información necesaria para activar tu licencia de Inventario Profesional."
           />
 
           <InventoryOrderForm />

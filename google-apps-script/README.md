@@ -38,9 +38,9 @@ Añade estas tres:
 
 Copia la URL `/exec`.
 
-## 5. Añade variables en Vercel
+## 5. Añade variables en Netlify
 
-En tu proyecto de Vercel:
+En tu proyecto de Netlify:
 
 - `GOOGLE_APPS_SCRIPT_WEBHOOK_URL` → URL `/exec` de Apps Script
 - `FORMS_SHARED_SECRET` → el mismo valor que `SHARED_SECRET`
@@ -54,6 +54,7 @@ La primera vez que llegue cada formulario, el script creará estas pestañas si 
 - `Contacto`
 - `Pedidos Seguimiento`
 - `Pedidos Inventario`
+- `Aceptaciones pedidos`
 
 ## 7. Correos automáticos
 

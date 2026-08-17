@@ -19,15 +19,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/sals",
     "/herramientas/seguimiento",
     "/herramientas/inventario",
-    "/pedidos/seguimiento",
-    "/pedidos/inventario",
     "/mis-lecturas",
     "/mis-lecturas/estadisticas",
     "/faq",
     "/contacto",
     "/politica-privacidad",
     "/condiciones-compra",
-    "/acceso-clientes",
   ];
 
   let salRoutes: string[] = [];

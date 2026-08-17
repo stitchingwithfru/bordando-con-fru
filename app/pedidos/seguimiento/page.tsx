@@ -6,6 +6,10 @@ export const metadata: Metadata = {
   title: "Pedido Sistema de Seguimiento de Punto de Cruz | Bordando con Fru",
   description:
     "Formulario para pedir el Sistema de Seguimiento de Punto de Cruz. El acceso se asignará al email indicado y podrás entrar desde tu zona privada.",
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 export default function PedidoSeguimientoPage() {

@@ -25,6 +25,7 @@ type TrackingPayload = {
   currentVersion: string;
   upgradeVersion: string;
   paymentMethod: string;
+  confirmations: ConfirmationState;
   marketingAccepted: boolean;
   total: number;
 };
@@ -37,6 +38,7 @@ type InventoryPayload = {
   owned: string[];
   wanted: string[];
   paymentMethod: string;
+  confirmations: ConfirmationState;
   marketingAccepted: boolean;
   total: number;
 };
@@ -108,28 +110,52 @@ function CheckRow({ checked, onChange, label, disabled = false }: { checked: boo
   );
 }
 
-function Conditions({ value, onChange, disabled = false }: { value: ConfirmationState; onChange: Dispatch<SetStateAction<ConfirmationState>>; disabled?: boolean; }) {
+function Conditions({
+  value,
+  onChange,
+  disabled = false,
+  variant = "tracking",
+}: {
+  value: ConfirmationState;
+  onChange: Dispatch<SetStateAction<ConfirmationState>>;
+  disabled?: boolean;
+  variant?: "tracking" | "inventory";
+}) {
+  const isInventory = variant === "inventory";
+
   return (
     <div className="form-stack">
       <CheckRow
         checked={value.manual}
         disabled={disabled}
         onChange={(v) => onChange((p) => ({ ...p, manual: v }))}
-        label="Entiendo que es un producto digital con entrega manual tras la comprobación del pago."
+        label={
+          isInventory
+            ? "Entiendo que Inventario Profesional es un servicio digital prestado mediante una aplicación web privada y que su activación se prepara manualmente tras la comprobación del pago."
+            : "Entiendo que el Sistema de Seguimiento de Punto de Cruz es contenido digital con entrega manual tras la comprobación del pago."
+        }
       />
 
       <CheckRow
         checked={value.copy}
         disabled={disabled}
         onChange={(v) => onChange((p) => ({ ...p, copy: v }))}
-        label="Entiendo que el producto se asociará al email indicado en este pedido y que recibiré una invitación para acceder a mi zona privada."
+        label={
+          isInventory
+            ? "Entiendo que el email indicado en este pedido se utilizará para gestionar mi compra y mi acceso a la zona privada, y que Inventario Profesional se activará mediante un código de activación de un solo uso."
+            : "Entiendo que el producto se asociará al email indicado en este pedido y que recibiré una invitación para acceder a mi zona privada."
+        }
       />
 
       <CheckRow
         checked={value.refunds}
         disabled={disabled}
         onChange={(v) => onChange((p) => ({ ...p, refunds: v }))}
-        label="Entiendo que, una vez asignado el acceso al contenido digital, no se aceptan devoluciones."
+        label={
+          isInventory
+            ? "Solicito expresamente que la prestación de Inventario Profesional pueda comenzar durante el plazo legal de desistimiento."
+            : "Consiento expresamente que el suministro del contenido digital pueda comenzar durante el plazo legal de desistimiento."
+        }
       />
 
       <CheckRow
@@ -137,10 +163,17 @@ function Conditions({ value, onChange, disabled = false }: { value: Confirmation
         disabled={disabled}
         onChange={(v) => onChange((p) => ({ ...p, waiver: v }))}
         label={
-          <>
-            Solicito la entrega del contenido digital en mi zona privada y acepto estas{" "}
-            <Link href="/condiciones-compra">Condiciones de compra</Link>.
-          </>
+          isInventory ? (
+            <>
+              Declaro conocer que, una vez que el servicio haya sido completamente ejecutado, perderé mi derecho de desistimiento, y acepto estas{" "}
+              <Link href="/condiciones-compra">Condiciones de compra</Link>.
+            </>
+          ) : (
+            <>
+              Reconozco que, al comenzar el suministro del contenido digital con mi consentimiento, perderé mi derecho de desistimiento, y acepto estas{" "}
+              <Link href="/condiciones-compra">Condiciones de compra</Link>.
+            </>
+          )
         }
       />
     </div>
@@ -154,8 +187,12 @@ function OrderPrivacyNotice() {
       <p className="legal-text">Responsable: <strong style={{ color: "var(--text)" }}>Bordando con Fru</strong>.</p>
       <p className="legal-text">Finalidad: gestionar tu pedido, comunicarnos contigo y realizar la entrega del producto digital adquirido. Si lo autorizas expresamente, también podremos enviarte información sobre novedades y nuevos lanzamientos.</p>
       <p className="legal-text">Legitimación: ejecución de la relación derivada del pedido y, en su caso, consentimiento.</p>
-      <p className="legal-text">Destinatarios: no cedemos tus datos a terceros.</p>
-      <p className="legal-text">Derechos: puedes acceder, rectificar o suprimir tus datos escribiendo a <a href="mailto:stitchingwithfru@gmail.com">stitchingwithfru@gmail.com</a>.</p>
+      <p className="legal-text">
+        Destinatarios: podrán tratar tus datos los proveedores técnicos necesarios
+        para prestar el servicio. No vendemos tus datos ni los cedemos a terceros
+        para fines comerciales.
+      </p>
+      <p className="legal-text">Derechos: puedes acceder, rectificar o suprimir tus datos escribiendo a <a href="mailto:soporte@stitchingwithfru.com">soporte@stitchingwithfru.com</a>.</p>
       <p className="legal-text">Más información en la <Link href="/politica-privacidad">Política de privacidad</Link>.</p>
     </div>
   );
@@ -191,7 +228,17 @@ function SubmitFeedback({ state }: { state: SubmitState }) {
   );
 }
 
-function PaymentInstructions({ paymentMethod, total, reference }: { paymentMethod: string; total: number; reference?: string | null; }) {
+function PaymentInstructions({
+  paymentMethod,
+  total,
+  reference,
+  afterPaymentText,
+}: {
+  paymentMethod: string;
+  total: number;
+  reference?: string | null;
+  afterPaymentText?: ReactNode;
+}) {
   if (!paymentMethod) return null;
 
   const isPaypal = paymentMethod === "paypal";
@@ -224,7 +271,8 @@ function PaymentInstructions({ paymentMethod, total, reference }: { paymentMetho
 
       <div className="status-box" style={{ marginTop: 20 }}>
         <p className="legal-text">
-          Una vez comprobado el pago, asignaré el producto al email indicado en el pedido y recibirás una invitación para crear tu acceso a la zona privada de la web.
+          {afterPaymentText ??
+            "Una vez comprobado el pago, asignaré el producto al email indicado en el pedido y recibirás una invitación para crear tu acceso a la zona privada de la web."}
         </p>
       </div>
     </div>
@@ -330,6 +378,7 @@ export function TrackingOrderForm() {
       currentVersion,
       upgradeVersion,
       paymentMethod,
+      confirmations,
       marketingAccepted,
       total,
     };
@@ -398,7 +447,7 @@ export function TrackingOrderForm() {
               <button className="btn-secondary" type="button" onClick={resetForm}>Enviar otro pedido</button>
             </div>
           ) : (
-            <button className="btn-primary" disabled={isBusy} onClick={handleSubmit}>{isBusy ? "Enviando…" : "Enviar pedido"}</button>
+            <button className="btn-primary" disabled={isBusy} onClick={handleSubmit}>{isBusy ? "Enviando…" : "Pedido con obligación de pago"}</button>
           )}
           <div style={{ marginTop: 16 }}>
             <SubmitFeedback state={submitState} />
@@ -423,9 +472,12 @@ export function InventoryOrderForm() {
   const [submitState, setSubmitState] = useState<SubmitState>({ status: "idle", message: "" });
 
   const complementOptions = [
-    { value: "telas", label: "Complemento de Telas — +2,00 €" },
-    { value: "kits", label: "Complemento de Kits/Proyectos — +2,00 €" },
-    { value: "calculadora", label: "Complemento de Calculadora de Tela e Hilos — +2,00 €" },
+    { value: "telas", label: "Módulo de Telas — +4,00 €" },
+    { value: "kits", label: "Módulo de Kits y gráficos — +4,00 €" },
+    {
+      value: "calculadora",
+      label: "Módulo de Calculadora y carrito de proyectos — +4,00 €",
+    },
   ];
 
   const toggleWanted = (value: string) => setWanted((prev) => prev.includes(value) ? prev.filter((x) => x !== value) : [...prev, value]);
@@ -435,13 +487,16 @@ export function InventoryOrderForm() {
   };
 
   const total = useMemo(() => {
-    const addons = wanted.length * 2;
+    const addons = wanted.length * 4;
+
     if (requestType === "new") {
-      if (newMode === "base-only") return 9.99;
-      if (newMode === "with-addons") return 9.99 + addons;
+      if (newMode === "base-only") return 16;
+      if (newMode === "with-addons") return 16 + addons;
       return 0;
     }
+
     if (requestType === "addons") return addons;
+
     return 0;
   }, [requestType, newMode, wanted]);
 
@@ -472,7 +527,10 @@ export function InventoryOrderForm() {
     }
 
     if (!paymentMethod || total <= 0) {
-      setSubmitState({ status: "error", message: "Revisa la versión o complemento elegido y el método de pago antes de enviar el pedido." });
+      setSubmitState({
+        status: "error",
+        message: "Revisa la edición o los módulos elegidos y el método de pago antes de enviar el pedido.",
+      });
       return;
     }
 
@@ -489,6 +547,7 @@ export function InventoryOrderForm() {
       owned,
       wanted,
       paymentMethod,
+      confirmations,
       marketingAccepted,
       total,
     };
@@ -498,7 +557,7 @@ export function InventoryOrderForm() {
       const result = await submitForm("inventory_order", payload);
       setSubmitState({
         status: "success",
-        message: "Tu pedido se ha enviado correctamente. A continuación tienes los datos de pago según el método elegido. Cuando compruebe el pago, asignaré el producto al email indicado y recibirás una invitación para acceder a tu zona privada.",
+        message: "Tu pedido se ha enviado correctamente. A continuación tienes los datos de pago según el método elegido. Cuando compruebe el pago, generaré el código de activación de un solo uso y prepararé en tu zona privada la información y los recursos asociados a tu compra.",
         reference: result.reference ?? null,
       });
     } catch (error) {
@@ -515,27 +574,27 @@ export function InventoryOrderForm() {
         <div className="form-stack">
           <Field label="Nombre completo" value={name} onChange={setName} placeholder="Tu nombre" disabled={isLocked || isBusy} />
           <Field
-            label="Email para asociar tu compra"
+            label="Email para gestionar tu pedido y zona privada"
             value={email}
             onChange={setEmail}
             placeholder="tuemail@ejemplo.com"
             disabled={isLocked || isBusy}
           />
-          <SelectField label="Tipo de pedido" value={requestType} onChange={(v) => { setRequestType(v); setNewMode(""); setOwned([]); setWanted([]); setSubmitState({ status: "idle", message: "" }); }} options={[{ value: "new", label: "Compra nueva" }, { value: "addons", label: "Ya adquirí el sistema y quiero complemento(s)" }]} disabled={isLocked || isBusy} />
-          {requestType === "new" ? <SelectField label="¿Qué quieres adquirir?" value={newMode} onChange={setNewMode} options={[{ value: "base-only", label: "Solo el sistema base — 9,99 €" }, { value: "with-addons", label: "Sistema base con complementos" }]} disabled={isLocked || isBusy} /> : null}
+          <SelectField label="Tipo de pedido" value={requestType} onChange={(v) => { setRequestType(v); setNewMode(""); setOwned([]); setWanted([]); setSubmitState({ status: "idle", message: "" }); }} options={[ { value: "new", label: "Compra nueva" }, { value: "addons", label: "Ya tengo Inventario Profesional y quiero añadir módulo(s)" }, ]} disabled={isLocked || isBusy} />
+          {requestType === "new" ? <SelectField label="¿Qué quieres adquirir?" value={newMode} onChange={setNewMode} options={[ { value: "base-only", label: "Inventario Profesional — edición base — 16,00 €" }, { value: "with-addons", label: "Edición base con módulos opcionales" }, ]} disabled={isLocked || isBusy} /> : null}
           {((requestType === "new" && newMode === "with-addons") || requestType === "addons") ? (
             <div className="status-box">
               {requestType === "addons" ? (
                 <div style={{ marginBottom: 16 }}>
-                  <div className="label">Complementos que ya tiene la clienta</div>
+                  <div className="label">Módulos que ya tienes</div>
                   <div className="form-stack">
                     {complementOptions.map((item) => (
-                      <CheckRow key={`owned-${item.value}`} checked={owned.includes(item.value)} disabled={isLocked || isBusy} onChange={() => toggleOwned(item.value)} label={item.label.replace(" — +2,00 €", "")} />
+                      <CheckRow key={`owned-${item.value}`} checked={owned.includes(item.value)} disabled={isLocked || isBusy} onChange={() => toggleOwned(item.value)} label={item.label.replace(" — +4,00 €", "")} />
                     ))}
                   </div>
                 </div>
               ) : null}
-              <div className="label">Complementos que quiere adquirir</div>
+              <div className="label">Módulos que quieres adquirir</div>
               <div className="form-stack">
                 {complementOptions.map((item) => (
                   <CheckRow key={`wanted-${item.value}`} checked={wanted.includes(item.value)} disabled={owned.includes(item.value) || isLocked || isBusy} onChange={() => toggleWanted(item.value)} label={item.label} />
@@ -554,7 +613,12 @@ export function InventoryOrderForm() {
         </div>
         <div className="card">
           <div className="badge">Condiciones</div>
-          <Conditions value={confirmations} onChange={setConfirmations} disabled={isLocked || isBusy} />
+          <Conditions
+            value={confirmations}
+            onChange={setConfirmations}
+            disabled={isLocked || isBusy}
+            variant="inventory"
+          />
         </div>
         <div className="card">
           <div className="badge badge-sage">Privacidad</div>
@@ -571,13 +635,22 @@ export function InventoryOrderForm() {
               <button className="btn-secondary" type="button" onClick={resetForm}>Enviar otro pedido</button>
             </div>
           ) : (
-            <button className="btn-primary" disabled={isBusy} onClick={handleSubmit}>{isBusy ? "Enviando…" : "Enviar pedido"}</button>
+            <button className="btn-primary" disabled={isBusy} onClick={handleSubmit}>{isBusy ? "Enviando…" : "Pedido con obligación de pago"}</button>
           )}
           <div style={{ marginTop: 16 }}>
             <SubmitFeedback state={submitState} />
           </div>
         </div>
-        {isLocked ? <div ref={paymentRef}><PaymentInstructions paymentMethod={paymentMethod} total={total} reference={submitState.reference} /></div> : null}
+        {isLocked ? (
+          <div ref={paymentRef}>
+            <PaymentInstructions
+              paymentMethod={paymentMethod}
+              total={total}
+              reference={submitState.reference}
+              afterPaymentText="Cuando compruebe el pago, generaré el código de activación de un solo uso y prepararé en tu zona privada los datos de la licencia, los módulos adquiridos y los recursos necesarios para realizar la primera activación de Inventario Profesional."
+            />
+          </div>
+        ) : null}
       </div>
     </div>
   );

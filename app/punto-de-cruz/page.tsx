@@ -65,7 +65,7 @@ const tools = [
   {
     title: "Sistema de Inventario Profesional",
     description:
-      "Un sistema para organizar tus hilos y materiales de punto de cruz dentro del entorno Google.",
+      "Una aplicación web privada y modular para organizar tus hilos y materiales de punto de cruz desde el navegador.",
     href: "/herramientas/inventario",
   },
 ];

@@ -31,8 +31,8 @@ export default function PrivacyPage() {
                   <strong style={{ color: "var(--text)" }}>
                     Correo electrónico:
                   </strong>{" "}
-                  <a href="mailto:stitchingwithfru@gmail.com">
-                    stitchingwithfru@gmail.com
+                  <a href="mailto:soporte@stitchingwithfru.com">
+                    soporte@stitchingwithfru.com
                   </a>
                 </p>
               </section>
@@ -43,8 +43,13 @@ export default function PrivacyPage() {
                   <p>• Atender consultas enviadas mediante la web.</p>
                   <p>• Gestionar pedidos de productos digitales.</p>
                   <p>• Comunicarnos contigo en relación con tu pedido.</p>
-                  <p>• Asociar los productos adquiridos al email indicado en el pedido.</p>
+                  <p>• Gestionar la información y los recursos asociados a las compras realizadas.</p>
                   <p>• Crear y gestionar el acceso a la zona privada de clientas.</p>
+                  <p>• Gestionar la creación y administración de cuentas de Inventario Profesional.</p>
+                  <p>• Gestionar la activación, estado y módulos incluidos en las licencias de Inventario Profesional.</p>
+                  <p>• Permitir la recuperación del acceso a Inventario Profesional.</p>
+                  <p>• Prestar soporte técnico relacionado con la aplicación.</p>
+                  <p>• Gestionar la seguridad de las sesiones y los dispositivos asociados a una cuenta.</p>
                   <p>• Permitir el acceso a plantillas, manuales, vídeos y otros recursos digitales adquiridos.</p>
                   <p>• Enviar invitaciones de acceso, recuperación de contraseña y avisos relacionados con tu cuenta.</p>
                   <p>• Informarte sobre actualizaciones de productos que tengas asociados a tu cuenta.</p>
@@ -61,6 +66,11 @@ export default function PrivacyPage() {
                   <p>• Método de pago elegido.</p>
                   <p>• Información necesaria para gestionar el pedido o responder a tu consulta.</p>
                   <p>• Datos técnicos necesarios para crear y mantener tu acceso a la zona privada.</p>
+                  <p>• Datos necesarios para crear y mantener una cuenta de Inventario Profesional, como el email y los datos técnicos de autenticación y sesión.</p>
+                  <p>• Información relacionada con la licencia adquirida, su activación, los módulos incluidos y su estado.</p>
+                  <p>• Información técnica relacionada con las sesiones y dispositivos utilizados para acceder a la aplicación.</p>
+                  <p>• Los datos que introduzcas y gestiones dentro de Inventario Profesional, como hilos, telas, kits, gráficos, ubicaciones, movimientos, pedidos, proyectos y demás información de inventario.</p>
+                  <p>• Información técnica necesaria para realizar importaciones, exportaciones, copias de seguridad, restauraciones y prestar soporte.</p>
                 </div>
 
                 <p className="muted">
@@ -69,12 +79,30 @@ export default function PrivacyPage() {
               </section>
 
               <section>
-                <h2 className="serif">Base para el tratamiento</h2>
+                <h2 className="serif">Base jurídica del tratamiento</h2>
+
                 <div className="list">
-                  <p>• La gestión de tu pedido y la entrega del producto digital solicitado.</p>
-                  <p>• La creación y mantenimiento de tu acceso a la zona privada.</p>
-                  <p>• La atención de consultas enviadas voluntariamente por ti.</p>
-                  <p>• El consentimiento, cuando aceptas recibir comunicaciones sobre novedades, actualizaciones o nuevos lanzamientos.</p>
+                  <p>
+                    • La ejecución de la relación contractual y la aplicación de
+                    medidas solicitadas antes de contratar, para gestionar los
+                    pedidos, entregar los productos adquiridos, mantener la zona
+                    privada, gestionar las cuentas y licencias de Inventario
+                    Profesional y prestar las funciones y el soporte asociados a
+                    los productos contratados.
+                  </p>
+
+                  <p>
+                    • El cumplimiento de las obligaciones legales que resulten
+                    aplicables a la gestión de las compras, la prestación del
+                    servicio y la protección de los datos personales.
+                  </p>
+
+                  <p>
+                    • El consentimiento de la persona interesada para el envío
+                    de comunicaciones comerciales sobre novedades,
+                    actualizaciones y nuevos lanzamientos cuando haya aceptado
+                    expresamente recibirlas.
+                  </p>
                 </div>
               </section>
 
@@ -90,6 +118,30 @@ export default function PrivacyPage() {
 
                 <p className="muted">
                   La persona usuaria es responsable de facilitar un email correcto y de mantener protegida su contraseña de acceso.
+                </p>
+              </section>
+
+              <section>
+                <h2 className="serif">Inventario Profesional</h2>
+
+                <p className="muted">
+                  Inventario Profesional funciona mediante una aplicación web privada independiente de la zona privada de Bordando con Fru.
+                </p>
+
+                <p className="muted">
+                  Durante la primera activación, la clienta crea una cuenta en la aplicación y utiliza un código de activación de un solo uso. Una vez canjeado correctamente, la licencia queda vinculada a esa cuenta y el código deja de ser reutilizable.
+                </p>
+
+                <p className="muted">
+                  La aplicación trata la información necesaria para autenticar la cuenta, comprobar la licencia y los módulos adquiridos, mantener las sesiones personales y prestar las funciones contratadas.
+                </p>
+
+                <p className="muted">
+                  También almacena los datos de inventario introducidos por la propia clienta y la información necesaria para realizar operaciones como movimientos, pedidos, importaciones, exportaciones, copias de seguridad y restauraciones.
+                </p>
+
+                <p className="muted">
+                  La aplicación limita las sesiones personales activas a un máximo de tres dispositivos.
                 </p>
               </section>
 
@@ -111,21 +163,110 @@ export default function PrivacyPage() {
                 </p>
 
                 <div className="list">
-                  <p>• Supabase, para autenticación, gestión de accesos y almacenamiento de información necesaria para la zona privada.</p>
-                  <p>• Brevo, para el envío de correos transaccionales, invitaciones, recuperación de contraseña y avisos de actualización.</p>
-                  <p>• Google Drive o Google Sheets, para alojar o entregar determinados recursos digitales vinculados a los productos.</p>
-                  <p>• Netlify, para el alojamiento y funcionamiento técnico de la web.</p>
+                  <p>• Netlify, para el alojamiento y funcionamiento técnico de la web principal de Bordando con Fru.</p>
+                  <p>• Supabase, para servicios de autenticación y gestión de accesos. Inventario Profesional utiliza un proyecto dedicado para la autenticación de sus cuentas.</p>
+                  <p>• Brevo, para el envío de correos transaccionales, confirmaciones, recuperación de acceso y otras comunicaciones necesarias para la prestación del servicio.</p>
+                  <p>• Cloudflare, para el alojamiento y funcionamiento técnico de Inventario Profesional, su API, la base de datos de la aplicación y determinados mecanismos de protección frente a usos automatizados o abusivos.</p>
+                  <p>• Google, mediante servicios como Drive, Sheets o Apps Script, para determinadas funciones de la web, gestión de pedidos, recursos digitales y productos que continúan utilizando el entorno Google.</p>
                 </div>
               </section>
 
               <section>
+                <h2 className="serif">Transferencias internacionales</h2>
+
+                <p className="muted">
+                  Algunos de los proveedores técnicos utilizados para prestar
+                  los servicios de Bordando con Fru pueden tratar datos
+                  personales desde países situados fuera del Espacio Económico
+                  Europeo.
+                </p>
+
+                <p className="muted">
+                  Cuando resulte aplicable una transferencia internacional de
+                  datos personales, se utilizarán los mecanismos y garantías
+                  reconocidos por la normativa de protección de datos que
+                  correspondan en cada caso, como decisiones de adecuación,
+                  cláusulas contractuales tipo u otros mecanismos legalmente
+                  válidos.
+                </p>
+              </section>
+
+              <section>
                 <h2 className="serif">Conservación de los datos</h2>
+
+                <p className="muted">
+                  Los datos personales se conservarán únicamente durante el
+                  tiempo necesario para cumplir las finalidades para las que
+                  fueron recogidos y, posteriormente, durante los plazos que
+                  resulten necesarios para atender obligaciones legales o
+                  posibles responsabilidades derivadas de la relación
+                  contractual y del tratamiento realizado.
+                </p>
+
                 <div className="list">
-                  <p>• Durante el tiempo necesario para atender tu consulta.</p>
-                  <p>• Durante el tiempo necesario para gestionar tu pedido y la entrega del producto digital.</p>
-                  <p>• Mientras mantengas productos asociados a tu zona privada.</p>
-                  <p>• Durante el tiempo necesario para conservar un histórico básico de compras, accesos, actualizaciones e incidencias relacionadas con productos adquiridos.</p>
-                  <p>• Hasta que retires tu consentimiento, en el caso de comunicaciones comerciales.</p>
+                  <p>
+                    • Los datos de consultas se conservarán durante el tiempo
+                    necesario para atenderlas y gestionar las posibles
+                    incidencias relacionadas.
+                  </p>
+
+                  <p>
+                    • Los datos relativos a pedidos, compras, entregas y
+                    aceptaciones se conservarán durante el tiempo necesario para
+                    gestionar la relación contractual y cumplir las obligaciones
+                    legales aplicables.
+                  </p>
+
+                  <p>
+                    • Los datos de acceso a la zona privada se conservarán
+                    mientras sea necesario mantener los productos y recursos
+                    asociados a la cuenta.
+                  </p>
+
+                  <p>
+                    • En Inventario Profesional, los datos de cuenta, licencia e
+                    inventario se conservarán mientras sean necesarios para
+                    prestar el servicio. Cuando proceda su supresión, los datos
+                    que ya no resulten necesarios se eliminarán o bloquearán
+                    según corresponda, sin perjuicio de aquellos que deban
+                    conservarse temporalmente por una obligación legal o para la
+                    formulación, el ejercicio o la defensa de reclamaciones.
+                  </p>
+
+                  <p>
+                    • Los datos utilizados para comunicaciones comerciales se
+                    conservarán hasta que retires tu consentimiento.
+                  </p>
+
+                  <p>
+                    • Los archivos brutos utilizados durante una importación de
+                    Inventario Profesional podrán conservarse hasta 30 días
+                    después de finalizarla.
+                  </p>
+
+                  <p>
+                    • Las exportaciones generadas para descarga tendrán una
+                    disponibilidad temporal de hasta 24 horas.
+                  </p>
+
+                  <p>
+                    • Los registros de auditoría de seguridad de Inventario
+                    Profesional podrán conservarse durante 12 meses.
+                  </p>
+
+                  <p>
+                    • Los logs técnicos de diagnóstico podrán conservarse
+                    durante 30 días o durante el período mínimo disponible en el
+                    proveedor técnico correspondiente.
+                  </p>
+
+                  <p>
+                    • Las copias administrativas de seguridad de Inventario
+                    Profesional, cuando se generen, podrán conservarse durante
+                    los períodos definidos para el sistema de copias de
+                    seguridad y estarán sujetas a medidas de acceso y protección
+                    adecuadas.
+                  </p>
                 </div>
               </section>
 
@@ -142,15 +283,24 @@ export default function PrivacyPage() {
 
               <section>
                 <h2 className="serif">Derechos</h2>
+
                 <p className="muted">
-                  Puedes solicitar el acceso, rectificación o supresión de tus datos, así como pedir la limitación del tratamiento u oponerte al mismo, escribiendo a{" "}
-                  <a href="mailto:stitchingwithfru@gmail.com">
-                    stitchingwithfru@gmail.com
+                  Puedes solicitar el acceso, rectificación o supresión de tus datos, así como pedir la limitación de su tratamiento, oponerte al mismo o solicitar la portabilidad cuando corresponda, escribiendo a{" "}
+                  <a href="mailto:soporte@stitchingwithfru.com">
+                    soporte@stitchingwithfru.com
                   </a>.
                 </p>
 
                 <p className="muted">
-                  También puedes solicitar la baja de comunicaciones comerciales escribiendo a ese mismo correo.
+                  Cuando un tratamiento se base en tu consentimiento, puedes retirarlo en cualquier momento sin que ello afecte a la licitud del tratamiento realizado anteriormente.
+                </p>
+
+                <p className="muted">
+                  También puedes solicitar la baja de las comunicaciones comerciales escribiendo a ese mismo correo.
+                </p>
+
+                <p className="muted">
+                  Si consideras que el tratamiento de tus datos no se ajusta a la normativa aplicable, puedes presentar una reclamación ante la autoridad de control competente.
                 </p>
               </section>
 
@@ -158,8 +308,8 @@ export default function PrivacyPage() {
                 <h2 className="serif">Contacto</h2>
                 <p className="muted">
                   Para cualquier duda sobre esta política de privacidad o sobre el tratamiento de tus datos, puedes escribir a{" "}
-                  <a href="mailto:stitchingwithfru@gmail.com">
-                    stitchingwithfru@gmail.com
+                  <a href="mailto:soporte@stitchingwithfru.com">
+                    soporte@stitchingwithfru.com
                   </a>.
                 </p>
               </section>

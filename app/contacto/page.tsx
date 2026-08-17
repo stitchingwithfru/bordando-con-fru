@@ -135,7 +135,7 @@ export default function ContactPage() {
 
                   <p className="legal-text">
                     Derechos: puedes acceder, rectificar o suprimir tus datos escribiendo a{" "}
-                    <a href="mailto:stitchingwithfru@gmail.com">stitchingwithfru@gmail.com</a>.
+                    <a href="mailto:soporte@stitchingwithfru.com">soporte@stitchingwithfru.com</a>.
                   </p>
 
                   <p className="legal-text">
@@ -185,7 +185,7 @@ export default function ContactPage() {
                   <p>• <a href="https://www.youtube.com/@stitchingwithfru" target="_blank" rel="noopener noreferrer">Canal de YouTube</a></p>
                   <p>• <a href="https://www.instagram.com/stitchingwithfru/" target="_blank" rel="noopener noreferrer">Instagram</a></p>
                   <p>• <a href="https://www.facebook.com/stitchingwithfru" target="_blank" rel="noopener noreferrer">Facebook</a></p>
-                  <p>• <a href="mailto:stitchingwithfru@gmail.com">stitchingwithfru@gmail.com</a></p>
+                  <p>• <a href="mailto:soporte@stitchingwithfru.com">soporte@stitchingwithfru.com</a></p>
                   <p>• <a href="https://chat.whatsapp.com/HMuWzrMjxyxJbV1piAQpDc" target="_blank" rel="noopener noreferrer">Comunidad de WhatsApp</a></p>
                   <p>• <a href="https://ko-fi.com/stitchingwithfru" target="_blank" rel="noopener noreferrer">☕️ Ko-fi / Cómprame un café</a></p>
                 </div>

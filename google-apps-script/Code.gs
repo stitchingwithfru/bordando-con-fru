@@ -29,6 +29,7 @@ function doPost(e) {
 
     if (type === "tracking_order") {
       saveTrackingOrder_(ss, reference, submittedAt, data);
+      saveOrderConfirmations_(ss, reference, submittedAt, "Sistema de Seguimiento de Punto de Cruz", data);
       sendOwnerTrackingEmail_(ownerEmail, reference, data);
       sendUserOrderConfirmation_(data.email, reference, "Sistema de Seguimiento de Punto de Cruz", data);
       return json_({ ok: true, reference: reference });
@@ -36,6 +37,7 @@ function doPost(e) {
 
     if (type === "inventory_order") {
       saveInventoryOrder_(ss, reference, submittedAt, data);
+      saveOrderConfirmations_(ss, reference, submittedAt, "Sistema de Inventario Profesional", data);
       sendOwnerInventoryEmail_(ownerEmail, reference, data);
       sendUserOrderConfirmation_(data.email, reference, "Sistema de Inventario Profesional", data);
       return json_({ ok: true, reference: reference });
@@ -132,6 +134,34 @@ function saveInventoryOrder_(ss, reference, submittedAt, data) {
   ]);
 }
 
+function saveOrderConfirmations_(ss, reference, submittedAt, productName, data) {
+  const confirmations = data.confirmations || {};
+
+  const sheet = getOrCreateSheet_(ss, "Aceptaciones pedidos", [
+    "Referencia",
+    "Fecha",
+    "Producto",
+    "Email",
+    "Versión legal",
+    "Naturaleza y entrega",
+    "Gestión de acceso",
+    "Inicio durante desistimiento",
+    "Desistimiento y condiciones",
+  ]);
+
+  sheet.appendRow([
+    reference,
+    submittedAt,
+    productName || "",
+    data.email || "",
+    data.legalVersion || "",
+    confirmations.manual ? "Sí" : "No",
+    confirmations.copy ? "Sí" : "No",
+    confirmations.refunds ? "Sí" : "No",
+    confirmations.waiver ? "Sí" : "No",
+  ]);
+}
+
 function sendOwnerContactEmail_(ownerEmail, reference, data) {
   MailApp.sendEmail({
     to: ownerEmail,
@@ -216,6 +246,33 @@ function paymentInstructionsHtml_(data) {
 function sendUserOrderConfirmation_(email, reference, productName, data) {
   if (!email) return;
 
+  var isInventory =
+    productName === "Sistema de Inventario Profesional";
+
+  var deliveryMessage =
+    isInventory
+      ? "<p>Tras comprobar el pago, se generará un código de activación de un solo uso. La información de tu licencia, los módulos adquiridos y los recursos necesarios para realizar la primera activación estarán disponibles a través de tu zona privada.</p>"
+      : "<p>Una vez comprobado el pago, recibirás la entrega correspondiente por correo electrónico.</p>";
+
+  var legalConfirmation =
+    isInventory
+      ? [
+          "<p><strong>Aceptaciones registradas con tu pedido:</strong></p>",
+          "<ul>",
+          "<li>Has solicitado expresamente que la prestación de Inventario Profesional pueda comenzar durante el plazo legal de desistimiento.</li>",
+          "<li>Has declarado conocer que, una vez que el servicio haya sido completamente ejecutado, perderás tu derecho de desistimiento.</li>",
+          "<li>Has aceptado las Condiciones de compra.</li>",
+          "</ul>",
+        ].join("")
+      : [
+          "<p><strong>Aceptaciones registradas con tu pedido:</strong></p>",
+          "<ul>",
+          "<li>Has consentido expresamente que el suministro del contenido digital pueda comenzar durante el plazo legal de desistimiento.</li>",
+          "<li>Has reconocido que, al comenzar el suministro del contenido digital con tu consentimiento, perderás tu derecho de desistimiento.</li>",
+          "<li>Has aceptado las Condiciones de compra.</li>",
+          "</ul>",
+        ].join("");
+
   MailApp.sendEmail({
     to: email,
     subject: "Confirmación de pedido · " + reference,
@@ -227,7 +284,11 @@ function sendUserOrderConfirmation_(email, reference, productName, data) {
       "<p><strong>Método de pago seleccionado:</strong> " + escapeHtml_(data.paymentMethod || "") + "</p>",
       "<p><strong>Importe total:</strong> " + escapeHtml_(String(data.total || "")) + " €</p>",
       paymentInstructionsHtml_(data),
-      "<p>Una vez comprobado el pago, recibirás la entrega correspondiente por correo electrónico.</p>",
+      deliveryMessage,
+      legalConfirmation,
+      "<p><strong>Versión de las condiciones aceptadas:</strong> " +
+        escapeHtml_(data.legalVersion || "") +
+        "</p>",
       "<p>Gracias.</p>",
     ].join(""),
   });

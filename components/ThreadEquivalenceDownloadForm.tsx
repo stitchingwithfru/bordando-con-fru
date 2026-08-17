@@ -339,8 +339,8 @@ export default function ThreadEquivalenceDownloadForm() {
             <p className="thread-download-legal">
               Responsable: Bordando con Fru. Finalidad: enviarte el recurso solicitado y,
               si marcas la casilla, enviarte novedades y contenidos relacionados. Puedes ejercer tus derechos escribiendo a{" "}
-              <a href="mailto:stitchingwithfru@gmail.com">
-                stitchingwithfru@gmail.com
+              <a href="mailto:soporte@stitchingwithfru.com">
+                soporte@stitchingwithfru.com
               </a>. Más información en la{" "}
               <Link href="/politica-privacidad">
                 Política de privacidad

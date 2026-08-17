@@ -14,12 +14,12 @@ export default function HomePage() {
     {
       num: "1",
       title: "Elige tu herramienta",
-      text: "Consulta la información del producto y decide qué versión o complemento encaja mejor con tu forma de organizarte.",
+      text: "Consulta la información del producto y elige la opción que mejor encaje con tu forma de organizarte.",
     },
     {
       num: "2",
       title: "Rellena el pedido",
-      text: "Completa el formulario correspondiente desde la web indicando el email al que quieres asociar tu compra.",
+      text: "Completa el formulario correspondiente desde la web indicando el email que utilizarás para gestionar tu pedido y acceder a tu zona privada.",
     },
     {
       num: "3",
@@ -29,7 +29,7 @@ export default function HomePage() {
     {
       num: "4",
       title: "Accede a tu zona privada",
-      text: "Tras comprobar el pago, asignaré el producto a tu email y recibirás una invitación para acceder a tus recursos desde la web.",
+      text: "Tras comprobar el pago, encontrarás en tu zona privada los recursos asociados a tu compra. En Inventario Profesional podrás consultar los datos de tu licencia, el código de activación de un solo uso, los módulos incluidos y el acceso directo a la aplicación web.",
     },
   ];
 
@@ -92,7 +92,7 @@ export default function HomePage() {
                   </div>
 
                   <p className="muted">
-                    Sistemas en Google Sheets para organizar tus avances, hilos, telas, kits y proyectos.
+                    Herramientas digitales para organizar tus avances, hilos, telas, kits y proyectos.
                   </p>
                 </div>
               </div>
@@ -110,8 +110,10 @@ export default function HomePage() {
                 </div>
 
                 <p className="muted">
-                  Si ya has comprado una herramienta, podrás acceder a tus plantillas,
-                  manuales y vídeos desde tu espacio privado.
+                  Desde tu espacio privado podrás consultar los recursos asociados a tus compras.
+                  En Inventario Profesional encontrarás también los datos de tu licencia,
+                  el código de activación de un solo uso, los módulos incluidos, el manual
+                  y un acceso directo a la aplicación web.
                 </p>
 
                 <div className="button-row" style={{ marginTop: 18 }}>
@@ -158,7 +160,7 @@ export default function HomePage() {
           <SectionTitle
             eyebrow="Herramientas destacadas"
             title="Herramientas digitales para organizar tu punto de cruz"
-            description="Dos sistemas principales para ayudarte a llevar el seguimiento de tus bordados y organizar tus materiales dentro del entorno Google."
+            description="Dos herramientas digitales para ayudarte a organizar tus materiales y llevar el seguimiento de tus proyectos de bordado."
           />
 
           <div className="grid-2">
@@ -170,7 +172,7 @@ export default function HomePage() {
               </div>
 
               <p className="muted">
-                Para registrar tus cruces bordadas, consultar tu progreso y llevar un seguimiento más claro de tus proyectos de bordado.
+                Sistema en Google Sheets para registrar tus cruces bordadas, consultar tu progreso y llevar un seguimiento más claro de tus proyectos de bordado.
               </p>
 
               <PrimaryLink href="/herramientas/seguimiento">
@@ -186,7 +188,7 @@ export default function HomePage() {
               </div>
 
               <p className="muted">
-                Para organizar tus hilos, telas, kits, proyectos y materiales de punto de cruz con un sistema modular que puedes ampliar poco a poco.
+                Aplicación web privada y modular para organizar hilos, movimientos, pedidos, ubicaciones, telas, kits, gráficos y materiales de punto de cruz.
               </p>
 
               <PrimaryLink href="/herramientas/inventario">
@@ -210,7 +212,7 @@ export default function HomePage() {
           <SectionTitle
             eyebrow="Cómo funciona"
             title="Un proceso de compra sencillo y con acceso privado"
-            description="Después de hacer tu pedido, tus recursos quedarán asociados a tu email para que puedas acceder a ellos desde la web."
+            description="Después de comprobar el pago, tendrás disponibles en tu zona privada los recursos asociados a tu compra y la información necesaria para utilizar la herramienta adquirida."
           />
 
           <div className="grid-4">

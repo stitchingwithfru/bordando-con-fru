@@ -7,6 +7,8 @@ type RequestBody = {
   data?: Record<string, unknown>;
 };
 
+const ORDER_LEGAL_VERSION = "2026-08-17";
+
 function isEmail(value: unknown) {
   return typeof value === "string" && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
@@ -14,6 +16,27 @@ function isEmail(value: unknown) {
 function getRequiredString(data: Record<string, unknown>, key: string) {
   const value = data[key];
   return typeof value === "string" ? value.trim() : "";
+}
+
+function hasRequiredConfirmations(data: Record<string, unknown>) {
+  const confirmations = data.confirmations;
+
+  if (
+    !confirmations ||
+    typeof confirmations !== "object" ||
+    Array.isArray(confirmations)
+  ) {
+    return false;
+  }
+
+  const values = confirmations as Record<string, unknown>;
+
+  return (
+    values.manual === true &&
+    values.copy === true &&
+    values.refunds === true &&
+    values.waiver === true
+  );
 }
 
 function validate(type: FormType, data: Record<string, unknown>) {
@@ -27,6 +50,12 @@ function validate(type: FormType, data: Record<string, unknown>) {
     if (!getRequiredString(data, "subject")) return "El asunto es obligatorio.";
     if (!getRequiredString(data, "message")) return "El mensaje es obligatorio.";
     if (data.privacyAccepted !== true) return "Debes aceptar la Política de privacidad para poder enviar el mensaje.";
+  }
+
+  if (type === "tracking_order" || type === "inventory_order") {
+    if (!hasRequiredConfirmations(data)) {
+      return "Debes aceptar todas las condiciones obligatorias antes de enviar el pedido.";
+    }
   }
 
   if (type === "tracking_order") {
@@ -50,7 +79,7 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         ok: false,
-        error: "El formulario todavía no está configurado en el servidor. Añade las variables GOOGLE_APPS_SCRIPT_WEBHOOK_URL y FORMS_SHARED_SECRET en Vercel.",
+        error: "El formulario todavía no está configurado en el servidor. Revisa las variables GOOGLE_APPS_SCRIPT_WEBHOOK_URL y FORMS_SHARED_SECRET en Netlify.",
       },
       { status: 500 },
     );
@@ -76,12 +105,20 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: validationError }, { status: 400 });
   }
 
+  const dataForUpstream =
+    type === "tracking_order" || type === "inventory_order"
+      ? {
+          ...data,
+          legalVersion: ORDER_LEGAL_VERSION,
+        }
+      : data;
+
   const payload = {
     secret,
     source: "bordando-con-fru-web",
     submittedAt: new Date().toISOString(),
     type,
-    data,
+    data: dataForUpstream,
   };
 
   let upstreamResponse: Response;

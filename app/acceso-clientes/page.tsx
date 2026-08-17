@@ -2,7 +2,12 @@ import LoginClientForm from "./LoginClientForm";
 
 export const metadata = {
   title: "Mi espacio | Bordando con Fru",
-  description: "Accede a tu zona privada para consultar tus recursos digitales de Bordando con Fru.",
+  description:
+    "Accede a tu zona privada para consultar tus recursos digitales de Bordando con Fru.",
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 export default function AccesoClientesPage() {
