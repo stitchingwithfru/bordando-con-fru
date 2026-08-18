@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import InventoryLaunchBanner from "@/components/InventoryLaunchBanner";
 import {
   Card,
   InfoBadge,
@@ -6,6 +7,7 @@ import {
   SecondaryLink,
   SectionTitle,
 } from "@/components/UI";
+
 
 export const metadata: Metadata = {
   title: "Inventario Profesional para punto de cruz | Bordando con Fru",
@@ -93,7 +95,16 @@ export default function InventarioPage() {
 
   return (
     <main>
-      <section className="section">
+      <InventoryLaunchBanner
+        href="#inventario-detalles"
+        priority
+      />
+
+      <section
+        id="inventario-detalles"
+        className="section"
+        style={{ scrollMarginTop: 90 }}
+      >
         <div className="container">
           <SectionTitle
             eyebrow="Sistema de Inventario Profesional"

@@ -261,19 +261,11 @@ export default async function MiCuentaPage() {
   const typedProducts =
     (products || []) as Product[];
 
-  const legacyInventoryProducts =
-    typedProducts.filter((product) =>
-      product.slug.startsWith("inventario-")
-    );
-
   const standardProducts =
     typedProducts.filter(
       (product) =>
         !product.slug.startsWith("inventario-")
     );
-
-  const hasLegacyInventoryAccess =
-    legacyInventoryProducts.length > 0;
 
   const inventoryDetails =
     inventoryDelivery
@@ -341,8 +333,7 @@ export default async function MiCuentaPage() {
 
   const hasVisibleContent =
     standardProducts.length > 0 ||
-    Boolean(inventoryDelivery) ||
-    hasLegacyInventoryAccess;
+    Boolean(inventoryDelivery);
 
   return (
     <main className="min-h-screen bg-[#F7F3EE] text-[#403A36] pt-12 pb-24 px-5">
@@ -893,6 +884,29 @@ export default async function MiCuentaPage() {
                     </div>
                   </div>
 
+                  <div className="inventory-detail-box">
+                    <p className="inventory-detail-label">
+                      Manual de la aplicación
+                    </p>
+
+                    <p className="account-product-description">
+                      Consulta o descarga el manual completo de
+                      Inventario Profesional v1.0.0. Incluye las
+                      instrucciones de acceso, primera activación,
+                      gestión del inventario, módulos, copias de
+                      seguridad y recuperación.
+                    </p>
+
+                    <div className="inventory-actions">
+                      <a
+                        href="/api/customer/inventory/manual"
+                        className="account-resource-button"
+                      >
+                        Descargar manual PDF →
+                      </a>
+                    </div>
+                  </div>
+
                   {inventoryDelivery.activation_status ===
                   "ready" ? (
                     <div className="inventory-detail-box">
@@ -999,37 +1013,6 @@ export default async function MiCuentaPage() {
                     </div>
                   ) : null}
                 </div>
-              </article>
-            ) : null}
-
-            {!inventoryDelivery &&
-            hasLegacyInventoryAccess &&
-            !inventoryError ? (
-              <article className="account-product-card account-inventory-card">
-                <div className="account-product-version">
-                  Preparación en curso
-                </div>
-
-                <h2 className="account-product-title">
-                  Inventario Profesional
-                </h2>
-
-                <p className="account-product-description">
-                  Estamos preparando tu acceso a
-                  la nueva aplicación web privada
-                  de Inventario Profesional.
-                </p>
-
-                <p className="account-product-instructions">
-                  Cuando esté preparado, aquí
-                  aparecerán tu variante, el
-                  código de activación de un solo
-                  uso y el acceso directo a la
-                  aplicación. Ya no necesitas
-                  crear una nueva copia de la
-                  antigua plantilla desde esta
-                  zona privada.
-                </p>
               </article>
             ) : null}
 

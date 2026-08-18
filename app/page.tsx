@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Card, InfoBadge, PrimaryLink, SecondaryLink, SectionTitle } from "@/components/UI";
 import HomeNewsSection from "@/components/HomeNewsSection";
 import ThreadEquivalenceDownloadForm from "@/components/ThreadEquivalenceDownloadForm";
+import InventoryLaunchBanner from "@/components/InventoryLaunchBanner";
 
 export const metadata: Metadata = {
   title: "Bordando con Fru | Punto de cruz, herramientas digitales y organización",
@@ -35,6 +36,11 @@ export default function HomePage() {
 
   return (
     <main>
+      <InventoryLaunchBanner
+        href="/herramientas/inventario"
+        priority
+      />
+
       <section className="section">
         <div className="container hero">
           <div>
