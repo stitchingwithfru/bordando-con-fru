@@ -4,18 +4,19 @@
 
 Eliminar el cuello de botella actual de la web sustituyendo Google Apps Script + Google Sheets como fuente de datos pública por Supabase.
 
-## Arquitectura actual
+## Arquitectura actual post-cutover
 
 Next.js
 ↓
 lib/phase1-data.ts
 ↓
-Google Apps Script Web App
+Supabase `website_data_snapshots`
 ↓
-Google Sheets
+único snapshot `active`
 
+Google Sheets y Apps Script permanecen temporalmente como fuente editorial y productor de futuras publicaciones, pero ya no forman parte del camino de lectura de la web pública.
 
-## Problemas actuales
+## Problemas previos resueltos por el cutover
 
 - Errores 502 en Netlify.
 - Cargas lentas.
@@ -23,7 +24,7 @@ Google Sheets
 - Dependencia de Apps Script.
 - Algunas páginas fallan porque esperan respuesta externa.
 
-## Objetivo final Fase 1
+## Estado final Fase 1
 
 Mantener:
 
@@ -33,15 +34,7 @@ Mantener:
 - Componentes actuales.
 - URLs actuales.
 
-Cambiar únicamente:
-
-Origen de datos.
-
-Antes:
-Google Sheets
-
-Después:
-Supabase
+El origen público de `WebsiteData` cambió de Apps Script a Supabase sin modificar páginas, componentes, formularios ni endpoints de escritura.
 
 
 ## Páginas afectadas principalmente
@@ -64,11 +57,23 @@ Supabase
 - Prioridad absoluta: estabilidad.
 - Hacer migración incremental.
 
-## Checkpoint de endurecimiento operativo local
+## Cierre post-cutover confirmado
 
-Supabase remoto ya contiene `website_data_snapshots` y un único snapshot activo, pero el runtime público continúa usando Apps Script. No hay cutover autorizado.
+El cutover quedó activo en producción el **21 de agosto de 2026 a las 17:19:41 CEST**.
 
-El trabajo local previo al corte separa:
+| Evidencia | Valor confirmado |
+| --- | --- |
+| Deploy de producción | `6a886c6dbce55371648d4f8e` |
+| Commit declarado por el deploy CLI | `19bf47f87aca607e4e4815705c5cc44879af7330` |
+| Fuente pública | `WEBSITE_DATA_SOURCE=supabase` |
+| Snapshot activo | `v7` |
+| Snapshot ID | `5b5718a7-2a4c-4ff5-9249-589a6767516d` |
+| Checksum activo | `f868476462a4a8d6eb1268396c76059e39c28aaad7b7f11a097a0cdad3d5a983` |
+| Rollback de datos | Disponible hacia `v6` |
+
+Apps Script continúa disponible como fallback y como compilador editorial temporal. No se han eliminado sus variables ni los endpoints de escritura existentes.
+
+El flujo operativo separa:
 
 1. **Bootstrap:** primera carga en una tabla vacía, con comparación contra el backup aprobado.
 2. **Publicación normal:** dos capturas consecutivas, validación, checksum e inserción/reutilización de un candidato `validated`, sin activarlo.
@@ -89,4 +94,6 @@ npm run website-data:rollback -- --snapshot-id <uuid-destino> --expected-active-
 
 El rollback solo admite un destino `superseded` del mismo `source`, con checksum esperado, informe `PASS` del contrato `WebsiteData@phase1` y sin errores de validación.
 
-La RPC de rollback está definida en una migración aditiva local. Todavía no se ha aplicado al proyecto Supabase remoto y `WEBSITE_DATA_SOURCE` no debe cambiarse hasta completar las pruebas y obtener una autorización de cutover separada.
+La RPC de rollback está aplicada en Supabase remoto mediante la migración `20260821204442_add_website_data_snapshot_rollback`. Solo `service_role` puede ejecutarla y el rollback requiere snapshot destino, snapshot activo esperado, checksum esperado, mismo `source` e informe de validación sin errores.
+
+El destino disponible es `v6`, snapshot `d61e8eb6-25d8-4785-b3e0-624ddeb49fe5`, con checksum `22cadb2be2b3fb93c697f0a1a3909262c821383a106bc68b0607a7e50c290149`. No debe ejecutarse salvo fallo confirmado.

@@ -4,6 +4,21 @@ Tengo que volver a enviarte toda la respuesta de Work anterior porque no te la h
 
 👉 Ha respondido esto:
 
+## Estado post-cutover confirmado — 21 de agosto de 2026
+
+La Fase 1 está activa en producción desde el **21 de agosto de 2026 a las 17:19:41 CEST**.
+
+| Evidencia | Valor confirmado |
+| --- | --- |
+| Deploy de producción | `6a886c6dbce55371648d4f8e` |
+| Commit declarado por el deploy CLI | `19bf47f87aca607e4e4815705c5cc44879af7330` |
+| Fuente del runtime público | Supabase mediante `WEBSITE_DATA_SOURCE=supabase` |
+| Snapshot activo | `v7` (`5b5718a7-2a4c-4ff5-9249-589a6767516d`) |
+| Checksum activo | `f868476462a4a8d6eb1268396c76059e39c28aaad7b7f11a097a0cdad3d5a983` |
+| Rollback de datos | Disponible hacia `v6` (`d61e8eb6-25d8-4785-b3e0-624ddeb49fe5`) |
+
+Las secciones de auditoría y diseño que siguen conservan el contexto que condujo a la decisión arquitectónica. El estado operativo vigente es el de este checkpoint post-cutover: Supabase es la fuente pública; Apps Script y Sheets permanecen temporalmente como productor editorial y fallback, no como dependencia del runtime público.
+
 
 
 ## 1. Fuente de verdad actual encontrada
@@ -35,7 +50,7 @@ Por tanto:
 - Fuente editorial principal: Google Sheets.
 - Fuente primaria de bordados: spreadsheet anual `2026`.
 - Compilador actual del contrato `WebsiteData`: Apps Script.
-- Fuente efectiva del runtime público: endpoint de Apps Script.
+- Fuente efectiva del runtime público después del cutover: único snapshot `active` de Supabase.
 
 ## 2. Vigencia del backup
 
@@ -63,7 +78,7 @@ La hoja contiene un octavo SAL, `sal-halloween-2026`, pero todavía no tiene `vi
 
 El respaldo tiene SHA-256 `14b0ad9d4d1f2b5df02a4ab4ac6c2fd7a558f3d6c6732d024f9de0e2cee17c12`.
 
-La comprobación pública fue inconclusa: [Club de Lectura](https://www.stitchingwithfru.com/club-de-lectura) devolvió un fallo de caché al inspector y [Mis lecturas](https://www.stitchingwithfru.com/mis-lecturas) agotó el tiempo de respuesta. Por eso confirmo la actualidad del contenido frente a Sheets, pero no su entrega pública estable.
+La comprobación pública descrita en la auditoría inicial fue inconclusa. Esa limitación quedó superada durante el cutover: el runtime Supabase fue validado en Deploy Preview y producción, con lectura anónima del único snapshot activo y checksum coincidente.
 
 ## 3. Comparativa A vs B vs C
 
@@ -163,7 +178,7 @@ Reglas:
 10. El publicador utiliza una credencial privilegiada exclusivamente en un entorno de confianza. Next.js público usa una clave publicable de solo lectura.
 11. `anon` debe tener únicamente `SELECT`, protegido por RLS para ver solo `status = 'active'`; sin `INSERT`, `UPDATE`, `DELETE` ni `TRUNCATE`. Supabase distingue los permisos SQL de las políticas RLS, por lo que deben configurarse ambos explícitamente. [Documentación oficial de seguridad de la Data API](https://supabase.com/docs/guides/api/securing-your-api).
 
-### 5.1. Endurecimiento operativo local previo al cutover
+### 5.1. Endurecimiento operativo y estado post-cutover
 
 La implementación local separa cinco acciones:
 
@@ -187,11 +202,11 @@ Antes de cambiar estados comprueba que el destino está `superseded`, que compar
 
 El rollback es una operación distinta de la activación normal: `activate_website_data_snapshot` continúa aceptando únicamente `validated`, mientras que `rollback_website_data_snapshot` acepta únicamente `superseded`. Esta separación evita convertir una republicación histórica en una activación accidental.
 
-La migración que incorpora esta RPC permanece local hasta una autorización independiente. No implica cutover ni modifica las políticas RLS o grants de la tabla existentes.
+La migración que incorpora esta RPC está aplicada en Supabase remoto como `20260821204442_add_website_data_snapshot_rollback`. Su SQL coincide con el archivo local y mantiene los grants existentes: ejecución para `service_role`, sin ejecución para `anon` ni `authenticated`.
 
 ## 6. Política de caché/frescura recomendada
 
-Para el primer cutover recomiendo **`no-store`**.
+El cutover se realizó conservando **`no-store`**.
 
 Razones:
 
@@ -245,7 +260,7 @@ La garantía de **exactamente un activo durante la operación normal** correspon
 
 **Codex 1 — Supabase y seguridad**
 
-Debe recibir el diseño revisado:
+Estas responsabilidades quedaron implementadas y validadas:
 
 - Crear `website_data_snapshots` con `status`, sin `is_active`.
 - Añadir `version`, procedencia, informe y marcas temporales.
@@ -259,7 +274,7 @@ Debe recibir el diseño revisado:
 
 **Codex 2 — publicación, carga inicial y runtime**
 
-Debe:
+Estas responsabilidades quedaron implementadas y validadas:
 
 - Construir el publicador bajo demanda con acciones separadas `preparar` y `activar`.
 - Validar exactamente el contrato definido en [phase1-data.ts (line 141)]\(/Users/cristianfrutossole/.codex/.chatgpt-projects/g-p-6a881c7a92408191a25eae483de774af/sources/phase1-data.ts:141).
@@ -268,7 +283,7 @@ Debe:
 - Modificar `getWebsiteData()` para leer el único snapshot activo de Supabase con `no-store`.
 - Conservar exactamente el tipo `WebsiteData`, páginas, componentes y URLs.
 - No tocar los endpoints de escritura que todavía dependen de Apps Script.
-- Probar activación y rollback en una base Supabase local o desechable antes del cutover.
+- La activación y el rollback se probaron antes del cutover; la RPC de rollback quedó aplicada y verificada posteriormente en remoto.
 - No eliminar todavía variables, hojas ni código antiguo: esa limpieza corresponde a una fase posterior a la estabilización.
 
 ## 9. Incógnitas que siguen siendo imposibles de resolver
@@ -277,7 +292,7 @@ Debe:
 - No se puede demostrar qué versión concreta de Apps Script está desplegada ni si coincide con alguna copia local.
 - No se han podido inspeccionar los triggers de Apps Script, aunque el historial demuestra con bastante claridad una sincronización diaria alrededor de las 03:40.
 - No está confirmado si existen otras automatizaciones externas que escriban en las hojas además de las observadas.
-- No se puede asegurar que la web desplegada estuviera sirviendo el backup durante la inspección, porque varias rutas públicas no respondieron de forma verificable.
+- La inspección inicial no pudo asegurar la entrega pública del backup; el cutover posterior sí confirmó la entrega del snapshot `v7` desde Supabase.
 - No se conoce todavía el volumen futuro de tráfico, por lo que no se puede justificar cuantitativamente un TTL óptimo.
 - No está decidido quién ejecutará y aprobará las publicaciones bajo demanda durante el periodo transitorio.
 - No está definido cuándo la frecuencia diaria de bordados justificará automatizar la preparación o la activación.
@@ -330,7 +345,7 @@ Consecuencias concretas:
 
 La secuencia correcta queda así:
 
-1. Fase 1: eliminar Apps Script y Sheets del runtime público mediante snapshots.
+1. Fase 1 completada: Apps Script y Sheets quedaron fuera del runtime público mediante snapshots.
 2. Estabilización: validar publicación, rollback y frescura.
 3. Aplicación de seguimiento: convertirla en nueva fuente de los datos de bordado.
 4. Retirada: eliminar `BordadoConfig`, el spreadsheet anual y su sincronización.
