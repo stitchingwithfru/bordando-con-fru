@@ -1,29 +1,102 @@
-# Publicador de WebsiteData
+# Operaciones de WebsiteData
 
-Este directorio separa las tres responsabilidades de la transición:
+Este directorio mantiene separadas las responsabilidades de la transición:
 
-- `apps-script-extractor.mjs`: adaptador reemplazable para `GET ?mode=website-data`, con redirects, timeout, errores controlados y reintentos limitados.
-- `website-data.mjs`: validación runtime, informe, canonicalización determinista y SHA-256.
-- `publisher.mjs`: orquestación `prepare`/`activate` y adaptador de repositorio Supabase inyectable.
-- `dry-run.mjs`: ejecución local segura sobre `website-data-backup.json`.
+- `apps-script-extractor.mjs`: captura temporal desde `GET ?mode=website-data`.
+- `website-data.mjs`: contrato, canonicalización determinista y SHA-256.
+- `publisher.mjs`: preparación, activación y rollback mediante un repositorio inyectable.
+- `operational-guards.mjs`: invariantes de estado, checksum, validación y lectura anónima.
+- `bootstrap-real.mjs`: primera carga únicamente; exige una tabla vacía.
+- `publish-real.mjs`: publicación normal; deja el candidato `validated` y nunca lo activa.
+- `activate-real.mjs`: activa un candidato concreto mediante RPC.
+- `rollback-real.mjs`: restaura un `superseded` concreto mediante RPC.
+- `check-real.mjs`: comprobación read-only del activo y de la lectura anónima.
 
-## Seguridad de Codex 2A
+## Credenciales
 
-`prepare` y `activate` usan `dryRun: true` por defecto. Una escritura futura exige simultáneamente `dryRun: false`, `allowRemoteWrites: true` y un repositorio inyectado. El dry-run local no crea un cliente Supabase ni lee credenciales.
+Los comandos remotos se ejecutan exclusivamente en Node:
 
-El cliente administrativo futuro debe crearse únicamente en servidor mediante la convención existente `createAdminClient()`, que usa `NEXT_PUBLIC_SUPABASE_URL` y `SUPABASE_SECRET_KEY`. La clave privilegiada nunca debe usar un nombre `NEXT_PUBLIC_*`.
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+- `SUPABASE_SECRET_KEY`
+- `GOOGLE_APPS_SCRIPT_WEBHOOK_URL` para capturar publicaciones nuevas
 
-## Canonicalización y checksum
+`SUPABASE_SECRET_KEY` nunca debe exponerse en una variable `NEXT_PUBLIC_*` ni imprimirse.
 
-La representación canónica ordena recursivamente las claves de cada objeto y conserva exactamente el orden de los arrays y los valores JSON, incluidos `null` y cadenas vacías. `source_checksum` es el SHA-256 hexadecimal en minúsculas de esa representación canónica.
+## Bootstrap inicial
 
-El SHA-256 del archivo bruto incluye detalles de serialización del archivo (espacios, saltos de línea y orden original de claves). Por eso no tiene que coincidir con `source_checksum`.
-
-## Comandos seguros
+El bootstrap conserva las comprobaciones históricas de tabla vacía y coincidencia entre dos capturas y el backup aprobado:
 
 ```bash
-npm run website-data:dry-run
-npm run test:website-data
+npm run website-data:bootstrap
+npm run website-data:bootstrap -- --write-initial-validated-snapshot
 ```
 
-Ninguno de estos comandos escribe en Supabase.
+No debe utilizarse para publicaciones futuras.
+
+## Operación normal
+
+Comprobación read-only:
+
+```bash
+npm run website-data:check
+```
+
+Captura dos veces, valida, calcula el checksum e inserta o reutiliza un candidato sin cambiar el activo:
+
+```bash
+npm run website-data:publish
+```
+
+Activación explícita de un `validated`:
+
+```bash
+npm run website-data:activate -- \
+  --snapshot-id <uuid> \
+  --expected-checksum <sha256> \
+  --confirm-activate-approved-snapshot
+```
+
+Rollback explícito a un `superseded`:
+
+```bash
+npm run website-data:rollback -- \
+  --snapshot-id <uuid-destino> \
+  --expected-active-snapshot-id <uuid-activo-actual> \
+  --expected-checksum <sha256-destino> \
+  --confirm-rollback-approved-snapshot
+```
+
+El rollback comprueba en cliente y base de datos:
+
+- destino `superseded`;
+- activo esperado;
+- mismo `source`;
+- checksum esperado;
+- `validation_report.result = PASS`;
+- contrato `WebsiteData@phase1`;
+- checksum del informe coincidente;
+- `errors` presente y vacío.
+
+La activación y el rollback se serializan con el mismo advisory lock. El índice único parcial sigue impidiendo más de un `active`.
+
+## Pruebas
+
+Pruebas Node, sin escrituras remotas:
+
+```bash
+npm run test:website-data
+npm run website-data:dry-run
+```
+
+La prueba SQL está en `supabase/tests/database/website_data_snapshots.test.sql`. Debe ejecutarse únicamente contra una base Supabase local o desechable que tenga aplicadas las migraciones:
+
+```bash
+supabase test db supabase/tests/database/website_data_snapshots.test.sql
+```
+
+La suite SQL se ejecuta dentro de una transacción y termina con `rollback`. No debe apuntarse al proyecto de producción.
+
+## Estado de despliegue
+
+La migración de rollback es local hasta que exista una autorización separada para aplicarla. Crear los scripts o ejecutar las pruebas Node no cambia `WEBSITE_DATA_SOURCE` ni realiza el cutover.

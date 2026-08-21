@@ -53,6 +53,7 @@ export class SupabaseSnapshotRepository {
         validated_at: validatedAt,
       })
       .eq("id", snapshotId)
+      .eq("status", "pending")
       .select("id, version, source, source_checksum, status, captured_at, validated_at, activated_at")
       .single();
     if (error) throw error;
@@ -62,6 +63,16 @@ export class SupabaseSnapshotRepository {
   async activateValidated(snapshotId) {
     const { data, error } = await this.client.rpc("activate_website_data_snapshot", {
       p_snapshot_id: snapshotId,
+    });
+    if (error) throw error;
+    return data;
+  }
+
+  async rollbackToSuperseded(snapshotId, expectedActiveSnapshotId, expectedChecksum) {
+    const { data, error } = await this.client.rpc("rollback_website_data_snapshot", {
+      p_target_snapshot_id: snapshotId,
+      p_expected_active_snapshot_id: expectedActiveSnapshotId,
+      p_expected_target_checksum: expectedChecksum,
     });
     if (error) throw error;
     return data;
@@ -106,19 +117,41 @@ export function createWebsiteDataPublisher({ repository = null, now = () => new 
       let operation = "reused-existing";
 
       if (!snapshot) {
-        snapshot = await repository.insertPending({
-          payload: JSON.parse(analysis.canonicalJson),
-          source,
-          checksum: analysis.report.checksum,
-          capturedAt,
-          validationReport: analysis.report,
-        });
-        operation = "created-pending";
+        try {
+          snapshot = await repository.insertPending({
+            payload: JSON.parse(analysis.canonicalJson),
+            source,
+            checksum: analysis.report.checksum,
+            capturedAt,
+            validationReport: analysis.report,
+          });
+          operation = "created-pending";
+        } catch (error) {
+          if (error?.code !== "23505") throw error;
+          snapshot = await repository.findBySourceAndChecksum(source, analysis.report.checksum);
+          if (!snapshot) throw error;
+          operation = "reused-after-concurrent-insert";
+        }
       }
 
-      if (snapshot.status !== "validated" && snapshot.status !== "active") {
+      if (snapshot.status === "superseded") {
+        return {
+          outcome: "blocked",
+          operation: "historical-snapshot-requires-rollback",
+          identity,
+          analysis,
+          snapshot,
+          supabaseWrites: 0,
+        };
+      }
+
+      if (snapshot.status === "pending") {
         snapshot = await repository.markValidated(snapshot.id, analysis.report, analysis.report.validatedAt);
         operation = operation === "created-pending" ? "created-and-validated" : "reused-and-validated";
+      }
+
+      if (!["validated", "active"].includes(snapshot.status)) {
+        throw new Error(`Estado de snapshot no publicable: ${snapshot.status}.`);
       }
 
       return {
@@ -151,6 +184,47 @@ export function createWebsiteDataPublisher({ repository = null, now = () => new 
         outcome: "activated",
         operation: "called-activate_website_data_snapshot",
         snapshot: await repository.activateValidated(snapshotId),
+      };
+    },
+
+    async rollback(
+      snapshotId,
+      expectedActiveSnapshotId,
+      expectedChecksum,
+      { dryRun = true, allowRemoteWrites = false } = {},
+    ) {
+      for (const [name, value] of [
+        ["snapshotId", snapshotId],
+        ["expectedActiveSnapshotId", expectedActiveSnapshotId],
+        ["expectedChecksum", expectedChecksum],
+      ]) {
+        if (typeof value !== "string" || value.trim() === "") {
+          throw new TypeError(`${name} debe ser una cadena no vacía.`);
+        }
+      }
+
+      if (dryRun) {
+        return {
+          outcome: "dry-run",
+          operation: "would-call-rollback_website_data_snapshot",
+          snapshotId,
+          expectedActiveSnapshotId,
+          expectedChecksum,
+          supabaseWrites: 0,
+        };
+      }
+
+      requireWritesEnabled({ dryRun, allowRemoteWrites });
+      if (!repository) throw new Error("Falta un repositorio de snapshots para ejecutar rollback.");
+
+      return {
+        outcome: "rolled-back",
+        operation: "called-rollback_website_data_snapshot",
+        snapshot: await repository.rollbackToSuperseded(
+          snapshotId,
+          expectedActiveSnapshotId,
+          expectedChecksum,
+        ),
       };
     },
   };

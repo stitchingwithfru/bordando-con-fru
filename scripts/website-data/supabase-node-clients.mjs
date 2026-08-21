@@ -1,4 +1,10 @@
+import { existsSync } from "node:fs";
+import { loadEnvFile } from "node:process";
+import { fileURLToPath } from "node:url";
 import { createClient } from "@supabase/supabase-js";
+
+const localEnvironmentPath = fileURLToPath(new URL("../../.env.local", import.meta.url));
+if (existsSync(localEnvironmentPath)) loadEnvFile(localEnvironmentPath);
 
 function requireEnvironment(name) {
   const value = process.env[name];

@@ -7,7 +7,7 @@ import {
 } from "./supabase-node-clients.mjs";
 import { analyzeWebsiteData } from "./website-data.mjs";
 
-const WRITE_FLAG = "--write-validated-snapshot";
+const WRITE_FLAG = "--write-initial-validated-snapshot";
 const SOURCE = "apps_script:website-data";
 const EXPECTED_WARNING = "KNOWN_ORPHAN_SAL_DESIGN";
 const writeAuthorized = process.argv.includes(WRITE_FLAG);
@@ -75,9 +75,9 @@ assertGate(
 
 if (!writeAuthorized) {
   console.log(JSON.stringify({
-    mode: "check-only",
+    mode: "bootstrap-check-only",
     checks,
-    plannedOperation: `run again with ${WRITE_FLAG} to create one validated snapshot`,
+    plannedOperation: `run again with ${WRITE_FLAG} to create the initial validated snapshot in an empty table`,
     supabaseWrites: 0,
   }, null, 2));
   process.exit(0);
@@ -160,7 +160,7 @@ assertGate(final.active === 0, `Estado final active=${final.active}.`);
 assertGate(final.superseded === 0, `Estado final superseded=${final.superseded}.`);
 
 console.log(JSON.stringify({
-  mode: "write-validated-snapshot",
+  mode: "bootstrap-write-initial-validated-snapshot",
   checks,
   before,
   firstPrepare: {
