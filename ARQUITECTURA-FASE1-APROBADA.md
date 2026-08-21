@@ -139,7 +139,8 @@ Obtener JSON ──► validar contrato y coherencia ──► calcular SHA-256
           Next.js consulta solo ACTIVE
 
 Rollback:
-SUPERSEDED anterior ──► ACTIVE mediante la misma transacción
+SUPERSEDED destino ──► ACTIVE mediante una RPC distinta y transaccional
+ACTIVE esperado     ──► SUPERSEDED
 ```
 
 Reglas:
@@ -154,13 +155,39 @@ Reglas:
    - relaciones SAL–diseños.
 3. La inconsistencia actual de los dos diseños de Halloween debe empezar como advertencia conocida, no como bloqueo súbito. Después puede corregirse editorialmente y convertirse en validación estricta.
 4. Canonicalizar el JSON y calcular SHA-256.
-5. `source_checksum` único hace la importación idempotente: el mismo contenido devuelve el snapshot existente y no crea otra versión.
+5. La unicidad de `(source, source_checksum)` hace la importación idempotente dentro de cada productor: el mismo contenido y origen devuelve el snapshot existente y no crea otra versión.
 6. Insertar el candidato como `pending`; nunca sustituir el activo durante la preparación.
 7. Guardar el informe y pasarlo a `validated` solo si supera las comprobaciones.
 8. La activación debe ser una segunda acción explícita.
 9. Cambiar anterior y nuevo dentro de una sola transacción. Si algo falla, todo revierte y permanece el activo anterior.
 10. El publicador utiliza una credencial privilegiada exclusivamente en un entorno de confianza. Next.js público usa una clave publicable de solo lectura.
 11. `anon` debe tener únicamente `SELECT`, protegido por RLS para ver solo `status = 'active'`; sin `INSERT`, `UPDATE`, `DELETE` ni `TRUNCATE`. Supabase distingue los permisos SQL de las políticas RLS, por lo que deben configurarse ambos explícitamente. [Documentación oficial de seguridad de la Data API](https://supabase.com/docs/guides/api/securing-your-api).
+
+### 5.1. Endurecimiento operativo local previo al cutover
+
+La implementación local separa cinco acciones:
+
+| Acción | Finalidad | ¿Cambia el activo? |
+| --- | --- | --- |
+| `website-data:bootstrap` | Primera carga, únicamente con tabla vacía | No |
+| `website-data:check` | Validar contrato, checksum, estado y lectura anónima | No |
+| `website-data:publish` | Capturar dos veces e insertar/reutilizar un candidato `validated` | No |
+| `website-data:activate` | Activar un candidato `validated` identificado y aprobado | Sí |
+| `website-data:rollback` | Restaurar un `superseded` identificado y aprobado | Sí |
+
+La publicación normal no compara el contenido nuevo con el backup inicial. El backup era un gate de bootstrap; las publicaciones futuras se comparan consigo mismas mediante dos capturas consecutivas, validación de contrato y checksum canónico.
+
+La RPC de rollback recibe:
+
+- snapshot destino;
+- snapshot que el operador espera que continúe activo;
+- checksum esperado del destino.
+
+Antes de cambiar estados comprueba que el destino está `superseded`, que comparte `source` con el activo, que fue validado, que su informe pertenece a `WebsiteData@phase1`, que el checksum del informe coincide y que no contiene errores. Activación y rollback usan el mismo advisory lock.
+
+El rollback es una operación distinta de la activación normal: `activate_website_data_snapshot` continúa aceptando únicamente `validated`, mientras que `rollback_website_data_snapshot` acepta únicamente `superseded`. Esta separación evita convertir una republicación histórica en una activación accidental.
+
+La migración que incorpora esta RPC permanece local hasta una autorización independiente. No implica cutover ni modifica las políticas RLS o grants de la tabla existentes.
 
 ## 6. Política de caché/frescura recomendada
 
@@ -192,7 +219,7 @@ Eliminaría `is_active` y usaría un único campo `status`, evitando dos indicad
 | `id`                | UUID, clave primaria                                  |
 | `version`           | Número secuencial legible y único                     |
 | `payload`           | `jsonb NOT NULL` con el contrato completo             |
-| `source_checksum`   | SHA-256 canónico, `NOT NULL UNIQUE`                   |
+| `source_checksum`   | SHA-256 canónico; único junto con `source`            |
 | `source`            | Texto; inicialmente `apps_script:website-data`        |
 | `captured_at`       | Momento en que se obtuvo el JSON de origen            |
 | `status`            | `pending`, `validated`, `active` o `superseded`       |
@@ -241,7 +268,7 @@ Debe:
 - Modificar `getWebsiteData()` para leer el único snapshot activo de Supabase con `no-store`.
 - Conservar exactamente el tipo `WebsiteData`, páginas, componentes y URLs.
 - No tocar los endpoints de escritura que todavía dependen de Apps Script.
-- Probar rollback antes del cutover.
+- Probar activación y rollback en una base Supabase local o desechable antes del cutover.
 - No eliminar todavía variables, hojas ni código antiguo: esa limpieza corresponde a una fase posterior a la estabilización.
 
 ## 9. Incógnitas que siguen siendo imposibles de resolver
