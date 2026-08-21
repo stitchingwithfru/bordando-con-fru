@@ -180,7 +180,11 @@ export async function getWebsiteData(): Promise<WebsiteData> {
   const baseUrl = requireEnv("GOOGLE_APPS_SCRIPT_WEBHOOK_URL");
   const url = `${baseUrl}?mode=website-data`;
 
-  const response = await fetch(url, { cache: "no-store" });
+  const response = await fetch(url, {
+    cache: "no-store",
+    redirect: "follow",
+  });
+
   if (!response.ok) {
     throw new Error("No se pudieron obtener los datos de la Fase 1");
   }
