@@ -1,3 +1,9 @@
+import { createPublicWebsiteDataClient } from "@/lib/supabase/public";
+import {
+  readWebsiteDataFromSelectedSource,
+  validateWebsiteDataPayload,
+} from "@/lib/website-data-source";
+
 export type ReadingItem = {
   id: string;
   titulo: string;
@@ -176,7 +182,7 @@ function requireEnv(name: string): string {
   return value;
 }
 
-export async function getWebsiteData(): Promise<WebsiteData> {
+async function getWebsiteDataFromAppsScript(): Promise<WebsiteData> {
   const baseUrl = requireEnv("GOOGLE_APPS_SCRIPT_WEBHOOK_URL");
   const url = `${baseUrl}?mode=website-data`;
 
@@ -190,6 +196,32 @@ export async function getWebsiteData(): Promise<WebsiteData> {
   }
 
   return response.json();
+}
+
+async function getWebsiteDataFromSupabase(): Promise<WebsiteData> {
+  const supabase = createPublicWebsiteDataClient();
+  const { data, error } = await supabase.from("website_data_snapshots").select("payload");
+
+  if (error) {
+    throw new Error(`No se pudieron obtener los datos públicos desde Supabase: ${error.message}`);
+  }
+
+  if (!data || data.length === 0) {
+    throw new Error("Supabase no devolvió ningún snapshot activo de WebsiteData.");
+  }
+
+  if (data.length !== 1) {
+    throw new Error(`Supabase devolvió ${data.length} snapshots activos; se esperaba exactamente uno.`);
+  }
+
+  return validateWebsiteDataPayload(data[0].payload);
+}
+
+export async function getWebsiteData(): Promise<WebsiteData> {
+  return readWebsiteDataFromSelectedSource(process.env.WEBSITE_DATA_SOURCE, {
+    appsScript: getWebsiteDataFromAppsScript,
+    supabase: getWebsiteDataFromSupabase,
+  });
 }
 
 export async function getLatestYouTubeVideos(): Promise<YouTubeVideo[]> {

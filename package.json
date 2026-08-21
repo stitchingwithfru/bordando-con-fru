@@ -6,7 +6,14 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "website-data:dry-run": "node scripts/website-data/dry-run.mjs",
+    "website-data:bootstrap": "node scripts/website-data/bootstrap-real.mjs",
+    "website-data:check": "node scripts/website-data/check-real.mjs",
+    "website-data:publish": "node scripts/website-data/publish-real.mjs",
+    "website-data:activate": "node scripts/website-data/activate-real.mjs",
+    "website-data:rollback": "node scripts/website-data/rollback-real.mjs",
+    "test:website-data": "node --test scripts/website-data/*.test.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.10.2",

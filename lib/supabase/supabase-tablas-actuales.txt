@@ -1,0 +1,10 @@
+| table_name                      |
+| ------------------------------- |
+| customer_access                 |
+| customer_update_notifications   |
+| inventory_activation_deliveries |
+| keep_alive                      |
+| product_resources               |
+| product_update_items            |
+| product_updates                 |
+| products                        |

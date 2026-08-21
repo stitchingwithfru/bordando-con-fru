@@ -1,0 +1,57 @@
+| table_name                      | column_name           | data_type                |
+| ------------------------------- | --------------------- | ------------------------ |
+| customer_access                 | id                    | uuid                     |
+| customer_access                 | customer_email        | text                     |
+| customer_access                 | product_id            | uuid                     |
+| customer_access                 | granted_at            | timestamp with time zone |
+| customer_access                 | notes                 | text                     |
+| customer_update_notifications   | id                    | uuid                     |
+| customer_update_notifications   | update_id             | uuid                     |
+| customer_update_notifications   | customer_email        | text                     |
+| customer_update_notifications   | sent_at               | timestamp with time zone |
+| inventory_activation_deliveries | id                    | uuid                     |
+| inventory_activation_deliveries | customer_email        | text                     |
+| inventory_activation_deliveries | license_variant       | text                     |
+| inventory_activation_deliveries | activation_code       | text                     |
+| inventory_activation_deliveries | activation_status     | text                     |
+| inventory_activation_deliveries | created_at            | timestamp with time zone |
+| inventory_activation_deliveries | updated_at            | timestamp with time zone |
+| inventory_activation_deliveries | redeemed_at           | timestamp with time zone |
+| inventory_activation_deliveries | notes                 | text                     |
+| keep_alive                      | id                    | integer                  |
+| keep_alive                      | touched_at            | timestamp with time zone |
+| product_resources               | id                    | uuid                     |
+| product_resources               | product_id            | uuid                     |
+| product_resources               | type                  | text                     |
+| product_resources               | label                 | text                     |
+| product_resources               | description           | text                     |
+| product_resources               | url                   | text                     |
+| product_resources               | file_path             | text                     |
+| product_resources               | version               | text                     |
+| product_resources               | sort_order            | integer                  |
+| product_resources               | is_active             | boolean                  |
+| product_resources               | created_at            | timestamp with time zone |
+| product_update_items            | id                    | uuid                     |
+| product_update_items            | update_id             | uuid                     |
+| product_update_items            | product_id            | uuid                     |
+| product_update_items            | updated_template_url  | text                     |
+| product_update_items            | updated_pdf_file_path | text                     |
+| product_update_items            | updated_video_url     | text                     |
+| product_update_items            | notes                 | text                     |
+| product_update_items            | sort_order            | integer                  |
+| product_update_items            | created_at            | timestamp with time zone |
+| product_updates                 | id                    | uuid                     |
+| product_updates                 | title                 | text                     |
+| product_updates                 | description           | text                     |
+| product_updates                 | version               | text                     |
+| product_updates                 | published_at          | date                     |
+| product_updates                 | is_visible            | boolean                  |
+| product_updates                 | created_at            | timestamp with time zone |
+| products                        | id                    | uuid                     |
+| products                        | slug                  | text                     |
+| products                        | name                  | text                     |
+| products                        | description           | text                     |
+| products                        | current_version       | text                     |
+| products                        | instructions          | text                     |
+| products                        | is_active             | boolean                  |
+| products                        | created_at            | timestamp with time zone |
