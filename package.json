@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "website-data:dry-run": "node scripts/website-data/dry-run.mjs",
+    "test:website-data": "node --test scripts/website-data/website-data.test.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.10.2",
